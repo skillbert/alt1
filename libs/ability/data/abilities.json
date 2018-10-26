@@ -1,0 +1,851 @@
+[
+	{
+		"name": "Slice",
+		"id": "slice",
+		"abiltype": "basic",
+		"cooldown": "3",
+		"lines": [ "Slice your target for 30%-120%", "weapon damage. This increases to 80%", "14-", "& bound opponents." ],
+		"sprite": 0,
+		"flags": []
+	},
+	{
+		"name": "Slaughter",
+		"id": "slaughter",
+		"abiltype": "thresh",
+		"cooldown": "30",
+		"lines": [ "Cause your target to bleed for betwee", "100-250% weapon damage over 6", "seconds. If the target moves location,", "they suffer 3x damage." ],
+		"sprite": 1,
+		"flags": []
+	},
+	{
+		"name": "Overpower",
+		"id": "overpower",
+		"abiltype": "ult",
+		"cooldown": "30",
+		"lines": [ "Overpower your target, dealing damag", "up to 200-4" ],
+		"sprite": 2,
+		"flags": []
+	},
+	{
+		"name": "Havoc",
+		"id": "havoc",
+		"abiltype": "basic",
+		"cooldown": "10",
+		"lines": [ "Instantly attack with both weapons up", "to 157% weapon damage, disabling", "protection prayers in PvP." ],
+		"sprite": 3,
+		"flags": []
+	},
+	{
+		"name": "Backhand",
+		"id": "backhand",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Smack your target with the back of", "your hand, stunning them for 1.2", "seconds and dealing 100% weapon", "damage." ],
+		"sprite": 4,
+		"flags": []
+	},
+	{
+		"name": "Forceful Backhand",
+		"abiltype": "thresh",
+		"cooldown": "15",
+		"lines": [ "Smack your target with the back of", "your hand, stunning them for 3.6", "seconds and dealing 200% weapon", "damage." ],
+		"id": "forceful_backhand",
+		"sprite": 5,
+		"flags": []
+	},
+	{
+		"name": "Smash",
+		"abiltype": "basic",
+		"cooldown": "10",
+		"lines": [ "Smash your target for up to 157%", "weapon damage, disabling protection", "prayers in PvP." ],
+		"id": "smash",
+		"sprite": 6,
+		"flags": []
+	},
+	{
+		"name": "Barge",
+		"abiltype": "basic",
+		"cooldown": "20",
+		"lines": [ "Shoulder-barge your target, breaking", "free of binds and dealing up to 125%", "weapon damage and binding your", "opponent in place for 6.6s" ],
+		"id": "barge",
+		"sprite": 7,
+		"flags": []
+	},
+	{
+		"name": "Flurry",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Perform a flurry of blows against your", "surrounding targets, dealing up to 94", "weapon damage per hit over 3.6", "seconds. Should any one blow miss, the", "remaining hits will miss also. Combo", "attack." ],
+		"id": "flurry",
+		"sprite": 8,
+		"flags": []
+	},
+	{
+		"name": "Sever",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Sever a tendon, dealing up to 188%", "weapon damage and reducing any", "damage they deal by 10% for 5", "seconds." ],
+		"id": "sever",
+		"sprite": 9,
+		"flags": []
+	},
+	{
+		"name": "Hurricane",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Spin on the spot, dealing 66-219%", "weapon damage to all adjacent targets", "hitting your main target a second time", "dealing 84 161% weapon damage." ],
+		"id": "hurricane",
+		"sprite": 10,
+		"flags": []
+	},
+	{
+		"name": "Bladed Dive",
+		"abiltype": "basic",
+		"cooldown": "20",
+		"lines": [ "Leap towards your specified location,", "spinning your blades around you as you", "land. Dealing 125% weapon damage to", "all enemies adjacent to or on-top of", "your specified tile. If any hit enemies", "die within 6 seconds of you hitting", "them, the cooldown of bladed dive gets", "reset." ],
+		"id": "bladed_dive",
+		"sprite": 11,
+		"flags": []
+	},
+	{
+		"name": "Massacre",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Rend your target, dealing up to 188%", "of both weapons damage instantly and", "causing an additional 313% of weapon", "damage over 6 seconds." ],
+		"id": "massacre",
+		"sprite": 12,
+		"flags": []
+	},
+	{
+		"name": "Blood Tendrils",
+		"abiltype": "thresh",
+		"cooldown": "40",
+		"lines": [ "Blood tendrils whip at you and your", "opponent for 5 seconds. The first hit", "deals up to 180% weapon damage, with", "four subsequent hits each dealing up to", "90% weapon damage to your target an", "up to 25% weapon damage to you." ],
+		"id": "blood_tendrils",
+		"sprite": 13,
+		"flags": []
+	},
+	{
+		"name": "Meteor Strike",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Crash down on your target with the", "force of a meteor, dealing damage", "equal up to 250-350% weapon damage", "to all adjacent targets. Critical strikes", "generate 10% adrenaline for 30", "seconds." ],
+		"id": "meteor_strike",
+		"sprite": 14,
+		"flags": []
+	},
+	{
+		"name": "Balanced Strike",
+		"abiltype": "ult",
+		"cooldown": "12",
+		"lines": [ "Strike your target, restoring balance.", "If you have a smaller percentage of", "your lifepoints than they do of their", "lifepoints, your target will take the", "difference as a percentage of their", "lifepoints in damage. You will be healed", "for half the difference as a percentage", "of your lifepoints. Be cautious", "have more health than your target the", "effects will be reversed! You will take", "the damage and they will be healed!" ],
+		"id": "balanced_strike",
+		"sprite": 15,
+		"flags": []
+	},
+	{
+		"name": "Kick",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Kick your target, knocking them back", "and stunning them for 1.2 seconds and", "dealing 100% weapon damage." ],
+		"id": "kick",
+		"sprite": 16,
+		"flags": []
+	},
+	{
+		"name": "Stomp",
+		"abiltype": "thresh",
+		"cooldown": "15",
+		"lines": [ "Kick your target, knocking them back", "and stunning them for 3.6 seconds and", "dealing 200% weapon damage." ],
+		"id": "stomp",
+		"sprite": 17,
+		"flags": []
+	},
+	{
+		"name": "Punish",
+		"abiltype": "basic",
+		"cooldown": "3",
+		"lines": [ "Punish your target's mistakes, dealing", "94", "damage if they're stunned or bound." ],
+		"id": "punish",
+		"sprite": 18,
+		"flags": []
+	},
+	{
+		"name": "Dismember",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Dismember your target, dealing up to", "188% weapon damage over 6 seconds." ],
+		"id": "dismember",
+		"sprite": 19,
+		"flags": []
+	},
+	{
+		"name": "Fury",
+		"abiltype": "basic",
+		"cooldown": "5",
+		"lines": [ "Unleash your fury 3 times, strike your", "target for 2.4", "seconds. Each strike deals 75% of", "weapon damage and increases by 7%", "with each strike. Each strike will also", "increase your next attacks chance to", "critical hit by 5% per strike, up to a", "maximum of 15%", "also affects each strike of Fury. Comb", "attack." ],
+		"id": "fury",
+		"sprite": 20,
+		"flags": []
+	},
+	{
+		"name": "Quake",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Smash your weapon into the ground", "beneath you, dealing up to 219%", "weapon damage to your main target", "and up to 188% weapon damage to all", "adjacent targets. Your primary", "target's defence and armour are also", "lowered for 1 minute" ],
+		"id": "quake",
+		"sprite": 21,
+		"flags": []
+	},
+	{
+		"name": "Destroy",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Perform a destructive attack 4", "against your target for 3.6 seconds,", "hitting once every 1.2 seconds. Each", "attack dealing damage up to 188%", "weapon damage. Initially stunning the", "target for 3.6 seconds. Combo attack." ],
+		"id": "destroy",
+		"sprite": 22,
+		"flags": []
+	},
+	{
+		"name": "Berserk",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Harness your adrenaline to increase", "melee damage dealt by 100% for 20", "seconds. Also increases all damage", "taken by 50%" ],
+		"id": "berserk",
+		"sprite": 23,
+		"flags": []
+	},
+	{
+		"name": "Cleave",
+		"abiltype": "basic",
+		"cooldown": "7",
+		"lines": [ "Cleave through your foes, dealing 188%", "weapon damage to all targets in a", "frontal cone." ],
+		"id": "cleave",
+		"sprite": 24,
+		"flags": []
+	},
+	{
+		"name": "Assault",
+		"abiltype": "thresh",
+		"cooldown": "30",
+		"lines": [ "Assault your target 4", "seconds, once every 1.2 seconds,", "dealing damage equal to 219% of", "weapon damage each strike. Combo", "attack." ],
+		"id": "assault",
+		"sprite": 25,
+			"flags": [],
+			"channeldmg": [ 0, 2, 4, 5 ],
+			"colorcss": "orange"
+	},
+	{
+		"name": "Decimate",
+		"abiltype": "basic",
+		"cooldown": "7",
+		"lines": [ "Decimate your target's defences,", "dealing up to 188% weapon damage, or", "up to 24", "bearing a shield." ],
+		"id": "decimate",
+		"sprite": 26,
+		"flags": []
+	},
+	{
+		"name": "Pulverise",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Pulverise your target, dealing 250-350%", "weapon damage and reducing their", "damage dealt by 25% for 30 seconds. I", "a NPC target is defeated with Pulverise", "you are also granted 50% adrenaline." ],
+		"id": "pulverise",
+		"sprite": 27,
+		"flags": []
+	},
+	{
+		"name": "Frenzy",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Perform a frenzied attack at your", "target's current location lasting for 3.6", "seconds. Every 1.2 seconds dealing 80-", "180% of weapon damage. Each", "subsequent hit gains an additional 10%", "damage to both minimum and maximum", "hit. If your target moves they will take", "no damage." ],
+		"id": "frenzy",
+		"sprite": 28,
+		"flags": []
+	},
+	{
+		"name": "Piercing Shot",
+		"abiltype": "basic",
+		"cooldown": "3",
+		"lines": [ "Shoot your target with a shot dealing", "up to 94", "188% weapon damage if they're", "stunned or bound." ],
+		"id": "piercing_shot",
+		"sprite": 29,
+		"flags": []
+	},
+	{
+		"name": "Snap Shot",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Fire 2 shots in quick succession dealing", "100-120% weapon damage on your firs", "shot and 100-210% weapon damage on", "your second shot." ],
+		"id": "snap_shot",
+		"sprite": 30,
+		"flags": []
+	},
+	{
+		"name": "Deadshot",
+		"abiltype": "ult",
+		"cooldown": "30",
+		"lines": [ "Boom! Fire a deadly shot at your targe", "which deals 188% weapon damage", "instantly, and a further 313% weapon", "damage over 6 seconds." ],
+		"id": "deadshot",
+		"sprite": 31,
+		"flags": []
+	},
+	{
+		"name": "Binding Shot",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Fire a shot which stuns your target for", "1.2 seconds and binds them in place for", "up to 10 seconds and dealing 100%", "weapon damage." ],
+		"id": "binding_shot",
+		"sprite": 32,
+		"flags": []
+	},
+	{
+		"name": "Tight Bindings",
+		"abiltype": "thresh",
+		"cooldown": "15",
+		"lines": [ "Fire a shot which stuns your target for", "3.6 seconds and binds them in place for", "up to 10 seconds and dealing 200%", "weapon damage." ],
+		"id": "tight_bindings",
+		"sprite": 33,
+		"flags": []
+	},
+	{
+		"name": "Snipe",
+		"abiltype": "basic",
+		"cooldown": "10",
+		"lines": [ "Take aim at your target, dealing 125%", "219% weapon damage after 1.8", "seconds, disabling protection prayers in", "PvP. Combo Attack." ],
+		"id": "snipe",
+		"sprite": 34,
+		"flags": [],
+		"channeldmg": [ 3 ],
+		"colorcss": "green"
+	},
+	{
+		"name": "Mutated Dazing Shot",
+		"abiltype": "basic",
+		"cooldown": "5",
+		"lines": [ "Shoot an arrow that detonates on", "contact with the target, dazing them.", "Deals 157% weapon damage. Target", "suffers a 10% decrease to accuracy on", "their next attack. This applies Punctur", "to the enemy for 9 seconds." ],
+		"id": "mutated_dazing_shot",
+		"sprite": 35,
+		"flags": []
+	},
+	{
+		"name": "Demoralise",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Intimidate your target, knocking them", "back and stunning them for 1.2 second", "and dealing 100% weapon damage." ],
+		"id": "demoralise",
+		"sprite": 36,
+		"flags": []
+	},
+	{
+		"name": "Needle Strike",
+		"abiltype": "basic",
+		"cooldown": "5",
+		"lines": [ "Launch painful needles at your target", "that reduce their resistance to critical", "hits. Target takes 157% weapon", "damage. Your next attack against the", "target has a flat 7% increase to", "damage dealt." ],
+		"id": "needle_strike",
+		"sprite": 37,
+		"flags": []
+	},
+	{
+		"name": "Rout",
+		"abiltype": "thresh",
+		"cooldown": "15",
+		"lines": [ "Intimidate your target, knocking them", "back and stunning them for 3.6 second", "and dealing 200% weapon damage." ],
+		"id": "rout",
+		"sprite": 38,
+		"flags": []
+	},
+	{
+		"name": "Fragmentation Shot",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Fire a shot which fragments on impact", "causing your target to suffer damage", "equal to 100-188% weapon damage ove", "6 seconds. If the target moves location", "they suffer 2x damage." ],
+		"id": "fragmentation_shot",
+		"sprite": 39,
+		"flags": []
+	},
+	{
+		"name": "Escape",
+		"abiltype": "basic",
+		"cooldown": "20",
+		"lines": [ "Leap backwards to the maximum range", "of your Ranged weapon, or 7 metres if", "you don't have one equipped, to help", "maintain range from your target." ],
+		"id": "escape",
+		"sprite": 40,
+		"flags": []
+	},
+	{
+		"name": "Rapid Fire",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Rapidly fire at your target, dealing", "damage equal to 94", "damage every 0.6 seconds for 4", "seconds, initially binding the target for", "6 seconds. Combo attack." ],
+		"id": "rapid_fire",
+		"sprite": 41,
+		"flags": [],
+		"channeldmg": [ 0, 1, 2, 3, 4, 5, 6, 7 ],
+		"colorcss": "green"
+	},
+	{
+		"name": "Ricochet",
+		"abiltype": "basic",
+		"cooldown": "10",
+		"lines": [ "Fire a shot which ricochets off your", "target, hitting 2 additional nearby", "targets for 100% weapon damage each" ],
+		"id": "ricochet",
+		"sprite": 42,
+		"flags": []
+	},
+	{
+		"name": "Bombardment",
+		"abiltype": "thresh",
+		"cooldown": "30",
+		"lines": [ "Fire a volley of shots into the air, which", "come raining down dealing 219% weapo", "damage to your target and all adjacent", "enemies." ],
+		"id": "bombardment",
+		"sprite": 43,
+		"flags": []
+	},
+	{
+		"name": "Salt the Wound",
+		"abiltype": "thresh",
+		"cooldown": "15",
+		"lines": [ "Deals up to 188% weapon damage plus", "up to an additional 18% weapon damag", "for every Puncture stack on the", "enemy, also resets the duration of", "Puncture on the enemy." ],
+		"id": "salt_the_wound",
+		"sprite": 44,
+		"flags": []
+	},
+	{
+		"name": "Incendiary Shot",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Fire an explosive shot at your target,", "which will detonate after 3 seconds", "dealing damage equal to 250-350%", "weapon damage. Critical strikes", "generate 10% adrenaline for 30", "seconds." ],
+		"id": "incendiary_shot",
+		"sprite": 45,
+		"flags": []
+	},
+	{
+		"name": "Corruption Shot",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Applies a damage-over-time effect to", "the target, dealing 100-300% weapon", "damage over 6 seconds. This damage", "will spread to unaffected enemies", "targetting you." ],
+		"id": "corruption_shot",
+		"sprite": 46,
+		"flags": []
+	},
+	{
+		"name": "Shadow Tendrils",
+		"abiltype": "thresh",
+		"cooldown": "40",
+		"lines": [ "Shadow tendrils whip at your feet", "multiple times in quick succession for", "33-250% weapon damage. They then", "strike your opponent once for 66-500%", "weapon damage." ],
+		"id": "shadow_tendrils",
+		"sprite": 47,
+		"flags": []
+	},
+	{
+		"name": "Unload",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Unload both your weapons at your", "target's current location for 3.6", "seconds. Every 1.2 seconds dealing 80-", "180% of weapon damage. Each", "subsequent hit gains an additional 10%", "damage to both minimum and maximum", "hit. If your target moves they will take", "no damage." ],
+		"id": "unload",
+		"sprite": 48,
+		"flags": [],
+		"channeldmg": [ 0, 2, 4, 6 ],
+		"colorcss": "green"
+	},
+	{
+		"name": "Death's Swiftness",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Create a shroud of death at your", "location for 30 seconds. While you", "remain within the shroud, your ranged", "damage will be increased by 50%", "your target stands within the shroud,", "they will be hit for 10%-20% of weapon", "damage every 2 seconds." ],
+		"id": "deaths_swiftness",
+		"sprite": 49,
+		"flags": [ "bufstart" ]
+	},
+	{
+		"name": "Wrack",
+		"abiltype": "basic",
+		"cooldown": "3",
+		"lines": [ "A powerful attack that deals up to 94", "active spell damage. Inflicts up to 188%", "damage against stunned or bound", "opponents." ],
+		"id": "wrack",
+		"sprite": 50,
+		"flags": []
+	},
+	{
+		"name": "Asphyxiate",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Reach out with magical force and chok", "the life from your target over 3.6", "seconds, dealing up to 188% damage", "every 1.2 seconds, initially stunning the", "target for 3.6 seconds. Combo attack." ],
+		"id": "asphyxiate",
+		"sprite": 51,
+		"flags": [],
+		"channeldmg": [ 0, 2, 4, 6 ],
+		"colorcss": "blue"
+	},
+	{
+		"name": "Omnipower",
+		"abiltype": "ult",
+		"cooldown": "30",
+		"lines": [ "Bombard your target with each of the", "elements, dealing damage equal to 200-", "4" ],
+		"id": "omnipower",
+		"sprite": 52,
+		"flags": []
+	},
+	{
+		"name": "Impact",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Blast your target with a burst of", "magical energy, stunning and binding", "them for 1.2 seconds and dealing 100%", "of your active spell's damage." ],
+		"id": "impact",
+		"sprite": 53,
+		"flags": []
+	},
+	{
+		"name": "Deep Impact",
+		"abiltype": "thresh",
+		"cooldown": "15",
+		"lines": [ "Blast your target with a burst of", "magical energy, stunning and binding", "them for 3.6 seconds and dealing 200%", "of your active spell's damage." ],
+		"id": "deep_impact",
+		"sprite": 54,
+		"flags": []
+	},
+	{
+		"name": "Dragon Breath",
+		"abiltype": "basic",
+		"cooldown": "10",
+		"lines": [ "Breathe a mighty cloud of fire in a", "frontal cone, hitting all targets for", "damage up to 188% of active spell", "damage, disabling protection prayers in", "PvP." ],
+		"id": "dragon_breath",
+		"sprite": 55,
+		"flags": []
+	},
+	{
+		"name": "Sonic Wave",
+		"abiltype": "basic",
+		"cooldown": "5",
+		"lines": [ "A focused blast of magic that pummels", "your target, damaging and knocking", "them off balance. Deals 157% of your", "active spell's damage. Your next attack", "has a 6% bonus to accuracy against th", "affected target." ],
+		"id": "sonic_wave",
+		"sprite": 56,
+		"flags": []
+	},
+	{
+		"name": "Shock",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Scream at your target, knocking them", "back and stunning them for 1.2 second", "and dealing 100% of your active spell's", "damage." ],
+		"id": "shock",
+		"sprite": 57,
+		"flags": []
+	},
+	{
+		"name": "Concentrated Blast",
+		"abiltype": "basic",
+		"cooldown": "5",
+		"lines": [ "Blast your target with beams of", "concentrated energy 3 times for 2.4", "seconds, hitting once every 1.2 seconds", "Each beam deals 75% of your active", "spell's damage and increases by 7% wit", "each beam. Each beam will also increas", "your next attacks chance to critical hi", "by 5% per beam, up to a maximum of", "15%", "each beam of Concentrated Blast.", "Combo attack." ],
+		"id": "concentrated_blast",
+		"sprite": 58,
+		"flags": []
+	},
+	{
+		"name": "Horror",
+		"abiltype": "thresh",
+		"cooldown": "15",
+		"lines": [ "Scream at your target, knocking them", "back and stunning them for 3.6 second", "and dealing 200% of your active spell's", "damage." ],
+		"id": "horror",
+		"sprite": 59,
+		"flags": []
+	},
+	{
+		"name": "Combust",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Applies a damage-over-time effect to", "the target, dealing 100-188% of the", "active spell's damage over 6 seconds. I", "the target moves location, they suffer", "2x damage." ],
+		"id": "combust",
+		"sprite": 60,
+		"flags": []
+	},
+	{
+		"name": "Surge",
+		"abiltype": "basic",
+		"cooldown": "20",
+		"lines": [ "Instantly teleport up to 10 metres in a", "straight line ahead." ],
+		"id": "surge",
+		"sprite": 61,
+		"flags": []
+	},
+	{
+		"name": "Detonate",
+		"abiltype": "thresh",
+		"cooldown": "30",
+		"lines": [ "Summon an explosive ball of energy", "over your target, or yourself if you do", "not have one. For every 0.6 seconds", "that detonate is channeled the spell wil", "increase its damage potential by 20%-", "70% damage. Upon detonation, by", "activating the ability again, this damag", "will be applied to all targets on and", "adjacent to the target destination.", "After 3 seconds of charging the ability", "is fully charged and will deal 100%-", "350% damage to all targets and the", "ability will increase its radius by 1 tile." ],
+		"id": "detonate",
+		"sprite": 62,
+		"flags": []
+	},
+	{
+		"name": "Chain",
+		"abiltype": "basic",
+		"cooldown": "10",
+		"lines": [ "A magical spell that chains between", "nearby targets, hitting 2 additional", "nearby targets for 100% of your activ", "spell damage each." ],
+		"id": "chain",
+		"sprite": 63,
+		"flags": []
+	},
+	{
+		"name": "Wild Magic",
+		"abiltype": "thresh",
+		"cooldown": "20",
+		"lines": [ "Fire an unpredictable double magical", "attack at your target, which deals", "between 50% and 215% of your active", "spell's damage." ],
+		"id": "wild_magic",
+		"sprite": 64,
+		"flags": []
+	},
+	{
+		"name": "Metamorphosis",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Transform into an elemental based on", "your most recently cast spell. While", "transformed, your spells are free to", "cast and your magic damage is", "increased by 62.5%", "Lasts 15 seconds." ],
+		"id": "metamorphosis",
+		"sprite": 65,
+		"flags": []
+	},
+	{
+		"name": "Corruption Blast",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Applies a damage-over-time effect to", "the target, dealing 100-300% of the", "active spell's damage over 6 seconds.", "This damage will spread to unaffected", "enemies targetting you." ],
+		"id": "corruption_blast",
+		"sprite": 66,
+		"flags": []
+	},
+	{
+		"name": "Smoke Tendrils",
+		"abiltype": "thresh",
+		"cooldown": "40",
+		"lines": [ "Tendrils of smoke whip at your", "opponent's feet for 6 seconds. The firs", "hit causes 100% weapon damage. The", "second, third and fourth hits cause", "125%", "also hit you for 25%", "weapon damage. Combo attack." ],
+		"id": "smoke_tendrils",
+		"sprite": 67,
+		"flags": []
+	},
+	{
+		"name": "Tsunami",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Summon forth a destructive wall of", "water, damaging all targets in a fronta", "cone for damage equal to 200%-300%", "of your active spell's damage. Critical", "strikes generate 10% adrenaline for 30", "seconds." ],
+		"id": "tsunami",
+		"sprite": 68,
+		"flags": []
+	},
+	{
+		"name": "Sunshine",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Summon a sunbeam to shine over your", "location, lasting 30 seconds. During this", "time, provided you remain within the", "beam, your magic damage will be", "increased by 50%", "the beam, they will be hit for 10%-20%", "of weapon damage every 2 seconds." ],
+		"id": "sunshine",
+		"sprite": 69,
+		"flags": []
+	},
+	{
+		"name": "Devotion",
+		"abiltype": "thresh",
+		"cooldown": "60",
+		"lines": [ "Protection prayers are 100% effective" ],
+		"id": "devotion",
+		"sprite": 70,
+		"flags": []
+	},
+	{
+		"name": "Anticipation",
+		"abiltype": "basic",
+		"cooldown": "24",
+		"lines": [ "Concentrate on anticipating your foe's", "attacks, reducing all damage taken by", "10% and providing immunity from stun", "for 10 seconds." ],
+		"id": "anticipation",
+		"sprite": 71,
+		"flags": []
+	},
+	{
+		"name": "Bash",
+		"abiltype": "basic",
+		"cooldown": "15",
+		"lines": [ "Bash your target with your shield,", "dealing up to the sum of 100% weapon", "damage plus your shield's armour value" ],
+		"id": "bash",
+		"sprite": 72,
+		"flags": []
+	},
+	{
+		"name": "Revenge",
+		"abiltype": "thresh",
+		"cooldown": "40",
+		"lines": [ "Enact revenge upon your foes, causing", "any attacks you receive to increase", "your max hit by 10%", "100%" ],
+		"id": "revenge",
+		"sprite": 73,
+		"flags": []
+	},
+	{
+		"name": "Provoke",
+		"abiltype": "basic",
+		"cooldown": "10",
+		"lines": [ "Taunt your target, forcing them to", "focus their attacks on you. Player", "targets have their damage reduced by", "50% when attacking anyone other than", "yourself. However, you also do 50% les", "damage when attacking any other", "player. Lasts 6 seconds." ],
+		"id": "provoke",
+		"sprite": 74,
+		"flags": []
+	},
+	{
+		"name": "Immortality",
+		"abiltype": "ult",
+		"cooldown": "12",
+		"lines": [ "Any damage you receive is reduced by", "25% for 30 seconds. If you should die", "during this period, you will miraculously", "return to life with 4", "maximum lifepoints. However, the", "Immortality effect will be consumed." ],
+		"id": "immortality",
+		"sprite": 75,
+		"flags": []
+	},
+	{
+		"name": "Freedom",
+		"abiltype": "basic",
+		"cooldown": "30",
+		"lines": [ "Break free of any stuns or snares, and", "gain immunity to any further ones for", "seconds. Also clears damage-over-time", "effects." ],
+		"id": "freedom",
+		"sprite": 76,
+		"flags": []
+	},
+	{
+		"name": "Reflect",
+		"abiltype": "thresh",
+		"cooldown": "30",
+		"lines": [ "Raise your shield, reducing the damage", "you receive by 50%", "incoming damage and reflecting it back", "at the attacker. Lasts 10 seconds." ],
+		"id": "reflect",
+		"sprite": 77,
+		"flags": []
+	},
+	{
+		"name": "Resonance",
+		"abiltype": "basic",
+		"cooldown": "30",
+		"lines": [ "The next attack you receive within 6", "seconds will heal you instead of harm", "you. Heals 50% of the incoming damage", "and an additional 0.5% for every shield", "level. Certain large Boss attacks will", "have their damage prevented, but will", "not heal." ],
+		"id": "resonance",
+		"sprite": 78,
+		"flags": []
+	},
+	{
+		"name": "Rejuvenate",
+		"abiltype": "ult",
+		"cooldown": "30",
+		"lines": [ "Channel your adrenaline to help restore", "4", "restore your drained stats over 10", "seconds." ],
+		"id": "rejuvenate",
+		"sprite": 79,
+		"flags": []
+	},
+	{
+		"name": "Debilitate",
+		"abiltype": "thresh",
+		"cooldown": "30",
+		"lines": [ "Debilitate your target for up to 100%", "weapon damage, also reducing any", "damage they deal to you by 50% for 7.", "seconds. This duration increases if a", "shield is equipped by 0.6 seconds for", "every 10 shield levels." ],
+		"id": "debilitate",
+		"sprite": 80,
+		"flags": []
+	},
+	{
+		"name": "Preparation",
+		"abiltype": "basic",
+		"cooldown": "20",
+		"lines": [ "Prepare for the fight ahead, causing", "each attack you receive to reduce the", "remaining cooldown of Resonance by 3", "seconds. Lasts 10 seconds." ],
+		"id": "preparation",
+		"sprite": 81,
+		"flags": []
+	},
+	{
+		"name": "Barricade",
+		"abiltype": "ult",
+		"cooldown": "60",
+		"lines": [ "Summon an impenetrable barricade,", "which prevents all damage received for", "a minimum of 4", "based on the level of shield equipped, u", "to 10 seconds." ],
+		"id": "barricade",
+		"sprite": 82,
+		"flags": []
+	},
+	{
+		"name": "Natural Instinct",
+		"abiltype": "ult",
+		"cooldown": "12",
+		"lines": [ "Instantly leech your target's adrenaline", "If fighting a non-player opponent that", "does not use adrenaline, for the next 2", "seconds you will gain 200% adrenaline", "from your own abilities." ],
+		"id": "natural_instinct",
+		"sprite": 83,
+		"flags": []
+	},
+	{
+		"name": "Sacrifice",
+		"abiltype": "basic",
+		"cooldown": "30",
+		"lines": [ "Deal up to 100% weapon damage to", "your opponent, ignoring protection", "prayers. Heal 25% of the damage you", "deal, or 100% if your target dies." ],
+		"id": "sacrifice",
+		"sprite": 84,
+		"flags": []
+	},
+	{
+		"name": "Transfigure",
+		"abiltype": "ult",
+		"cooldown": "18",
+		"lines": [ "You are bound and interrupted for 6", "seconds. When this ends, you heal 250%", "of any damage taken", "of your lifepoints", "to stuns and binds for 15 seconds." ],
+		"id": "transfigure",
+		"sprite": 85,
+		"flags": []
+	},
+	{
+		"name": "Siphon",
+		"abiltype": "basic",
+		"cooldown": "60",
+		"lines": [ "Siphon up to 10% adrenaline from your", "target if they have more adrenaline", "than you and protects you from", "further siphons for 6 seconds." ],
+		"id": "siphon",
+		"sprite": 86,
+		"flags": []
+	},
+	{
+		"name": "Tuska's Wrath",
+		"abiltype": "basic",
+		"cooldown": "12",
+		"lines": [ "Deal 10000% of your Slayer level as", "damage to your active slayer target. If", "used on a non slayer target the ability", "will deal 110% weapon damage and will", "go on a 15 second cooldown." ],
+		"id": "tuskas_wrath",
+		"sprite": 87,
+		"flags": []
+	},
+	{
+		"name": "Storm Shards",
+		"abiltype": "basic",
+		"cooldown": "30",
+		"lines": [ "Stack up to 95%", "damage on your target. Trigger all", "stacked damage by using the Shatter", "ability. Maximum of 10 stacks." ],
+		"id": "storm_shards",
+		"sprite": 88,
+		"flags": []
+	},
+	{
+		"name": "Shatter",
+		"abiltype": "thresh",
+		"cooldown": "12",
+		"lines": [ "Unleash all Storm Shard damage", "stacked on the target. Will only have an", "effect on a target with at least 1 stac", "of damage." ],
+		"id": "shatter",
+		"sprite": 89,
+		"flags": []
+	},
+	{
+		"name": "Guthix's Blessing",
+		"abiltype": "ult",
+		"cooldown": "30",
+		"lines": [ "Call on Guthix's spirit, invoking a", "butterfly that will heal you for 8% of", "your life points, every", "maximum of", "may be destroyed by enemies." ],
+		"id": "guthixs_blessing",
+		"sprite": 90,
+		"flags": []
+	},
+	{
+		"name": "Onslaught",
+		"abiltype": "ult",
+		"cooldown": "12",
+		"lines": [ "Channel a powerful attack at your", "opponent starting at 33%-150%", "weapon damage, each channel adds 33%", "weapon damage to the max hit and", "takes 25% adrenaline. If you run out of", "adrenaline the ability will start", "damaging you for 25% of damage dealt", "as payment, adding 1000 base damage", "to this past 10 hits." ],
+		"id": "onslaught",
+		"sprite": 91,
+		"flags": [],
+		"channeldmg": [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28 ],
+		"colorcss": "#740A01"
+	},
+	{
+		"name": "Ice Asylum",
+		"abiltype": "ult",
+		"cooldown": "30",
+		"lines": [ "Summons a crystal with a total healing", "capacity equal to three times the", "caster's maximum life points. It will hea", "anyone standing near it for 1-7% of", "their maximum life points every 3.6", "seconds, based on their proximity to", "the crystal. The crystal disappears", "after 22.2 seconds or after reaching it", "healing capacity, whichever comes firs" ],
+		"id": "ice_asylum",
+		"sprite": 92,
+		"flags": []
+	}
+]
