@@ -1,26 +1,31 @@
 {
+	"name": "@runeapps/alt1",
 	"scripts": {
-		"start": "node -r ts-node/register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-		"build": "node -r ts-node/register ./node_modules/webpack/bin/webpack.js -p --display-modules"
+		"start": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+		"build": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/webpack/bin/webpack.js --display-modules -p",
+		"pretty-build": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/webpack/bin/webpack.js --display-modules -p --nougly --esnext"
 	},
 	"dependencies": {
 		"@types/react": "^16.4.7",
 		"@types/react-dom": "^16.0.6",
 		"json-loader": "^0.5.7",
+		"node-fetch": "^2.3.0",
 		"pngjs": "^3.3.3",
 		"react": "^16.4.1",
 		"react-dom": "^16.4.1",
 		"react-transition-group": "^2.4.0",
 		"uglifyjs-webpack-plugin": "^1.2.7",
-		"vue": "^2.5.16",
-		"vue-loader": "^15.2.6"
+		"vue": "^2.5.17",
+		"vue-template-compiler": "^2.5.17"
 	},
 	"devDependencies": {
 		"@types/glob": "^5.0.35",
 		"@types/html-webpack-plugin": "^3.2.0",
+		"@types/node": "^8.0.19",
 		"@types/pngjs": "^3.3.2",
 		"@types/webpack": "^4.4.8",
 		"@types/webpack-env": "^1.13.6",
+		"@types/webpack-node-externals": "^1.6.3",
 		"awesome-typescript-loader": "^5.2.0",
 		"css-loader": "^1.0.0",
 		"glob": "^7.1.2",
@@ -29,17 +34,18 @@
 		"style-loader": "^0.21.0",
 		"ts-loader": "^4.4.2",
 		"ts-node": "^7.0.0",
+		"tsconfig-paths": "^3.6.0",
+		"tsconfig-paths-webpack-plugin": "^3.2.0",
 		"typescript": "^2.9.2",
+		"vue-loader": "^15.4.2",
 		"webpack": "^4.16.1",
 		"webpack-cli": "^3.1.0",
 		"webpack-dev-middleware": "^3.1.3",
-		"webpack-dev-server": "^3.1.5",
+		"webpack-dev-server": "^3.1.10",
 		"webpack-hot-middleware": "^2.22.3",
-		"@types/node": "^8.0.19"
+		"webpack-node-externals": "^1.7.2"
 	},
-	"sideeffects": [
-		"./libs/alt1lib.ts",
-		"./webroot/apps/alt1/maggenious.entry.ts",
-		"./webroot/apps/alt1/qrcode.min.js"
+	"sideEffects": [
+		"./alt1/base/imagedata-extensions.ts"
 	]
 }

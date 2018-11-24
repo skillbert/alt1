@@ -1,0 +1,12 @@
+{
+	"name": "@alt1/ocr",
+	"runeappsType": "lib",
+	"runeappsLibNameRoot": "OCR",
+	"runeappsLibEntry": "./index.ts",
+	"main": "./dist/index.js",
+	"author": "Skillbert",
+	"version": "0.0.1",
+	"dependencies": {
+		"@alt1/base": "0.0.1"
+	}
+}

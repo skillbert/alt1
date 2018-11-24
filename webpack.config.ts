@@ -1,142 +1,86 @@
 import * as webpack from "webpack";
 import * as path from "path";
-import * as glob from "glob";
-import * as UglifyJSPlugin from "uglifyjs-webpack-plugin";
 
-var isdebug = process.argv.indexOf("-p") == -1;
+import * as a1lib from "@alt1/base";
+
+
+import * as base from "./webpack/main";
+
+
 var rootdir = path.resolve(__dirname, "./");
 var webroot = path.resolve(__dirname, "../htdocs");
+var libdir = path.resolve(__dirname, "alt1");
 var inwebroot = path.resolve(rootdir, "webroot");
 
-var allfiles = glob.sync(inwebroot + "/**/*");
+module.exports = [].concat(
+	addLibs()
+);
 
-function findEntries(type = "entry") {
-	var reg = new RegExp(`(\\w+)\\.${type}\\.tsx?$`);
-	var entryarray = allfiles.filter(e => e.match(reg));
-	var entries: { [name: string]: string } = {};
-	for (var entry of entryarray) {
-		var rel = path.relative(inwebroot, entry);
-		var filename = path.basename(entry);
-		var m = filename.match(reg);
-		if (!m) { continue; }
-		var entryname = path.join(path.dirname(rel), m[1]).replace(/\\/g, "/");
-		entries[entryname] = entry;
+
+function addLibs() {
+	var libPackages: {
+		name: string,
+		directory: string,
+		rootName: string,
+		configPath: string,
+		config: base.NpmConfig,
+		entryPath: string,
+		mainPath: string
+	}[] = [];
+
+	for (var cnf of base.findSubPackages(libdir)) {
+		if (cnf.config.runeappsType != "lib") { continue; }
+		if (!cnf.config.runeappsLibNameRoot) { throw `lib package at ${cnf.configFilePath} does not have a root export name`; }
+
+		var entry = path.resolve(path.dirname(cnf.configFilePath), cnf.config.runeappsLibEntry || "index");
+		var dir = path.dirname(cnf.configFilePath);
+
+		libPackages.push({
+			config: cnf.config,
+			name: cnf.config.name,
+			configPath: cnf.configFilePath,
+			rootName: cnf.config.runeappsLibNameRoot,
+			entryPath: entry,
+			directory: dir,
+			mainPath: path.resolve(dir, cnf.config.main)
+		});
 	}
-	return entries;
-}
 
-function baseconfig(uglyopts = {}): webpack.Configuration & { devServer: any } {
-	return {
-		mode: isdebug ? "development" : "production",
-		devtool: isdebug ? 'eval-source-map' : false,
-		entry: undefined,
-		output: undefined,
-		context:rootdir,
-		resolve: {
-			extensions: ['.ts', '.tsx', '.js', '.font.json', '.data.png', '.jsx'],
-			modules: [
-				path.resolve(rootdir, "node_modules"),
-			],
-			alias: {
-				libs: path.resolve(rootdir, "libs"),
+	var libexternals = {};
+	for (let entry of libPackages) {
+		libexternals[entry.name] = {
+			root: entry.rootName,
+			commonjs: entry.name,
+			commonjs2: entry.name,
+			amd: entry.name
+		};
+	}
+
+	var libconfigs = [];
+	for (let lib of libPackages) {
+		var config = lib.config;
+		var externals = Object.assign({}, libexternals);
+		delete externals[lib.name];
+		//if (config.runeappsLibNameRoot != "A1lib") { continue; }
+		var nodetarget = config.runeappsTarget == "node";
+		var basecnf = base.baseConfig(rootdir, { nodejs: nodetarget });
+		var conf = Object.assign(basecnf, {
+			entry: { [lib.rootName]: lib.entryPath },
+			output: {
+				filename: path.basename(lib.mainPath),
+				publicPath: "/",
+				path: path.dirname(lib.mainPath),
+				libraryTarget: "umd",
+				library: {
+					root: lib.rootName,
+					commonjs: lib.name,
+					amd: lib.name
+				} as any,
+				globalObject: "(typeof self !== 'undefined' ? self : this)"
 			},
-		},
-		module: {
-			rules: [
-				{
-					test: /\.(ts|tsx)$/,
-					loader: 'ts-loader',
-					options: {
-						configFile: path.resolve(rootdir, isdebug ? "tsconfig_dev.json" : "tsconfig.json")
-					}
-				},
-				{
-					test: /\.css$/,
-					loader: ['style-loader', 'css-loader?-url']
-				},
-				{
-					test: "/\.scss$",
-					loader: ['style-loader', 'css-loader', 'sass-loader']
-				},
-				{
-					test: /\.data.png$/,
-					loader: ['imagedata-loader']
-				}, {
-					test: /\.font.json$/,
-					loader: []
-				}, {
-					test: /\.fontmeta.json$/,
-					loader: ["font-loader"]
-				}
-			]
-		},
-		plugins: [
-			new webpack.HotModuleReplacementPlugin()
-			//new webpack.NamedModulesPlugin(),//aprantly used for hmr but works without
-		],
-		devServer: !isdebug ? undefined : {
-			hot: true,
-			contentBase: webroot,
-			port: 8088
-		},
-		resolveLoader: {
-			modules: [
-				path.resolve(rootdir, "node_modules"),
-				path.resolve(rootdir, "libs")
-			],
-			extensions: ['.js', '.json', '.ts']
-		},
-		optimization: isdebug ? undefined : {
-			minimizer: [
-				new UglifyJSPlugin({ uglifyOptions: uglyopts, }),
-			],
-		},
-		node: false
-	};
-}
-
-var webentries = findEntries(isdebug ? "(\\w+-)?entry" : "entry");
-console.log("web", webentries);
-
-var websiteConfig = Object.assign({}, baseconfig(), {
-	entry: webentries,
-	output: {
-		filename: '[name].bundle.js',
-		publicPath: "/",
-		path: webroot
+			externals: basecnf.externals.concat(externals as any)
+		} as Partial<webpack.Configuration>);
+		libconfigs.push(conf);
 	}
-});
-
-var libentries = findEntries("lib");
-console.log("lib", libentries);
-var libConfig = Object.assign({}, baseconfig(), {
-	entry:libentries,//TODO
-	output: {
-		filename: '[name].bundle.js',
-		publicPath: "/",
-		path: webroot + "\\"
-	}
-});
-
-var twitchentries = findEntries("twitch-entry");
-console.log("twitch", twitchentries);
-var twitchPublishConfig = Object.assign({}, baseconfig({ compress: { drop_console: true }, output: { comments: false } }), {
-	entry: twitchentries,
-	externals: {
-		'react': 'React',
-		'react-dom': 'ReactDOM'
-	},
-	output: {
-		filename: '[name].bundle.js',
-		publicPath: "/",
-		path: webroot
-	}
-});
-
-
-module.exports = [];
-
-module.exports.push(websiteConfig);
-if (!isdebug) {
-	module.exports.push(twitchPublishConfig);
+	return libconfigs;
 }

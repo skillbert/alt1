@@ -1,0 +1,10 @@
+{
+	"name": "@alt1/animal-reader",
+	"runeappsType": "lib",
+	"runeappsLibNameRoot": "AnimalReader",
+	"runeappsLibEntry": "./index.ts",
+	"main": "./dist/index.js",
+	"author": "Skillbert",
+	"version": "0.0.1",
+	"dependencies": {}
+}
