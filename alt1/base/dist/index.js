@@ -180,7 +180,7 @@ exports.ImageData.prototype.show = function (x = 5, y = 5, zoom = 1) {
     var el = this.toImage();
     el.classList.add("debugimage");
     el.style.position = "absolute";
-    el.style.zIndex = 1000;
+    el.style.zIndex = "1000";
     el.style.left = x / zoom + "px";
     el.style.top = y / zoom + "px";
     el.style.background = "purple";
@@ -287,12 +287,8 @@ const wapper = __webpack_require__("./alt1/base/wrapper.ts");
 * @param url http(s) or data url to the image
 */
 async function imageDataFromUrl(url) {
-    var img = null;
-    try {
-        img = new Image();
-    }
-    catch { }
-    if (img) {
+    if (typeof Image != "undefined") {
+        var img = new Image();
         img.crossOrigin = "crossorigin";
         return await new Promise((done, fail) => {
             img.onload = function () { done(img.toBuffer()); };
@@ -305,20 +301,19 @@ async function imageDataFromUrl(url) {
         var nodefetch = __webpack_require__("node-fetch");
         var pngjs = __webpack_require__("pngjs");
         var imgovr = __webpack_require__("./alt1/base/imagedata-extensions.ts").ImageData;
-        var buffer = null;
         var hdr = "data:image/png;base64,";
         if (url.startsWith(hdr)) {
             var raw = Buffer.from(url.slice(hdr.length), "base64");
-            buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+            var buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
         }
         else {
-            buffer = new Uint8Array(await nodefetch(url).then(r => r.arrayBuffer()));
+            var buffer = new Uint8Array(await nodefetch(url).then(r => r.arrayBuffer()));
         }
         clearPngColorspace(buffer);
         var png = new pngjs.PNG();
         await new Promise((done, err) => {
-            png.on("parsed", e => done(e));
-            png.on("error", e => err(e));
+            png.on("parsed", (e) => done(e));
+            png.on("error", (e) => err(e));
             png.parse(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
         });
         return new imgovr(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height);
@@ -525,7 +520,7 @@ exports.simpleCompare = simpleCompare;
 /**
 * Returns the difference between two colors (scaled to the alpha of the second color)
 */
-function coldif(r1, g1, b1, a1, r2, g2, b2, a2) {
+function coldif(r1, g1, b1, r2, g2, b2, a2) {
     return (Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2)) * a2 / 255; //only applies alpha for 2nd buffer!
 }
 exports.coldif = coldif;
@@ -534,18 +529,20 @@ exports.coldif = coldif;
  * @param input
  */
 function asyncMap(input) {
-    var r = {};
+    var raw = {};
     var promises = [];
     for (var a in input) {
         if (input.hasOwnProperty(a)) {
-            r[a] = null;
-            promises.push(input[a].then(function (a, i) { r[a] = i; }.bind(null, a)));
+            raw[a] = null;
+            promises.push(input[a].then(function (a, i) { raw[a] = i; r[a] = i; }.bind(null, a)));
         }
     }
-    var promise = Promise.all(promises).then(_ => { r.loaded = true; return r; });
+    var r = {};
+    var promise = Promise.all(promises).then(() => { r.loaded = true; return r; });
     Object.defineProperty(r, "loaded", { enumerable: false, value: false, writable: true });
     Object.defineProperty(r, "promise", { enumerable: false, value: promise });
-    return r;
+    Object.defineProperty(r, "raw", { enumerable: false, value: raw });
+    return Object.assign(r, raw);
 }
 exports.asyncMap = asyncMap;
 /**
@@ -555,6 +552,7 @@ function webpackImages(input) {
     return asyncMap(input);
 }
 exports.webpackImages = webpackImages;
+var qq = webpackImages({ a: Promise.resolve(new ImageData(10, 10)) });
 
 
 /***/ }),
@@ -580,7 +578,7 @@ class ImgRef {
     findSubimage(needle, sx = 0, sy = 0, w = this.width, h = this.height) {
         return index_1.ImageDetect.findSubimage(this, needle, sx, sy, w, h);
     }
-    toData(x = this.x, y = this.y, w, h) {
+    toData(x = this.x, y = this.y, w = this.width, h = this.height) {
         return this.read(x - this.x, y - this.y, w, h);
     }
     ;
@@ -737,6 +735,9 @@ function startDragNDrop() {
         e.preventDefault();
     });
     window.addEventListener("drop", function (e) {
+        if (!e.dataTransfer) {
+            return;
+        }
         var item = getitem(e.dataTransfer.items);
         e.preventDefault();
         if (!item) {
@@ -751,15 +752,6 @@ function start() {
         return;
     }
     started = true;
-    var errorhandler = function (mes, error) {
-        var a;
-        pasting = false;
-        for (a in listeners) {
-            if (listeners[a].error) {
-                listeners[a].error(mes, error);
-            }
-        }
-    };
     //determine if we have a clipboard api
     //try{a=new Event("clipboard"); a="clipboardData" in a;}
     //catch(e){a=false;}
@@ -795,19 +787,13 @@ function start() {
                 return;
             }
             setTimeout(function () {
-                var img, a, b;
-                b = catcher.children[0];
+                var b = catcher.children[0];
                 if (!b || b.tagName != "IMG") {
                     return;
                 }
-                img = new Image();
+                var img = new Image();
                 img.src = b.src;
-                if (a = img.src.match(/^data:([\w\/]+);/)) {
-                    img.type = a[1];
-                }
-                else {
-                    img.type = "image/unknown";
-                } //unreliable, won't use
+                var a = img.src.match(/^data:([\w\/]+);/);
                 if (img.width > 0) {
                     pasted(img);
                 }
@@ -843,7 +829,7 @@ function fileDialog() {
     var fileinput = document.createElement("input");
     fileinput.type = "file";
     fileinput.accept = "image/png";
-    fileinput.onchange = function () { if (fileinput.files[0]) {
+    fileinput.onchange = function () { if (fileinput.files && fileinput.files[0]) {
         fromFile(fileinput.files[0]);
     } };
     fileinput.click();
@@ -851,6 +837,9 @@ function fileDialog() {
 }
 exports.fileDialog = fileDialog;
 function fromFile(file) {
+    if (!file) {
+        return;
+    }
     var reader = new FileReader();
     reader.onload = function () {
         var bytearray = new Uint8Array(reader.result);
@@ -859,7 +848,7 @@ function fromFile(file) {
         }
         var blob = new Blob([bytearray], { type: "image/png" });
         var img = new Image();
-        img.onerror = e => error("The file you uploaded could not be opened as an image.", "invalidfile");
+        img.onerror = () => error("The file you uploaded could not be opened as an image.", "invalidfile");
         var bloburl = URL.createObjectURL(blob);
         img.src = bloburl;
         if (img.width > 0) {
@@ -886,6 +875,7 @@ function fromFile(file) {
 //more of a shorthand to get {x,y,width,height} than a class
 //kinda starting to like it again
 Object.defineProperty(exports, "__esModule", { value: true });
+;
 /**
  * Simple rectangle class with some util functions
  */
@@ -1032,6 +1022,7 @@ var maxtransfer = 4000000;
 var trackinterval = (exports.hasAlt1 && alt1.captureInterval) || 300;
 /**
  * Open a link in the default browser
+ * @deprecated use window.open instead
  */
 function openbrowser(url) {
     if (exports.hasAlt1) {
@@ -1315,6 +1306,7 @@ class ImageStreamReader {
         this.closed = false;
         //paused state
         this.pausedindex = -1;
+        this.pausedbuffer = null;
         this.streamreader = reader;
         if (args[0] instanceof ImageData) {
             this.framebuffer = args[0];
@@ -1341,7 +1333,7 @@ class ImageStreamReader {
         var starttime = Date.now();
         var r = false;
         while (!r) {
-            if (this.pausedindex != -1) {
+            if (this.pausedindex != -1 && this.pausedbuffer) {
                 r = this.readChunk(this.pausedindex, this.framebuffer.data, this.pausedbuffer);
             }
             else {

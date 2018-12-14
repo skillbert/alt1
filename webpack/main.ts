@@ -1,11 +1,13 @@
 import * as webpack from "webpack";
 import * as path from "path";
 import * as glob from "glob";
-import * as UglifyJSPlugin from "uglifyjs-webpack-plugin";
 import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import * as fs from "fs";
 import * as webpackNodeExternals from "webpack-node-externals";
-import VueLoaderPlugin =require("vue-loader/lib/plugin");
+
+//no types so import like this
+var VueLoaderPlugin = require("vue-loader/lib/plugin");
+var UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 
 
 /**
@@ -138,7 +140,6 @@ type Alt1WebpackConfiguration = webpack.Configuration & { devServer: any, extern
  */
 export function baseConfig(rootdir: string, configOpts?: Partial<Alt1WebpackOpts>): Alt1WebpackConfiguration {
 	var opts = Object.assign(getCmdConfig(), configOpts);
-
 	var alt1DirectDir = path.resolve(__dirname, "../alt1");
 
 	var tsconfigPath = path.resolve(rootdir, "tsconfig.json");
@@ -217,7 +218,7 @@ export function baseConfig(rootdir: string, configOpts?: Partial<Alt1WebpackOpts
 					loader: ['style-loader', 'css-loader?-url']
 				},
 				{
-					test: "/\.scss$",
+					test: /\.scss$/,
 					loader: ['style-loader', 'css-loader', 'sass-loader']
 				},
 				{
@@ -257,6 +258,7 @@ export function baseConfig(rootdir: string, configOpts?: Partial<Alt1WebpackOpts
 		node: false
 	};
 }
+
 
 export function externalNodeModules(dir: string) {
 	var nodeModules = {};

@@ -51,7 +51,7 @@ export class Container<T extends { [key: string]: any }=any> extends React.Compo
 		this.setState({ [name]: value });
 	}
 
-	componentDidUpdate(oldprops, oldstate) {
+	componentDidUpdate(_oldprops, oldstate) {
 		if (this.state != oldstate) {
 			this.props.onChange(this.state);
 		}

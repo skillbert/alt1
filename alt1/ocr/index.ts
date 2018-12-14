@@ -1,15 +1,16 @@
-"use strict";
-
 import { ImageData } from "@alt1/base";
-
-
 
 export type Charinfo = { width: number, chr: string, bonus: number, secondary: boolean, pixels: number[] };
 export type FontDefinition = { chars: Charinfo[], width: number, spacewidth: number, shadow: boolean, height: number, basey: number, minrating?: number };
 type ColortTriplet = number[];
 
-export var printcharscores = false;
+export var debug = {
+	printcharscores: false,
+	trackread: false
+};
 
+type Chardebug = { chr: string, rawscore: number, score: number, img: ImageData };
+export var debugout = {} as { [id: string]: Chardebug[] };
 
 /**
  * draws the font definition to a buffer and displays it in the dom for debugging purposes
@@ -49,11 +50,9 @@ export function unblendKnownBg(img: ImageData, bgimg: ImageData, shadow: boolean
 	for (var i = 0; i < img.data.length; i += 4) {
 		var col = decompose2col(img.data[i], img.data[i + 1], img.data[i + 2], r, g, b, bgimg.data[i + 0], bgimg.data[i + 1], bgimg.data[i + 2]);
 		if (shadow) {
+			if (col[2] > 0.01) { console.log("high error component: " + (col[2] * 100).toFixed(1) + "%"); }
 			totalerror += col[2];
-			if (col[2] > 0.01) {
-				console.log("high error component: " + (col[2] * 100).toFixed(1) + "%");
-			}
-			var m = 1 - col[1] - col[2];//main color+black=100%-bg-error
+			var m = 1 - col[1] - Math.abs(col[2]);//main color+black=100%-bg-error
 			rimg.data[i + 0] = m * 255;
 			rimg.data[i + 1] = col[0] / m * 255;
 			rimg.data[i + 2] = rimg.data[i + 0];
@@ -123,9 +122,13 @@ export function decompose2col(rp, gp, bp, r1, g1, b1, r2, g2, b2) {
 	var g3 = b1 * r2 - b2 * r1;
 	var b3 = r1 * g2 - r2 * g1;
 
-	var col = decompose3col(rp, gp, bp, r1, g1, b1, r2, g2, b2, r3, g3, b3);
-	var noise = Math.abs(col[2] * Math.sqrt(r3 * r3 + g3 * g3 + b3 * b3));
-	return [col[0], col[1], noise];
+	//normalize to length 255
+	var norm = 255 / Math.sqrt(r3 * r3 + g3 * g3 + b3 * b3);
+	r3 *= norm;
+	g3 *= norm;
+	b3 *= norm;
+
+	return decompose3col(rp, gp, bp, r1, g1, b1, r2, g2, b2, r3, g3, b3);
 }
 
 /**
@@ -191,7 +194,7 @@ export function findChar(buffer: ImageData, font: FontDefinition, col: ColortTri
  */
 export function findReadLine(buffer: ImageData, font: FontDefinition, cols: [ColortTriplet], x: number, y: number, w = -1, h = -1) {
 	if (w == -1) { w = font.width + font.spacewidth; x -= Math.ceil(w / 2); }
-	if (h == -1) { h = 7; y -= 1;/*Math.ceil(h / 2);*/ }
+	if (h == -1) { h = 7; y -= 1; }
 	var chr = findChar(buffer, font, cols[0], x, y, w, h);
 	if (chr == null) { return { text: "", debugArea: { x, y, w, h } }; }
 	return readLine(buffer, font, cols[0], chr.x, chr.y, true, true);
@@ -220,7 +223,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 	var r = "";
 	var x1 = x;
 	var x2 = x;
-	
+
 	for (var dirforward of [true, false]) {
 		//init vars
 		if (dirforward && !forward) { continue; }
@@ -270,12 +273,18 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
  * @param y exact y location of the baseline pixel of the character
  * @param backwards read in backwards direction, the x location should be the first pixel after the character domain in that case
  */
-export function readChar(buffer:ImageData, font:FontDefinition, col:ColortTriplet, x:number, y:number, backwards:boolean, allowSecondary?:boolean):ReadCharInfo {
+export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTriplet, x: number, y: number, backwards: boolean, allowSecondary?: boolean): ReadCharInfo {
 	y -= font.basey;
 	var shiftx = 0;
 	var shifty = font.basey;
 	var shadow = font.shadow;
-	var fr = col[0], fg = col[1], fb = col[2];
+	var debugobj: Chardebug[] = null;
+	var debugimg: ImageData = null;
+	if (debug.trackread) {
+		var name = x + ";" + y + " " + JSON.stringify(col);
+		if (!debugout[name]) { debugout[name] = []; }
+		debugobj = debugout[name];
+	}
 
 	//===== make sure the full domain is inside the bitmap/buffer ======
 	if (y < 0 || y + font.height >= buffer.height) { return null; }
@@ -290,10 +299,15 @@ export function readChar(buffer:ImageData, font:FontDefinition, col:ColortTriple
 	var scores: { score: number, sizescore: number, chr: Charinfo }[] = [];
 	for (var chr = 0; chr < font.chars.length; chr++) {
 		var chrobj = font.chars[chr];
-		if (chrobj.secondary && !allowSecondary) { continue;}
-		var chrpixels = chrobj.pixels;
+		if (chrobj.secondary && !allowSecondary) { continue; }
 		scores[chr] = { score: 0, sizescore: 0, chr: chrobj };
 		var chrx = (backwards ? x - chrobj.width : x);
+
+
+		if (debug.trackread) {
+			debugimg = new ImageData(font.width, font.height);
+		}
+
 		for (var a = 0; a < chrobj.pixels.length;) {
 			var i = (chrx + chrobj.pixels[a]) * 4 + (y + chrobj.pixels[a + 1]) * buffer.width * 4;
 			var penalty = 0;
@@ -307,19 +321,22 @@ export function readChar(buffer:ImageData, font:FontDefinition, col:ColortTriple
 				a += 4;
 			}
 			scores[chr].score += Math.max(0, penalty);
+			//TODO add compiler flag to this to remove it for performance
+			if (debugimg) { debugimg.setPixel(chrobj.pixels[a], chrobj.pixels[a + 1], [penalty, penalty, penalty, 255]); }
 		}
 		scores[chr].sizescore = scores[chr].score - chrobj.bonus;
+		if (debugobj) { debugobj.push({ chr: chrobj.chr, score: scores[chr].sizescore, rawscore: scores[chr].score, img: debugimg }); }
 	}
 
 	scores.sort((a, b) => a.sizescore - b.sizescore);
 
-	if (printcharscores) {
+	if (debug.printcharscores) {
 		scores.slice(0, 5).forEach(q => console.log(q.chr.chr, q.score.toFixed(3), q.sizescore.toFixed(3)));
 	}
 
 	var winchr = scores[0];
 	if (!winchr || winchr.score > 400) { return null; }
-	
+
 	return { chr: winchr.chr.chr, basechar: winchr.chr, x: x + shiftx, y: y + shifty, score: winchr.score, sizescore: winchr.sizescore };
 }
 type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: number, score: number, sizescore: number };
@@ -338,7 +355,7 @@ type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: number, sco
  * @param shadow whether this font also uses the black shadow some fonts have. The "unblended" image should be unblended correspondingly
  * @returns a javascript object describing the font which is used as input for the different read functions
  */
-export function generatefont(unblended: ImageData, chars: string, seconds: string, bonusses: {[char:string]:number}, basey:number, spacewidth:number, treshold:number, shadow:boolean):FontDefinition {
+export function generatefont(unblended: ImageData, chars: string, seconds: string, bonusses: { [char: string]: number }, basey: number, spacewidth: number, treshold: number, shadow: boolean): FontDefinition {
 	//settings vars
 	treshold *= 255;
 
@@ -355,7 +372,7 @@ export function generatefont(unblended: ImageData, chars: string, seconds: strin
 	for (var dx = 0; dx < unblended.width; dx++) {
 		var i = 4 * dx + 4 * unblended.width * (unblended.height - 1);
 
-		if (unblended.data[i] == 255 && unblended.data[i+3] == 255) {
+		if (unblended.data[i] == 255 && unblended.data[i + 3] == 255) {
 			if (ds === false) { ds = dx; }
 		}
 		else {
@@ -394,15 +411,14 @@ export function generatefont(unblended: ImageData, chars: string, seconds: strin
 	//detect all pixels
 	for (var a in chardata) {
 		var chr = chardata[a];
-		var b = 0;
 		for (var x = 0; x < chr.width; x++) {
-			for (var y = 0; y < maxy+1 - miny; y++) {
+			for (var y = 0; y < maxy + 1 - miny; y++) {
 				var i = (x + chr.ds) * 4 + (y + miny) * unblended.width * 4;
 				if (unblended.data[i] >= treshold) {
 					chr.pixels.push(x, y);
 					chr.pixels.push(unblended.data[i]);
 					if (shadow) { chr.pixels.push(unblended.data[i + 1]); }
-					chr.bonus += 0.002;
+					chr.bonus += 5;
 				}
 			}
 		}

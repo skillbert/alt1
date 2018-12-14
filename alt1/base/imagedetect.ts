@@ -21,20 +21,19 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 		var nodefetch = require("node-fetch") as typeof fetch;
 		var pngjs = require("pngjs");
 		var imgovr = require("@alt1/base/imagedata-extensions").ImageData as typeof ImageData;
-		var buffer: Uint8Array = null;
 		var hdr = "data:image/png;base64,";
 		if (url.startsWith(hdr)) {
 			var raw = Buffer.from(url.slice(hdr.length), "base64");
-			buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+			var buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
 		}
 		else {
-			buffer = new Uint8Array(await nodefetch(url).then(r => r.arrayBuffer()));
+			var buffer = new Uint8Array(await nodefetch(url).then(r => r.arrayBuffer()));
 		}
 		clearPngColorspace(buffer);
 		var png = new pngjs.PNG();
 		await new Promise((done, err) => {
-			png.on("parsed", e => done(e));
-			png.on("error", e => err(e));
+			png.on("parsed", (e: any) => done(e));
+			png.on("error", (e: any) => err(e));
 			png.parse(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
 		});
 
@@ -47,7 +46,7 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 * Make sure the png image does not have a sRGB chunk or the resulting pixels will differ for different users!!!
 * @param data a base64 encoded png image
 */
-export async function imageDataFromBase64(data:string) {
+export async function imageDataFromBase64(data: string) {
 	return imageDataFromUrl("data:image/png;base64," + data);
 }
 
@@ -56,7 +55,7 @@ export async function imageDataFromBase64(data:string) {
 * The values are automatically scaled so the lowest value is black and the highest is white
 * @param array The pixels, one values per pixel
 */
-function imagedataFromArray(array, w, h) {
+function imagedataFromArray(array: number[], w: number, h: number) {
 	if (array.length != w * h) { throw new Error("Invalid array size"); }
 	var min = Math.min.apply(null, array);
 	var max = Math.max.apply(null, array);
@@ -223,7 +222,7 @@ export function simpleCompare(bigbuf: ImageData, checkbuf: ImageData, x: number,
 /**
 * Returns the difference between two colors (scaled to the alpha of the second color)
 */
-export function coldif(r1, g1, b1, a1, r2, g2, b2, a2) {
+export function coldif(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, a2: number) {
 	return (Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2)) * a2 / 255;//only applies alpha for 2nd buffer!
 }
 
@@ -233,24 +232,29 @@ export function coldif(r1, g1, b1, a1, r2, g2, b2, a2) {
  */
 export function asyncMap<T extends { [name: string]: Promise<any> }>(input: T) {
 	//recusive types what xd
-	type subt = { [K in keyof T]: T[K] extends Promise<infer U> ? U : any } & { promise: Promise<subt>, loaded: boolean };
-	var r = {} as subt;
+	type subt = { [K in keyof T]: T[K] extends Promise<infer U> ? U : any };
+	var raw = {} as subt;
 	var promises = [];
 	for (var a in input) {
 		if (input.hasOwnProperty(a)) {
-			r[a] = null;
-			promises.push(input[a].then(function (a, i) { r[a] = i }.bind(null, a)));
+			raw[a] = null;
+			promises.push(input[a].then(function (a: number, i: any) { raw[a] = i; r[a] = i; }.bind(null, a)));
 		}
 	}
-	var promise = Promise.all(promises).then(_ => { r.loaded = true; return r; });
+	var r = {} as subt & { promise: Promise<subt>, loaded: boolean, raw: subt };
+	var promise = Promise.all(promises).then(() => { r.loaded = true; return r; });
 	Object.defineProperty(r, "loaded", { enumerable: false, value: false, writable: true });
 	Object.defineProperty(r, "promise", { enumerable: false, value: promise });
-	return r;
+	Object.defineProperty(r, "raw", { enumerable: false, value: raw });
+	return Object.assign(r, raw);
 }
 
 /**
 * Same as asyncMap, but casts the properties to ImageData in typescript
 */
-export function webpackImages<T extends { [name: string]: any }>(input: T) {
-	return asyncMap<{ [K in keyof T]: Promise<ImageData> }>(input);
+export function webpackImages<T extends { [name: string]: Promise<ImageData> }>(input: T) {
+	type subt = { [K in keyof T]: ImageData };
+	return asyncMap<{ [K in keyof T]: Promise<ImageData> }>(input) as any as { promise: Promise<subt>, loaded: boolean, raw: subt } & subt;
 }
+
+var qq = webpackImages({ a: Promise.resolve(new ImageData(10, 10)) });

@@ -2,7 +2,7 @@
 
 
 # Install dependencies
-Only install the root directory at this time. Do _not_ install the separate lib packages.
+Only install the root directory at this time. Do *not* install the separate lib packages.
 ```sh
 npm install
 ```

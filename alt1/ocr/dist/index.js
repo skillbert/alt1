@@ -103,7 +103,35 @@ return /******/ (function(modules) { // webpackBootstrap
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const base_1 = __webpack_require__("@alt1/base");
-exports.printcharscores = false;
+exports.debug = {
+    printcharscores: false,
+    trackread: false
+};
+exports.debugout = {};
+/**
+ * draws the font definition to a buffer and displays it in the dom for debugging purposes
+ * @param font
+ */
+function debugFont(font) {
+    var spacing = font.width + 2;
+    var buf = new base_1.ImageData(spacing * font.chars.length, font.height + 1);
+    for (var a = 0; a < buf.data.length; a += 4) {
+        buf.data[a] = buf.data[a + 1] = buf.data[a + 2] = 0;
+        buf.data[a + 3] = 255;
+    }
+    for (var a = 0; a < font.chars.length; a++) {
+        var bx = a * spacing;
+        var chr = font.chars[a];
+        for (var b = 0; b < chr.pixels.length; b += (font.shadow ? 4 : 3)) {
+            buf.setPixel(bx + chr.pixels[b], chr.pixels[b + 1], [chr.pixels[b + 2], chr.pixels[b + 2], chr.pixels[b + 2], 255]);
+            if (font.shadow) {
+                buf.setPixel(bx + chr.pixels[b], chr.pixels[b + 1], [chr.pixels[b + 3], 0, 0, 255]);
+            }
+        }
+    }
+    buf.show();
+}
+exports.debugFont = debugFont;
 /**
  * unblends a imagebuffer into match strength with given color
  * the bgimg argument should contain a second image with pixel occluded by the font visible.
@@ -119,21 +147,24 @@ function unblendKnownBg(img, bgimg, shadow, r, g, b) {
     var totalerror = 0;
     for (var i = 0; i < img.data.length; i += 4) {
         var col = decompose2col(img.data[i], img.data[i + 1], img.data[i + 2], r, g, b, bgimg.data[i + 0], bgimg.data[i + 1], bgimg.data[i + 2]);
+        if (col[2] > 0.01) {
+            console.log("high error component: " + (col[2] * 100).toFixed(1) + "%");
+        }
+        rimg.data[i + 0] = col[0] * 255;
+        rimg.data[i + 1] = col[1] * 255;
+        rimg.data[i + 2] = col[2] * 255;
+        /*
         if (shadow) {
             totalerror += col[2];
-            if (col[2] > 0.01) {
-                console.log("high error component: " + (col[2] * 100).toFixed(1) + "%");
-            }
-            var m = 1 - col[1] - col[2]; //main color+black=100%-bg-error
+            var m = 1 - col[1] - col[2];//main color+black=100%-bg-error
             rimg.data[i + 0] = m * 255;
             rimg.data[i + 1] = col[0] / m * 255;
             rimg.data[i + 2] = rimg.data[i + 0];
-        }
-        else {
+        } else {
             rimg.data[i + 0] = col[0] * 255;
             rimg.data[i + 1] = rimg.data[i + 0];
             rimg.data[i + 2] = rimg.data[i + 0];
-        }
+        }*/
         rimg.data[i + 3] = 255;
     }
     if (shadow) {
@@ -194,9 +225,12 @@ function decompose2col(rp, gp, bp, r1, g1, b1, r2, g2, b2) {
     var r3 = g1 * b2 - g2 * b1;
     var g3 = b1 * r2 - b2 * r1;
     var b3 = r1 * g2 - r2 * g1;
-    var col = decompose3col(rp, gp, bp, r1, g1, b1, r2, g2, b2, r3, g3, b3);
-    var noise = Math.abs(col[2] * Math.sqrt(r3 * r3 + g3 * g3 + b3 * b3));
-    return [col[0], col[1], noise];
+    //normalize to length 255
+    var norm = 255 / Math.sqrt(r3 * r3 + g3 * g3 + b3 * b3);
+    r3 *= norm;
+    g3 *= norm;
+    b3 *= norm;
+    return decompose3col(rp, gp, bp, r1, g1, b1, r2, g2, b2, r3, g3, b3);
 }
 exports.decompose2col = decompose2col;
 /**
@@ -268,7 +302,7 @@ function findReadLine(buffer, font, cols, x, y, w = -1, h = -1) {
     }
     if (h == -1) {
         h = 7;
-        y -= 1; /*Math.ceil(h / 2);*/
+        y -= 1;
     }
     var chr = findChar(buffer, font, cols[0], x, y, w, h);
     if (chr == null) {
@@ -363,7 +397,15 @@ function readChar(buffer, font, col, x, y, backwards, allowSecondary) {
     var shiftx = 0;
     var shifty = font.basey;
     var shadow = font.shadow;
-    var fr = col[0], fg = col[1], fb = col[2];
+    var debugobj = null;
+    var debugimg = null;
+    if (exports.debug.trackread) {
+        var name = x + ";" + y + " " + JSON.stringify(col);
+        if (!exports.debugout[name]) {
+            exports.debugout[name] = [];
+        }
+        debugobj = exports.debugout[name];
+    }
     //===== make sure the full domain is inside the bitmap/buffer ======
     if (y < 0 || y + font.height >= buffer.height) {
         return null;
@@ -385,9 +427,11 @@ function readChar(buffer, font, col, x, y, backwards, allowSecondary) {
         if (chrobj.secondary && !allowSecondary) {
             continue;
         }
-        var chrpixels = chrobj.pixels;
         scores[chr] = { score: 0, sizescore: 0, chr: chrobj };
         var chrx = (backwards ? x - chrobj.width : x);
+        if (exports.debug.trackread) {
+            debugimg = new base_1.ImageData(font.width, font.height);
+        }
         for (var a = 0; a < chrobj.pixels.length;) {
             var i = (chrx + chrobj.pixels[a]) * 4 + (y + chrobj.pixels[a + 1]) * buffer.width * 4;
             var penalty = 0;
@@ -401,11 +445,18 @@ function readChar(buffer, font, col, x, y, backwards, allowSecondary) {
                 a += 4;
             }
             scores[chr].score += Math.max(0, penalty);
+            //TODO add compiler flag to this to remove it for performance
+            if (debugimg) {
+                debugimg.setPixel(chrobj.pixels[a], chrobj.pixels[a + 1], [penalty, penalty, penalty, 255]);
+            }
         }
         scores[chr].sizescore = scores[chr].score - chrobj.bonus;
+        if (debugobj) {
+            debugobj.push({ chr: chrobj.chr, score: scores[chr].sizescore, rawscore: scores[chr].score, img: debugimg });
+        }
     }
     scores.sort((a, b) => a.sizescore - b.sizescore);
-    if (exports.printcharscores) {
+    if (exports.debug.printcharscores) {
         scores.slice(0, 5).forEach(q => console.log(q.chr.chr, q.score.toFixed(3), q.sizescore.toFixed(3)));
     }
     var winchr = scores[0];
@@ -480,7 +531,6 @@ function generatefont(unblended, chars, seconds, bonusses, basey, spacewidth, tr
     //detect all pixels
     for (var a in chardata) {
         var chr = chardata[a];
-        var b = 0;
         for (var x = 0; x < chr.width; x++) {
             for (var y = 0; y < maxy + 1 - miny; y++) {
                 var i = (x + chr.ds) * 4 + (y + miny) * unblended.width * 4;
@@ -490,7 +540,7 @@ function generatefont(unblended, chars, seconds, bonusses, basey, spacewidth, tr
                     if (shadow) {
                         chr.pixels.push(unblended.data[i + 1]);
                     }
-                    chr.bonus += 0.002;
+                    chr.bonus += 5;
                 }
             }
         }

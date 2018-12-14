@@ -8,6 +8,7 @@
 		"jsx": "react",
 		"allowJs": false,
 		"baseUrl": ".",
+		"noImplicitThis": true,
 		"paths": {
 			"@alt1/*": [ "alt1/*" ]
 		}

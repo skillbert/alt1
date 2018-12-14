@@ -112,7 +112,6 @@ function cloneImage(img, x, y, w, h) {
     return clone;
 }
 module.exports = async function (source) {
-    debugger;
     var me = this;
     var meta = JSON.parse(source);
     if (!meta.img) {
@@ -138,6 +137,7 @@ module.exports = async function (source) {
         png.parse(bytes);
     });
     var img = new a1lib.ImageData(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height);
+    debugger;
     var bg = null;
     var pxheight = img.height - 1;
     if (meta.unblendmode == "removebg") {
@@ -161,6 +161,9 @@ module.exports = async function (source) {
     var font = OCR.generatefont(unblended, meta.chars, meta.seconds, meta.bonus, meta.basey, meta.spacewidth, meta.treshold, meta.shadow);
     me.callback(null, JSON.stringify(font));
 };
+function exportimg(img) {
+    return "(function(){var b=new ImageData(" + img.width + "," + img.height + "); b.data.set([" + img.data + "]); b.show(); console.clear(); return b;})()";
+}
 
 
 /***/ }),

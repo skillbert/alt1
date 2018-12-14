@@ -48,7 +48,7 @@ module.exports = async function (this: webpack.loader.LoaderContext, source: str
 		png.parse(bytes);
 	})
 	var img = new a1lib.ImageData(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height);
-	debugger;
+
 	var bg = null;
 	var pxheight = img.height - 1;
 	if (meta.unblendmode == "removebg") {
@@ -73,6 +73,9 @@ module.exports = async function (this: webpack.loader.LoaderContext, source: str
 	me.callback(null, JSON.stringify(font));
 };
 
+
+//debug function used to be able to view an image while inside a webpack process
+//paste the returned string in a console with old alt1 libraries loaded
 function exportimg(img: ImageData) {
 	return "(function(){var b=new ImageData(" + img.width + "," + img.height + "); b.data.set([" + img.data + "]); b.show(); console.clear(); return b;})()";
 }

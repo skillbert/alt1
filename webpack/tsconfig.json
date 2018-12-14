@@ -8,7 +8,9 @@
 		"jsx": "react",
 		"allowJs": false,
 		"downlevelIteration": true,
+		"noImplicitThis": true,
 		"baseUrl": ".",
+		"experimentalDecorators":true,
 		"paths": {
 			"@alt1/*": [ "alt1/*" ]
 		}

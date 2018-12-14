@@ -80,7 +80,7 @@ export default class ActionbarReader {
 		var width = this.pos.layout.barlength;
 		for (var b = 0; b < width; b++) {
 			var i = buffer.pixelOffset(x + (hor ? b : 0), y + (hor ? 0 : b));
-			if (a1lib.ImageDetect.coldif(buffer.data[i], buffer.data[i + 1], buffer.data[i + 2], buffer.data[i + 3], 35, 41, 44, 255) < 20) {
+			if (a1lib.ImageDetect.coldif(buffer.data[i], buffer.data[i + 1], buffer.data[i + 2], 35, 41, 44, 255) < 20) {
 				break;
 			}
 		}

@@ -50,7 +50,7 @@ export var ImageData: ImageDataConstr;
 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
 	var fill = typeof globalvar.ImageData == "undefined";
 
-	var constr = function () {
+	var constr = function (this:any) {
 		var i = 0;
 		var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
 		var width = arguments[i++];
@@ -123,12 +123,12 @@ ImageData.prototype.show = function (x = 5, y = 5, zoom = 1) {
 	var el = this.toImage();
 	el.classList.add("debugimage")
 	el.style.position = "absolute";
-	el.style.zIndex = 1000;
+	el.style.zIndex = "1000";
 	el.style.left = x / zoom + "px";
 	el.style.top = y / zoom + "px";
 	el.style.background = "purple";
 	el.style.cursor = "pointer";
-	el.style.imageRendering = "pixelated";
+	(el.style as any).imageRendering = "pixelated";
 	el.style.outline = "1px solid #0f0";
 	el.style.width = (this.width == 1 ? 100 : this.width) + "px";
 	el.style.height = (this.height == 1 ? 100 : this.height) + "px";
@@ -206,7 +206,7 @@ ImageData.prototype.copyTo = function (target: ImageData, sourcex: number, sourc
 
 
 if (typeof HTMLImageElement != "undefined") {
-	HTMLImageElement.prototype.toBuffer = function (x = 0, y = 0, w = this.width, h = this.height) {
+	HTMLImageElement.prototype.toBuffer = function (this:HTMLImageElement,x = 0, y = 0, w = this.width, h = this.height) {
 		var cnv = document.createElement("canvas");
 		cnv.width = w;
 		cnv.height = h;
@@ -215,7 +215,7 @@ if (typeof HTMLImageElement != "undefined") {
 		return ctx.getImageData(0, 0, w, h);
 	}
 
-	HTMLImageElement.prototype.toCanvas = function (x = 0, y = 0, w = this.width, h = this.height) {
+	HTMLImageElement.prototype.toCanvas = function (this:HTMLImageElement,x = 0, y = 0, w = this.width, h = this.height) {
 		var cnv = document.createElement("canvas");
 		cnv.width = w;
 		cnv.height = h;

@@ -112,7 +112,7 @@ export default class BuffReader {
 				if (data1[i1] == 255 && data1[i1 + 1] == 255 && data1[i1 + 2] == 255) { r.skipped++; continue; }//white pixel - part of buff time text
 				if (data1[i1] == 0 && data1[i1 + 1] == 0 && data1[i1 + 2] == 0) { r.skipped++; continue; }//black pixel - part of buff time text
 
-				var d = a1lib.ImageDetect.coldif(data1[i1], data1[i1 + 1], data1[i1 + 2], 255, data2[i2], data2[i2 + 1], data2[i2 + 2], 255);
+				var d = a1lib.ImageDetect.coldif(data1[i1], data1[i1 + 1], data1[i1 + 2], data2[i2], data2[i2 + 1], data2[i2 + 2], 255);
 				r.tested++;
 				//debug.data[i2] = debug.data[i2 + 1] = debug.data[i2 + 2] = d * 10;
 				if (d > 35) {
@@ -159,7 +159,7 @@ export default class BuffReader {
 					removed++;
 				}
 
-				var d = a1lib.ImageDetect.coldif(data1[i1], data1[i1 + 1], data1[i1 + 2], 255, data2[i2], data2[i2 + 1], data2[i2 + 2], 255);
+				var d = a1lib.ImageDetect.coldif(data1[i1], data1[i1 + 1], data1[i1 + 2], data2[i2], data2[i2 + 1], data2[i2 + 2], 255);
 				//debug.data[i2] = debug.data[i2 + 1] = debug.data[i2 + 2] = d * 10;
 				if (d > 0) {
 					//qw(pixelschecked); debug.show();

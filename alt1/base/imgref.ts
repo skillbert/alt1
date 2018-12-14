@@ -22,7 +22,7 @@ export class ImgRef {
 	findSubimage(needle: ImageData, sx = 0, sy = 0, w = this.width, h = this.height) {
 		return ImageDetect.findSubimage(this, needle, sx, sy, w, h);
 	}
-	toData(x = this.x, y = this.y, w: number, h: number) {
+	toData(x = this.x, y = this.y, w = this.width, h = this.height) {
 		return this.read(x - this.x, y - this.y, w, h);
 	};
 	containsArea(rect: RectLike) {

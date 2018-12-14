@@ -52,8 +52,9 @@ var trackinterval = (hasAlt1 && alt1.captureInterval) || 300;
 
 /**
  * Open a link in the default browser
+ * @deprecated use window.open instead
  */
-export function openbrowser(url) {
+export function openbrowser(url:string) {
 	if (hasAlt1) {
 		alt1.openBrowser(url);
 	}
@@ -82,7 +83,7 @@ export function getdisplaybounds() {
  */
 export function capture(x: number, y: number, w: number, h: number): ImageData;
 export function capture(rect: RectLike): ImageData;
-export function capture(...args): ImageData {
+export function capture(...args:any[]): ImageData|null {
 	if (!hasAlt1) { throw new NoAlt1Error(); }
 	var i = 0;
 
@@ -286,7 +287,7 @@ export function removeListener<K extends keyof Alt1EventType>(type: K, listener:
  */
 export function once<K extends keyof Alt1EventType>(type: K, listener: (ev: Alt1EventType[K]) => void) {
 	requireAlt1();
-	var fn = (e) => {
+	var fn = (e:Alt1EventType[K]) => {
 		removeListener(type, fn);
 		listener(e);
 	};
@@ -316,11 +317,11 @@ export class ImageStreamReader {
 
 	//paused state
 	private pausedindex = -1;
-	private pausedbuffer: Uint8Array;
+	private pausedbuffer: Uint8Array|null=null;
 
 	constructor(reader: ReadableStreamReader, width: number, height: number);
 	constructor(reader: ReadableStreamReader, framebuffer: ImageData);
-	constructor(reader: ReadableStreamReader, ...args) {
+	constructor(reader: ReadableStreamReader, ...args:any[]) {
 		this.streamreader = reader;
 		if (args[0] instanceof ImageData) { this.framebuffer = args[0]; }
 		else { this.framebuffer = new ImageData(args[0], args[1]); }
@@ -343,7 +344,7 @@ export class ImageStreamReader {
 		var starttime = Date.now();
 		var r = false;
 		while (!r) {
-			if (this.pausedindex != -1) {
+			if (this.pausedindex != -1 && this.pausedbuffer) {
 				r = this.readChunk(this.pausedindex, this.framebuffer.data, this.pausedbuffer);
 			}
 			else {
@@ -443,7 +444,7 @@ type asyncCaptureFormat = "png" | "raw" | "jpeg";
  */
 export async function captureAsync(rect: RectLike, format?: asyncCaptureFormat, quality?: number): Promise<ImageData>;
 export async function captureAsync(x: number, y: number, width: number, height: number, format?: asyncCaptureFormat, quality?: number): Promise<ImageData>;
-export async function captureAsync(...args): Promise<ImageData> {
+export async function captureAsync(...args:any[]): Promise<ImageData> {
 	requireAlt1();
 	var i = 0;
 	var rect = (typeof args[i] == "object" ? args[i++] : { x: args[i++], y: args[i++], width: args[i++], height: args[i++] });
@@ -456,7 +457,7 @@ export async function captureAsync(...args): Promise<ImageData> {
 	var url = "https://alt1api/pixel/getregion/" + encodeURIComponent(JSON.stringify({ ...rect, format, quality }));
 	if (format == "raw") {
 		var res = await fetch(url);
-		var imgreader = new ImageStreamReader(res.body.getReader(), rect.width, rect.height);
+		var imgreader = new ImageStreamReader(res.body!.getReader(), rect.width, rect.height);
 		return imgreader.nextImage();
 	} else {
 		return ImageDetect.imageDataFromUrl(url);
@@ -476,7 +477,7 @@ export function captureStream(x: number, y: number, width: number, height: numbe
 	if (!hasAlt1Version("1.4.6")) { throw new Alt1Error("This function is not supported in this version of Alt1"); }
 	var url = "https://alt1api/pixel/streamregion/" + encodeURIComponent(JSON.stringify({ x, y, width, height, fps, format: "raw" }));
 	var res = fetch(url).then(async res => {
-		var reader = new ImageStreamReader(res.body.getReader(), width, height);
+		var reader = new ImageStreamReader(res.body!.getReader(), width, height);
 		try {
 			while (!reader.closed && !state.closed) {
 				var img = await reader.nextImage();
