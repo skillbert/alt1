@@ -6,10 +6,9 @@
 	"main": "./dist/index.js",
 	"types": "index.ts",
 	"author": "Skillbert",
-	"version": "0.0.1",
-	"dependencies": {},
+	"version": "0.0.2",
 	"optionalDependencies": {
-		"pngjs": "^3.4.0",
-		"node-fetch": "^2.5.0"
+		"node-fetch": "^2.5.0",
+		"pngjs": "^3.4.0"
 	}
 }
