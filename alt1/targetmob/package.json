@@ -1,13 +1,14 @@
 {
-	"name": "@alt1/chatbox",
+	"name": "@alt1/targetmob",
 	"runeappsType": "lib",
-	"runeappsLibNameRoot": "Chatbox",
+	"runeappsLibNameRoot": "TargetMob",
 	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.js",
 	"types": "index.ts",
 	"author": "Skillbert",
 	"version": "0.0.1",
 	"dependencies": {
-		"@alt1/base":"^0.0.1"
+		"@alt1/base": "file:../base",
+		"@alt1/ocr": "file:../ocr"
 	}
 }

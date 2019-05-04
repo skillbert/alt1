@@ -4,8 +4,11 @@
 	"runeappsLibNameRoot": "AbilityReader",
 	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.js",
-	"types":"./index.ts",
+	"types": "./index.ts",
 	"author": "Skillbert",
 	"version": "0.0.1",
-	"dependencies": {}
+	"dependencies": {
+		"@alt1/base": "file:../base",
+		"@alt1/ocr": "file:../ocr"
+	}
 }

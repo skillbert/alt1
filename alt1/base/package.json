@@ -7,5 +7,9 @@
 	"types": "index.ts",
 	"author": "Skillbert",
 	"version": "0.0.1",
-	"dependencies": {}
+	"dependencies": {},
+	"optionalDependencies": {
+		"pngjs": "^3.4.0",
+		"node-fetch": "^2.5.0"
+	}
 }

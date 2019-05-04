@@ -5,10 +5,10 @@
 	"runeappsLibNameRoot": "Alt1DataPngLoader",
 	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.js",
-	"types":"./index.ts",
+	"types": "./index.ts",
 	"author": "Skillbert",
 	"version": "0.0.1",
 	"dependencies": {
-		"@alt1/base": "^0.0.1"
+		"@alt1/base": "file:../base"
 	}
 }
