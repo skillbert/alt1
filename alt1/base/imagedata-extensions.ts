@@ -14,7 +14,7 @@ declare global {
 
 		getPixel(x: number, y: number): [number, number, number, number];
 		getPixelInt(x: number, y: number): number;
-		getColorDifference(x: number, y: number, r: number, g: number, b: number, a?:number): number;
+		getColorDifference(x: number, y: number, r: number, g: number, b: number, a?: number): number;
 
 
 		setPixel(x: number, y: number, color: [number, number, number, number]): void;
@@ -28,7 +28,7 @@ declare global {
 
 		copyTo(target: ImageData, sourcex: number, sourcey: number, width: number, height: number, targetx: number, targety: number): void;
 	}
-	
+
 	interface HTMLImageElement {
 		toBuffer(x?: number, y?: number, w?: number, h?: number): ImageData;
 		toCanvas(x?: number, y?: number, w?: number, h?: number): HTMLCanvasElement;
@@ -50,7 +50,7 @@ export var ImageData: ImageDataConstr;
 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
 	var fill = typeof globalvar.ImageData == "undefined";
 
-	var constr = function (this:any) {
+	var constr = function (this: any) {
 		var i = 0;
 		var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
 		var width = arguments[i++];
@@ -119,7 +119,7 @@ ImageData.prototype.clone = function (rect) {
 
 ImageData.prototype.show = function (x = 5, y = 5, zoom = 1) {
 	var imgs = document.getElementsByClassName("debugimage");
-	for (var i = 0; imgs.length - 1 > 10; i++) { imgs[i].remove(); }
+	while (imgs.length > 10) { imgs[0].remove(); }
 	var el = this.toImage();
 	el.classList.add("debugimage")
 	el.style.position = "absolute";
@@ -158,7 +158,7 @@ ImageData.prototype.getPixelInt = function (x, y) {
 	return (this.data[i + 3] << 24) + (this.data[i + 0] << 16) + (this.data[i + 1] << 8) + (this.data[i + 2] << 0);
 }
 
-ImageData.prototype.getColorDifference = function (x,y,r,g,b,a=255) {
+ImageData.prototype.getColorDifference = function (x, y, r, g, b, a = 255) {
 	var i = x * 4 + y * 4 * this.width;
 	return Math.abs(this.data[i] - r) + Math.abs(this.data[i + 1] - g) + Math.abs(this.data[i + 2] - b) * a / 255;
 }
@@ -206,7 +206,7 @@ ImageData.prototype.copyTo = function (target: ImageData, sourcex: number, sourc
 
 
 if (typeof HTMLImageElement != "undefined") {
-	HTMLImageElement.prototype.toBuffer = function (this:HTMLImageElement,x = 0, y = 0, w = this.width, h = this.height) {
+	HTMLImageElement.prototype.toBuffer = function (this: HTMLImageElement, x = 0, y = 0, w = this.width, h = this.height) {
 		var cnv = document.createElement("canvas");
 		cnv.width = w;
 		cnv.height = h;
@@ -215,7 +215,7 @@ if (typeof HTMLImageElement != "undefined") {
 		return ctx.getImageData(0, 0, w, h);
 	}
 
-	HTMLImageElement.prototype.toCanvas = function (this:HTMLImageElement,x = 0, y = 0, w = this.width, h = this.height) {
+	HTMLImageElement.prototype.toCanvas = function (this: HTMLImageElement, x = 0, y = 0, w = this.width, h = this.height) {
 		var cnv = document.createElement("canvas");
 		cnv.width = w;
 		cnv.height = h;

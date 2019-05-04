@@ -27,7 +27,7 @@ export class Alt1Error extends Error { }
 /**
  * The latest Alt1 version
  */
-export var newestversion = "1.4.6";
+export var newestversion = "1.5.3";
 
 /**
  * Wether the Alt1 API is available
@@ -46,15 +46,10 @@ export var skinName = hasAlt1 ? alt1.skinName : "default";
 var maxtransfer = 4000000;
 
 /**
- * Recommended minimal capture interval
- */
-var trackinterval = (hasAlt1 && alt1.captureInterval) || 300;
-
-/**
  * Open a link in the default browser
  * @deprecated use window.open instead
  */
-export function openbrowser(url:string) {
+export function openbrowser(url: string) {
 	if (hasAlt1) {
 		alt1.openBrowser(url);
 	}
@@ -83,7 +78,7 @@ export function getdisplaybounds() {
  */
 export function capture(x: number, y: number, w: number, h: number): ImageData;
 export function capture(rect: RectLike): ImageData;
-export function capture(...args:any[]): ImageData|null {
+export function capture(...args: any[]): ImageData | null {
 	if (!hasAlt1) { throw new NoAlt1Error(); }
 	var i = 0;
 
@@ -177,9 +172,10 @@ export function decodeImageString(imagestring: string, target: ImageData, x: num
 	w |= 0;
 	h |= 0;
 	var offset = 4 * x + 4 * y * target.width;
+	var target_width = target.width | 0;
 	for (var a = 0; a < w; a++) {
 		for (var b = 0; b < h; b++) {
-			var i1 = (offset + (a * 4 | 0) + (b * target.width * 4 | 0)) | 0;
+			var i1 = (offset + (a * 4 | 0) + (b * target_width * 4 | 0)) | 0;
 			var i2 = ((a * 4 | 0) + (b * 4 * w | 0)) | 0;
 			bytes[i1 + 0 | 0] = bin.charCodeAt(i2 + 2 | 0);//fix weird red/blue swap in c#
 			bytes[i1 + 1 | 0] = bin.charCodeAt(i2 + 1 | 0);
@@ -225,13 +221,15 @@ function convertAlt1Version(str: string) {
 	return (+a[1]) * 1000 * 1000 + (+a[2]) * 1000 + (+a[3]) * 1;
 }
 
+var cachedVersionInt = -1
 /**
  * checks if alt1 is running and at least the given version. versionstr should be a string with the version eg: 1.3.2
  * @param versionstr
  */
 export function hasAlt1Version(versionstr: string) {
 	if (!hasAlt1) { return false; }
-	return alt1.versionint >= convertAlt1Version(versionstr);
+	if (cachedVersionInt == -1) { cachedVersionInt = alt1.versionint; }
+	return cachedVersionInt >= convertAlt1Version(versionstr);
 }
 
 /**
@@ -287,7 +285,7 @@ export function removeListener<K extends keyof Alt1EventType>(type: K, listener:
  */
 export function once<K extends keyof Alt1EventType>(type: K, listener: (ev: Alt1EventType[K]) => void) {
 	requireAlt1();
-	var fn = (e:Alt1EventType[K]) => {
+	var fn = (e: Alt1EventType[K]) => {
 		removeListener(type, fn);
 		listener(e);
 	};
@@ -309,7 +307,7 @@ interface Alt1EventType {
  * Used to read a set of images from a binary stream returned by the Alt1 API
  */
 export class ImageStreamReader {
-	private framebuffer: ImageData;
+	private framebuffer: ImageData = null;
 	private streamreader: ReadableStreamReader;
 	private pos = 0;
 	private reading = false;
@@ -317,14 +315,23 @@ export class ImageStreamReader {
 
 	//paused state
 	private pausedindex = -1;
-	private pausedbuffer: Uint8Array|null=null;
+	private pausedbuffer: Uint8Array | null = null;
 
 	constructor(reader: ReadableStreamReader, width: number, height: number);
 	constructor(reader: ReadableStreamReader, framebuffer: ImageData);
-	constructor(reader: ReadableStreamReader, ...args:any[]) {
+	constructor(reader: ReadableStreamReader);
+	constructor(reader: ReadableStreamReader, ...args: any[]) {
 		this.streamreader = reader;
-		if (args[0] instanceof ImageData) { this.framebuffer = args[0]; }
-		else { this.framebuffer = new ImageData(args[0], args[1]); }
+		if (args[0] instanceof ImageData) { this.setFrameBuffer(args[0]); }
+		else if (typeof args[0] == "number") { this.setFrameBuffer(new ImageData(args[0], args[1])); }
+	}
+
+	/**
+	 * 
+	 */
+	setFrameBuffer(buffer: ImageData) {
+		if (this.reading) { throw new Error("can't change framebuffer while reading"); }
+		this.framebuffer = buffer;
 	}
 
 	/**
@@ -339,6 +346,7 @@ export class ImageStreamReader {
 	 */
 	async nextImage() {
 		if (this.reading) { throw new Error("already reading from this stream"); }
+		if (!this.framebuffer) { throw new Error("framebuffer not set"); }
 		this.reading = true;
 		var synctime = -Date.now();
 		var starttime = Date.now();
@@ -444,24 +452,56 @@ type asyncCaptureFormat = "png" | "raw" | "jpeg";
  */
 export async function captureAsync(rect: RectLike, format?: asyncCaptureFormat, quality?: number): Promise<ImageData>;
 export async function captureAsync(x: number, y: number, width: number, height: number, format?: asyncCaptureFormat, quality?: number): Promise<ImageData>;
-export async function captureAsync(...args:any[]): Promise<ImageData> {
+export async function captureAsync(...args: any[]): Promise<ImageData> {
 	requireAlt1();
 	var i = 0;
 	var rect = (typeof args[i] == "object" ? args[i++] : { x: args[i++], y: args[i++], width: args[i++], height: args[i++] });
 	var format = args[i++] || "raw";
 	var quality = args[i++] || 0.6;
-
 	if (!hasAlt1Version("1.4.6")) {
 		return capture(rect.x, rect.y, rect.width, rect.height);
 	}
 	var url = "https://alt1api/pixel/getregion/" + encodeURIComponent(JSON.stringify({ ...rect, format, quality }));
 	if (format == "raw") {
 		var res = await fetch(url);
-		var imgreader = new ImageStreamReader(res.body!.getReader(), rect.width, rect.height);
+		var imgreader = new ImageStreamReader(res.body.getReader(), rect.width, rect.height);
 		return imgreader.nextImage();
 	} else {
 		return ImageDetect.imageDataFromUrl(url);
 	}
+}
+
+/**
+ * Asynchronously captures multple area's. This method captures the images in the same render frame if possible
+ * @param areas 
+ */
+export async function captureMultiAsync<T extends { [id: string]: RectLike }>(areas: T) {
+	requireAlt1();
+	var format = "raw" as asyncCaptureFormat;
+	var quality = 0.6;
+
+	var r = {} as { [K in keyof T]: ImageData };
+	var capts = [] as RectLike[];
+	var captids = [] as string[];
+	for (var id in areas) {
+		if (areas[id]) { capts.push(areas[id]); captids.push(id); }
+		else { r[id] = null; }
+	}
+	if (!hasAlt1Version("1.5.1")) {
+		var proms = [] as Promise<ImageData>[];
+		for (var a = 0; a < capts.length; a++) { proms.push(captureAsync(capts[a], format, quality)); }
+		var results = await Promise.all(proms);
+		for (var a = 0; a < capts.length; a++) { r[captids[a]] = results[a]; }
+	} else {
+		var res = await fetch("https://alt1api/pixel/getregionmulti/" + encodeURIComponent(JSON.stringify({ areas: capts, format, quality })));
+		var imgreader = new ImageStreamReader(res.body.getReader());
+		for (var a = 0; a < capts.length; a++) {
+			var capt = capts[a];
+			imgreader.setFrameBuffer(new ImageData(capt.width, capt.height));
+			r[captids[a]] = await imgreader.nextImage();
+		}
+	}
+	return r;
 }
 
 export type CaptureStreamResult = { x: number, y: number, width: number, height: number, framenr: number, close: () => void, closed: boolean };

@@ -27,7 +27,8 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 			var buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
 		}
 		else {
-			var buffer = new Uint8Array(await nodefetch(url).then(r => r.arrayBuffer()));
+			var res = await nodefetch(url).then(r => r.arrayBuffer());
+			var buffer = new Uint8Array(res);
 		}
 		clearPngColorspace(buffer);
 		var png = new pngjs.PNG();
@@ -257,4 +258,3 @@ export function webpackImages<T extends { [name: string]: Promise<ImageData> }>(
 	return asyncMap<{ [K in keyof T]: Promise<ImageData> }>(input) as any as { promise: Promise<subt>, loaded: boolean, raw: subt } & subt;
 }
 
-var qq = webpackImages({ a: Promise.resolve(new ImageData(10, 10)) });

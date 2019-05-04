@@ -1,9 +1,9 @@
 ﻿import * as a1lib from "@alt1/base";
 import * as OCR from "@alt1/ocr";
-import { ImageData } from "@alt1/base";
+import { ImageData, ImgRef } from "@alt1/base";
 
 var imgs = a1lib.ImageDetect.webpackImages({
-	buff:require("./imgs/buffborder.data.png"),
+	buff: require("./imgs/buffborder.data.png"),
 	debuff: require("./imgs/debuffborder.data.png"),
 });
 
@@ -13,43 +13,43 @@ function negmod(a, b) {
 	return ((a % b) + b) % b;
 }
 
-var buffsize = 29;
 
 export type BuffTextTypes = "time" | "timearg" | "arg";
 
-class Buff {
-    type: BuffTextTypes;
+
+export class Buff {
+	isdebuff: boolean;
 	buffer: ImageData;
 	bufferx: number;
 	buffery: number;
-	constructor(buffer,x,y,type) {
+	constructor(buffer: ImageData, x: number, y: number, isdebuff: boolean) {
 		this.buffer = buffer;
 		this.bufferx = x;
 		this.buffery = y;
-        this.type = type;
-    }
-    readArg(type: BuffTextTypes) {
-        return BuffReader.readArg(this.buffer, this.bufferx + 2, this.buffery + 17, type);
-    }
+		this.isdebuff = isdebuff;
+	}
+	readArg(type: BuffTextTypes) {
+		return BuffReader.readArg(this.buffer, this.bufferx + 2, this.buffery + 24, type);
+	}
 	readTime() {
-		return BuffReader.readTime(this.buffer, this.bufferx + 2, this.buffery + 17);
+		return BuffReader.readTime(this.buffer, this.bufferx + 2, this.buffery + 24);
 	}
-	compareBuffer(img:ImageData) {
-		return BuffReader.compareBuffer(this.buffer, this.bufferx + 1, this.buffery + 1,img);
+	compareBuffer(img: ImageData) {
+		return BuffReader.compareBuffer(this.buffer, this.bufferx + 1, this.buffery + 1, img);
 	}
-    countMatch(img: ImageData, aggressive?: boolean) {
-        return BuffReader.countMatch(this.buffer, this.bufferx + 1, this.buffery + 1, img, aggressive);
-    }
+	countMatch(img: ImageData, aggressive?: boolean) {
+		return BuffReader.countMatch(this.buffer, this.bufferx + 1, this.buffery + 1, img, aggressive);
+	}
 }
 
 export default class BuffReader {
 	pos: { x: number, y: number } = null;
 	debuffs = false;
 
-	find() {
+	find(img?: ImgRef) {
 		var gridsize = 30;
-		var img = a1lib.captureHoldFullRs();
-		if (!img) { return false; }
+		if (!img) { img = a1lib.captureHoldFullRs(); }
+		if (!img) { return null; }
 		var poslist = img.findSubimage(this.debuffs ? imgs.debuff : imgs.buff);
 		if (poslist.length == 0) { return null; }
 		var grids = [];
@@ -76,16 +76,19 @@ export default class BuffReader {
 		this.pos = { x: best.x, y: best.y };
 		return true;
 	}
-
-	read() {
+	getCaptRect() {
+		return new a1lib.Rect(this.pos.x, this.pos.y, 180, 90);
+	}
+	read(buffer?: ImageData) {
 		var r: Buff[] = [];
-		var buffer = a1lib.capture(this.pos.x, this.pos.y, 180, 90);
+		var rect = this.getCaptRect();
+		if (!buffer) { buffer = a1lib.capture(rect.x, rect.y, rect.width, rect.height); }
 		for (var i = 0; i < 18; i++) {
 			var x = i % 6 * 30;
 			var y = Math.floor(i / 6) * 30;
 			var match = buffer.pixelCompare((this.debuffs ? imgs.debuff : imgs.buff), x, y) != Infinity;
-            if (!match) { break; }
-            r.push(new Buff(buffer, x, y, (!this.debuffs ? "buff" : "debuff")));
+			if (!match) { break; }
+			r.push(new Buff(buffer, x, y, this.debuffs));
 		}
 		return r;
 	}
@@ -130,7 +133,7 @@ export default class BuffReader {
 	}
 
 
-	static isolateBuffer(buffer:ImageData, ox:number, oy:number, buffimg:ImageData) {
+	static isolateBuffer(buffer: ImageData, ox: number, oy: number, buffimg: ImageData) {
 		var count = BuffReader.countMatch(buffer, ox, oy, buffimg);
 		if (count.passed < 50) { return; }
 
@@ -172,28 +175,31 @@ export default class BuffReader {
 		if (removed > 0) { console.log(removed + " pixels remove from buff template image"); }
 	}
 
-    static readArg(buffer: ImageData, ox: number, oy: number, type: BuffTextTypes) {
-        var lines: string[] = [];
-        for (var dy = -10; dy < 10; dy += 10) {//the timer can be spread to a second line at certain times (229m)
-            var result = OCR.readLine(buffer, font, [255, 255, 255], ox, oy + dy, true);
-            if (result) { lines.push(result.text); }
-        }
-        var r = { time: 0, arg: "" };
-        if (type != "time" && lines.length > 1) { r.arg = lines.pop(); }
-
-        var str = lines.join("");
-        var m;
-        if (m = str.match(/^(\d+)h$/)) { r.time = +m[1] * 60 * 60; }
-        else if (m = str.match(/^(\d+)m$/)) { r.time = +m[1] * 60; }
-        else if (m = str.match(/^(\d+)$/)) { r.time = +m[1]; }
-        return r;
-    }
-
-    static readTime(buffer: ImageData, ox: number, oy: number) {
-        return this.readArg(buffer, ox, oy, "time").time;
+	static readArg(buffer: ImageData, ox: number, oy: number, type: BuffTextTypes) {
+		var lines: string[] = [];
+		for (var dy = -10; dy < 10; dy += 10) {//the timer can be spread to a second line at certain times (229m)
+			var result = OCR.readLine(buffer, font, [255, 255, 255], ox, oy + dy, true);
+			if (result.text) { lines.push(result.text); }
+		}
+		var r = { time: 0, arg: "" };
+		if (type == "timearg" && lines.length > 1) { r.arg = lines.pop(); }
+		var str = lines.join("");
+		if (type == "arg") {
+			r.arg = str;
+		} else {
+			var m;
+			if (m = str.match(/^(\d+)h$/)) { r.time = +m[1] * 60 * 60; }
+			else if (m = str.match(/^(\d+)m$/)) { r.time = +m[1] * 60; }
+			else if (m = str.match(/^(\d+)$/)) { r.time = +m[1]; }
+		}
+		return r;
 	}
 
-	static matchBuff(state, buffimg:ImageData) {
+	static readTime(buffer: ImageData, ox: number, oy: number) {
+		return this.readArg(buffer, ox, oy, "time").time;
+	}
+
+	static matchBuff(state, buffimg: ImageData) {
 		for (var a in state) {
 			if (state[a].compareBuffer(buffimg)) { return state[a]; }
 		}

@@ -229,10 +229,11 @@ export default class TooltipReader {
             [255, 255, 0],//npc
         ];
 
+		//TODO remove this and all refs
         var rulestr = JSON.stringify(readrules);
-        throw "not completely implemented. OCR only supports one colors at a time";
+        //throw "not completely implemented. OCR only supports one colors at a time";
         //TODO only one color allowed atm
-        var lines = OCR.findReadLine(data, font, [colors[0]], area.x + 12, area.y + 14);
+        var lines = OCR.findReadLine(data, font, colors, area.x + 12, area.y + 14);
         return lines;
     }
 

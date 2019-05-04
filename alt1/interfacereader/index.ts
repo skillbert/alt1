@@ -81,7 +81,7 @@ export default abstract class InterfaceReader<S, P extends RectLike=RectLike> {
 	}
 
 	/**
-	 * Tries to read the interface state from the screen. If the interface is not found you it will also try to find it. 
+	 * Tries to read the interface state from the screen. If the interface is not found it will also try to find it. 
 	 * @param img Optional. Uses this image for the reading
 	 */
 	async findRead(img?:ImgRef) {

@@ -1,0 +1,14 @@
+{
+	"name": "@alt1/datapng-loader",
+	"runeappsType": "lib",
+	"runeappsTarget": "node",
+	"runeappsLibNameRoot": "Alt1DataPngLoader",
+	"runeappsLibEntry": "./index.ts",
+	"main": "./dist/index.js",
+	"types":"./index.ts",
+	"author": "Skillbert",
+	"version": "0.0.1",
+	"dependencies": {
+		"@alt1/base": "^0.0.1"
+	}
+}

@@ -9,7 +9,7 @@ export function copyToClipboard(str: string) {
 
 
 
-export type DragHandlerState = { x: number, y: number, dx: number, dy: number, sx: number, sy: number, end: boolean };
+export type DragHandlerState = { x: number, y: number, dx: number, dy: number, sx: number, sy: number, end: boolean, start: boolean };
 export function newDragHandler(mousedownevent: MouseEvent | React.MouseEvent, movefunc: (state: DragHandlerState, end: boolean) => any, endfunc: (state: DragHandlerState, end: boolean) => any, mindist: number) {
 	var locked = mindist != undefined;
 	var mouseloc: DragHandlerState;
@@ -21,7 +21,7 @@ export function newDragHandler(mousedownevent: MouseEvent | React.MouseEvent, mo
 	//TODO screenX approach breaks when zoomed or clientx is required
 	var x = mousedownevent.screenX + clientdx;
 	var y = mousedownevent.screenY + clientdy;
-	var init = function () { mouseloc = { x: x, y: y, dx: 0, dy: 0, sx: x, sy: y, end: false }; }
+	var init = function () { mouseloc = { x: x, y: y, dx: 0, dy: 0, sx: x, sy: y, end: false, start: true }; }
 	init();
 
 	var moved = function (e, end) {
@@ -40,6 +40,7 @@ export function newDragHandler(mousedownevent: MouseEvent | React.MouseEvent, mo
 			mouseloc.y = y;
 			movefunc && movefunc(mouseloc, false);
 			end && endfunc && endfunc(mouseloc, true);
+			mouseloc.start = false;
 		}
 	}
 
@@ -183,11 +184,11 @@ export namespace OldDom {
 
 	type ObjAttr = { [prop: string]: any };
 	type ArrCh = (HTMLElement | string)[];
-	export function div(strClass?: string, objAttr?: ObjAttr, arrayChildren?: ArrCh):HTMLElement;
-	export function div(objAttr: ObjAttr, arrayChildren?: ArrCh):HTMLElement;
-	export function div(strClass: string, arrayChildren?: ArrCh):HTMLElement;
-	export function div(arrayChildren: ArrCh):HTMLElement;
-	export function div(strClass?, objAttr?, arrayChildren?):HTMLElement {
+	export function div(strClass?: string, objAttr?: ObjAttr, arrayChildren?: ArrCh): HTMLElement;
+	export function div(objAttr: ObjAttr, arrayChildren?: ArrCh): HTMLElement;
+	export function div(strClass: string, arrayChildren?: ArrCh): HTMLElement;
+	export function div(arrayChildren: ArrCh): HTMLElement;
+	export function div(strClass?, objAttr?, arrayChildren?): HTMLElement {
 		var classname, attr, children, tag, tagarg, el, childfrag;
 		//reorder arguments
 		var argi = 0;
@@ -232,7 +233,7 @@ export namespace OldDom {
 		return el;
 	}
 
-	export function frag(...args:(HTMLElement|string|number|null)[]) {
+	export function frag(...args: (HTMLElement | string | number | null)[]) {
 		var el = document.createDocumentFragment();
 		for (var a = 0; a < arguments.length; a++) {
 			if (arguments[a] == null) { continue; }
@@ -241,8 +242,8 @@ export namespace OldDom {
 		}
 		return el;
 	}
-	
-	export function put(el:HTMLElement|string,content:Node) {
+
+	export function put(el: HTMLElement | string, content: Node) {
 		if (typeof el == "string") { el = id(el); }
 		clear(el);
 		el.appendChild(content);
@@ -250,24 +251,45 @@ export namespace OldDom {
 }
 
 export function smallu(nr: number, gp?: boolean) {
-    if (isNaN(nr)) { return "-"; }
-    nr = Math.round(nr);
-    var sign = (nr < 0 ? "-" : "");
-    nr = Math.abs(nr);
-    if (nr >= 1000000000000000) { return sign + "quite a bit" }
-    if (nr % 1) {
-        if (nr < 100) { return sign + (nr + "00").slice(0, 4); }
-        nr = Math.floor(nr);
-    }
-    var nrstr = nr + "";
-    var original = nrstr;
-    if (nrstr.length <= 3) { return sign + nrstr + (gp ? "gp" : ""); }
-    if (nrstr.length == 4) { return sign + nrstr.slice(0, 1) + "," + nrstr.slice(1, 4) + (gp ? "gp" : ""); }
-    if (nrstr.length % 3 != 0) { nrstr = nrstr.slice(0, nrstr.length % 3) + "." + nrstr.slice(nrstr.length % 3, 3); }
-    else { nrstr = nrstr.slice(0, 3); }
-    if (original.length <= 6) { return sign + nrstr + "k" }
-    if (original.length <= 9) { return sign + nrstr + "m" }
-    if (original.length <= 12) { return sign + nrstr + "b" }
-    if (original.length <= 15) { return sign + nrstr + "t" }
-    return "error";
+	if (isNaN(nr)) { return "-"; }
+	nr = Math.round(nr);
+	var sign = (nr < 0 ? "-" : "");
+	nr = Math.abs(nr);
+	if (nr >= 1000000000000000) { return sign + "quite a bit" }
+	if (nr % 1) {
+		if (nr < 100) { return sign + (nr + "00").slice(0, 4); }
+		nr = Math.floor(nr);
+	}
+	var nrstr = nr + "";
+	var original = nrstr;
+	if (nrstr.length <= 3) { return sign + nrstr + (gp ? "gp" : ""); }
+	if (nrstr.length == 4) { return sign + nrstr.slice(0, 1) + "," + nrstr.slice(1, 4) + (gp ? "gp" : ""); }
+	if (nrstr.length % 3 != 0) { nrstr = nrstr.slice(0, nrstr.length % 3) + "." + nrstr.slice(nrstr.length % 3, 3); }
+	else { nrstr = nrstr.slice(0, 3); }
+	if (original.length <= 6) { return sign + nrstr + "k" }
+	if (original.length <= 9) { return sign + nrstr + "m" }
+	if (original.length <= 12) { return sign + nrstr + "b" }
+	if (original.length <= 15) { return sign + nrstr + "t" }
+	return "error";
+}
+
+export function jsonTryDecode(str: string) {
+	try { return JSON.parse(str); }
+	catch (e) { return null; }
+}
+
+export function urlArgs(url?: string): StringMap<string> {
+	if (!url) { url = document.location.search; }
+	var reg = /(\?|&)(.*?)(=(.*?))?(?=$|&)/g;
+	var r = {};
+	for (var m; m = reg.exec(url);) {
+		r[m[2]] = m[4];
+	}
+	return r;
+}
+
+export function padLeft(str: string | number, n: number, char = "0") {
+	str = str + "";
+	while (str.length < n) { str = char + str; }
+	return str;
 }

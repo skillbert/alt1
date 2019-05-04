@@ -5,6 +5,7 @@
 	"runeappsLibNameRoot": "Alt1ImageDataLoader",
 	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.js",
+	"types": "./index.ts",
 	"author": "Skillbert",
 	"version": "0.0.1",
 	"dependencies": {

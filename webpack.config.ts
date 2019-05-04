@@ -1,16 +1,11 @@
 import * as webpack from "webpack";
 import * as path from "path";
 
-import * as a1lib from "@alt1/base";
-
-
 import * as base from "./webpack/main";
 
 
 var rootdir = path.resolve(__dirname, "./");
-var webroot = path.resolve(__dirname, "../htdocs");
 var libdir = path.resolve(__dirname, "alt1");
-var inwebroot = path.resolve(rootdir, "webroot");
 
 module.exports = [].concat(
 	addLibs()
@@ -61,7 +56,6 @@ function addLibs() {
 		var config = lib.config;
 		var externals = Object.assign({}, libexternals);
 		delete externals[lib.name];
-		//if (config.runeappsLibNameRoot != "A1lib") { continue; }
 		var nodetarget = config.runeappsTarget == "node";
 		var basecnf = base.baseConfig(rootdir, { nodejs: nodetarget });
 		var conf = Object.assign(basecnf, {
@@ -78,7 +72,7 @@ function addLibs() {
 				} as any,
 				globalObject: "(typeof self !== 'undefined' ? self : this)"
 			},
-			externals: basecnf.externals.concat(externals as any)
+			externals: (basecnf.externals as any).concat(externals as any)
 		} as Partial<webpack.Configuration>);
 		libconfigs.push(conf);
 	}

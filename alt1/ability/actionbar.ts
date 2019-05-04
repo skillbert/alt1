@@ -1,18 +1,32 @@
 import * as a1lib from "@alt1/base";
 import { ImgRef } from "@alt1/base";
+import * as OCR from "@alt1/ocr";
+
+var chatfont = require("@alt1/ocr/fonts/aa_8px_new.fontmeta.json");
 
 var imgs = a1lib.ImageDetect.webpackImages({
-	dren: a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAABvklEQVQoU2P4BwZHDyx6sVbo70dpEPqtCET//kDRm5cKFjpi+soiDB8+fXvx4hVCNao6CPr1XdFaX4IhLTkaqPr2vcdA1SdPHb8wi/fzB8Wvn5A0/NMBovfvtBlerBECqgYaDDF7x/HzUiK8XpYqnhZKD+8ilAIRw+/30ndnCiKrXrb/lLQoH1A1ED26r41Q+uudNBCdn8kbHB519ep1IHr/79/iFauhZlshmfrrhRAQvbysCJRz8/KFq549exZE9aMHUIMZfj4XAqIX10SAokB7kVVPmDQZ7hIgYvjxTBiIvj4WdrfU8LTSkhLhh6gGhgkwZGprqix1pNwtNIw0ZBm+PxUGom9PhA+tFgEqBakWFTC1cwYGHMSj5voS9vqCs2bNZAAq+gpEj4U/PxLeO18GaABQtbSogLqOHtBzQKXbt20DIqAlDJcOSXx5BFL36YHIx/siL87zXtwpeGar0O5uIStNVmCwAIMPCPRNzBgcTTUenBf7/BCk7t1VnteXeF5e4H1ymu/6foGZGYJAtwLN61i83ikskcHWUNnZXOPUZqH313jeXoEqfXyK7/ZcQWB4AR0A9GVGTev/g/MAJf9QJ/TaG/QAAAAASUVORK5CYII="),
-	drenretal: a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAABt0lEQVQoU12QXSiDURzGz40r72vzzkfawjsXtGRkpCUtJCk3FNqSSUncK5pLH6UkrrbViJRCyyxEyUcS8t0Si0jxTs3ms9i8PNtpS05PnXOe53f+538OEcNje33CM8eJL3IxwIcUjMipQEQZ4n/5EITH/3SY8zh4ygEARlpbDJjc13ewdvd2Tizs5xv/9c5fjmViCxMRAGBEmOUw4RytvbxzpM1iICxoPaino/x7U02Cfvm1Of4vbVtYbTP1RjlE6EQUs0nQJ4eOzWxtvd7lOod8YXp4ZBTrkDmfBC6EBjxcwCd/vlVoMpiKquoobbVa1JpCmN57VQQVOMjvTtCqZKjxtzYK5yvZIaMSGmzkSXA75UvgPp1cj6l7aXERndHa9OEwm3SJffp0oy6ZOKa60GinIQ0ZfgeVcG9BSRnW9Fna3OSaItZqMRMQKAbBnZyeAafLS1WnsZnZOdjCpCkwggz/goEuGyrZB6viak1ysSLZGpIWq2Jg0hQYKa1rHpi04xDa2u+X+F2xT2fM4yFzsxU31i6FiQgAMPKzYcOH4zTuQt+vdpn3lPEcMLfjUvwXTLwSwM+G7Rcch3I6uBMHYwAAAABJRU5ErkJggg=="),
-	lifepoints: a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAAAyElEQVQoU5WPsQrCMBCGb9QM1aSCLQkFbYe66CQV3DqKm3T2EXwAd5/atv5JNI1VC8IHd7n/y5FQfSsczXVb5eE8CECVz3D0U9Lny9qCHuRqdIyZ7f2ImvPKR0/fG4dW21MG/KmPSwmlPiyAHX3i0k4dplPbUg3wv4r3PtVd/B2j6m/dzQ1t94wXdiU0ChlD+bnYrIQAjTIhUBr7oJ5nViKCAI02UZRyLifa7i8uFYZyylIhoNE+SVCWnGfBWKvONj2GiCAUUj4AdW38eKRgDyoAAAAASUVORK5CYII="),
-	lifepointspoison: a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAAAyUlEQVQoU2P4948Dju7/44gqZPKLZfCMZAAygFxkWYb3/7mREVDa0ZfFJ4YZTRyIGIByaGj/N1YgQhMEIobzf9mJRAwQM4hBIKWbXhBGIKUQ1qIbLHgQRA1IKZoEVoRQ2neBGQ+CKi3bCeV37mLFiiCyQGUMqvqMGZuZ4Hw0BBEHKgAqY7DxY1DQAKmGyAEZcAQXUdRkBCpjcAphsPFlUDZgCFuJUARHQEGgFFABUBmDjTeDXSCDhQeDgg66aiBXUQckBVRg480AAAloFb/8BmXmAAAAAElFTkSuQmCC"),
-	prayer: a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAABO0lEQVQoU5WSwUrDQBRF358U0WK1JpimyUiapKGGEGNsbCpIRaWgCwUVWroQ1LX5hK7ThZ9hu3LhB7hz485Nv8DUWx4URaX4eAyXew/JvJmh8PBEK4WO3vbNi9Du6lLcH76+ZBOsQm7uVHvwkYIh5gK7E7u3W2bH9trP44+3bILVqbUCqwsfKRiacbF7pxbrD0/v4yzjhi4Xo8bmDdPkGedQdedayHtJOgIxK2g48JGCId+68iuX68tBMvjGcU3pwQgpGFJWtr3GGf/314KPFAxhUkzwF8eFFAzhXDDvXBTMf766lq+50encvYIhWzs2lP3Cgpmkw580HPhIwZClHuAW7PLR6mL1Pn38SkPDgY90eltCjpmulFpLOcE74YbO5wR8pGBIVTym0ZoUCaeJCfgNbBiBLu1yJOT4E5+5hG6GjZJoAAAAAElFTkSuQmCC"),
-	prayeron: a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAABVElEQVQoU42Sz0vCYBjHn3+oILqUp7YRk2koZM6YplugFkuJ3aIEb/kDbRJMIQZlVER06OipjLKM6FbdErvVwb+g2ZdeiOgH9vDy8uz7+bzbnjFShUaYX19TjkrxRkW/THjLtbPOg9PHvuSrbKaukYPCIeYVE+0t47G80JaDmZve27PTx65Mr5iLt8hB4ZAxe4Kuuty10k+quHHQeu05DlvoI5MmclA4lI1elVIdU+/GPXZh9wLGZ6FHghwUDmVj91n1LsSZ3zxWzAaFQ0HOkpU8e+6vhRw0FC4QJsUEf3msQOEQvgvmHajCoerpv+8qjWd88urAd4VDSf/xnHt7YkTP1c9/2kiQg8IhbWon7j+c9+7xo+lcvfnV/vCayEHhUJA3Yx4bB6KS7RpS91svMNhC7xrWFLcFCofEMSPA5yNSDRdoODGJCdg/IAjaDF9EDhrg8+8a5LF4AbL/qAAAAABJRU5ErkJggg=="),
-	sumpoints: a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAABrElEQVQoUz2RSyhEYRSAfzsLZuGxMd1pPK7HPIx5XGkw8hpNNjPFbGZDbMRClIUNokjESsRI1CSLkdjJI1KTlTJlN6ZmQ5KdBZnx3X65nU7nP+c7zyvqvO0lRtP04aWnO9g/Obed/oomX09Sn4mfXHt40NbmbwkEXV29lpZOUe3xmirVjvBgYGgclJzRtT308XsW2un1me2u6sZWG6hqd8Jpvs7hmXVJmKtqhMjDSQee0ceXkdWoxx8SuGh9mHjbukkvn91N7cQhKIyNMX+TQjDoIOBiV/dYhBkgsrABRHlEQlL+0KWDY7Rca+Xi8T8siads7iOrfzqKyHHhMtmcDCMYEBJF9FkphkbkjUiAIAZE5vX7N2v0DIwJ9gClMBfAuxy71XeK3TIxTxIW9+PFRlOlu0nIDShJDrTcDJozFxYZjh6elRqrqjXrv4Di/B7CQAgQOST3TcyWKOWKxWF2aFWeZkQwXzyZoR0cBJnMihNdVEZfr+TKGzSxe3oeHh5jLMkBSY3H5tYUqwOoot6tWF3CF4rkFxgSqVdikpAop5jcPCo1q0DGWnuZavkFWahGSVugAUYAAAAASUVORK5CYII=")
+	dren: require("./actionbarimgs/dren.data.png"),
+	drenretal: require("./actionbarimgs/drenretal.data.png"),
+	lifepoints: require("./actionbarimgs/lifepoints.data.png"),
+	lifepointspoison: require("./actionbarimgs/lifepointspoison.data.png"),
+	prayer: require("./actionbarimgs/prayer.data.png"),
+	prayeron: require("./actionbarimgs/prayeron.data.png"),
+	sumpoints: require("./actionbarimgs/sumpoints.data.png"),
 });
 
 export function shakemepls() {
 	console.log("I'm not shaken");
+}
+
+export type LifeState = {
+	hp: number,
+	dren: number,
+	pray: number,
+	sum: number,
+	exacthp: { cur: number, max: number },
+	exactpray: { cur: number, max: number },
+	exactsum: { cur: number, max: number },
+	exactdren: { cur: number, max: number },
 }
 
 /*
@@ -23,17 +37,31 @@ function makelayout(){
 	return jsonEncode(qqq);
 }*/
 
+type Layout = {
+	hp: a1lib.PointLike,
+	dren: a1lib.PointLike,
+	pray: a1lib.PointLike,
+	sum: a1lib.PointLike,
+	width: number,
+	height: number,
+	hor: boolean,
+	barlength: number,
+	type: MainBarType
+}
+
+type MainBarType = "mainflat" | "mainhor" | "mainver" | "maintower"
+
 export default class ActionbarReader {
-	pos = null;
+	pos: { x: number, y: number, layout: Layout } = null;
 
-	static layouts = [
-		{ "hp": { "x": 0, "y": 0 }, "dren": { "x": 118, "y": 0 }, "pray": { "x": 236, "y": 0 }, "sum": { "x": 354, "y": 0 }, width: 550, height: 25, hor: true, barlength: 80, type: "mainflat" },
-		{ "hp": { "x": 0, "y": 0 }, "dren": { "x": 100, "y": 0 }, "pray": { "x": 16, "y": 22 }, "sum": { "x": 116, "y": 22 }, width: 300, height: 45, hor: true, barlength: 62, type: "mainhor" },
-		{ "hp": { "x": 0, "y": 0 }, "dren": { "x": 0, "y": 100 }, "pray": { "x": 22, "y": 16 }, "sum": { "x": 22, "y": 116 }, width: 35, height: 300, hor: false, barlength: 62, type: "mainver" },
-		{ "hp": { "x": 0, "y": 0 }, "dren": { "x": 0, "y": 119 }, "pray": { "x": 0, "y": 238 }, "sum": { "x": 0, "y": 357 }, width: 20, height: 550, hor: false, barlength: 80, type: "maintower" }
-	];
+	static layouts: StringMap<Layout> = {
+		mainflat: { hp: { x: 0, y: 0 }, dren: { x: 118, y: 0 }, pray: { x: 236, y: 0 }, sum: { x: 354, y: 0 }, width: 465, height: 25, hor: true, barlength: 80, type: "mainflat" },
+		mainhor: { hp: { x: 0, y: 0 }, dren: { x: 100, y: 0 }, pray: { x: 16, y: 22 }, sum: { x: 116, y: 22 }, width: 210, height: 45, hor: true, barlength: 62, type: "mainhor" },
+		mainver: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 100 }, pray: { x: 22, y: 16 }, sum: { x: 22, y: 116 }, width: 35, height: 210, hor: false, barlength: 62, type: "mainver" },
+		maintower: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 119 }, pray: { x: 0, y: 238 }, sum: { x: 0, y: 357 }, width: 20, height: 465, hor: false, barlength: 80, type: "maintower" }
+	};
 
-	find(img:ImgRef) {
+	find(img: ImgRef) {
 		if (!img) { img = a1lib.captureHoldFullRs(); }
 		if (!img) { return false; }
 		var sumpos = img.findSubimage(imgs.sumpoints);
@@ -43,7 +71,7 @@ export default class ActionbarReader {
 		if (hppos.length == 0) { return false; }
 
 		var layout = null;
-		for (var a = 0; a < ActionbarReader.layouts.length; a++) {
+		for (var a in ActionbarReader.layouts) {
 			var l = ActionbarReader.layouts[a];
 			if (sumpos[0].x - hppos[0].x == l.sum.x - l.hp.x && sumpos[0].y - hppos[0].y == l.sum.y - l.hp.y) {
 				layout = l;
@@ -60,21 +88,48 @@ export default class ActionbarReader {
 		return true;
 	}
 
-	read() {
-		var buffer = a1lib.capture(this.pos.x, this.pos.y, this.pos.layout.width, this.pos.layout.height);
+	read(): LifeState;
+	read(buffer: ImageData, bufx: number, bufy: number): LifeState;
+	read(buffer?: ImageData, bufx?: number, bufy?: number): LifeState {
 		if (!buffer) {
-			return null;
+			buffer = a1lib.capture(this.pos.x, this.pos.y, this.pos.layout.width, this.pos.layout.height);
+			bufx = this.pos.x;
+			bufy = this.pos.y;
 		}
-		var r = {
-			hp: this.readBar(buffer, this.pos.layout.hp.x, this.pos.layout.hp.y, this.pos.layout.hor),
-			dren: this.readBar(buffer, this.pos.layout.dren.x, this.pos.layout.dren.y, this.pos.layout.hor),
-			pray: this.readBar(buffer, this.pos.layout.pray.x, this.pos.layout.pray.y, this.pos.layout.hor),
-			sum: this.readBar(buffer, this.pos.layout.sum.x, this.pos.layout.sum.y, this.pos.layout.hor)
+		var dx = this.pos.x - bufx;
+		var dy = this.pos.y - bufy;
+
+		var hptext = this.readBarNumber(buffer, this.pos.layout.hp.x + dx, this.pos.layout.hp.y + dy, this.pos.layout.hor);
+		var drentext = this.readBarNumber(buffer, this.pos.layout.dren.x + dx, this.pos.layout.dren.y + dy, this.pos.layout.hor);
+		var sumtext = this.readBarNumber(buffer, this.pos.layout.sum.x + dx, this.pos.layout.sum.y + dy, this.pos.layout.hor);
+		var praytext = this.readBarNumber(buffer, this.pos.layout.pray.x + dx, this.pos.layout.pray.y + dy, this.pos.layout.hor);
+		var hpbar = this.readBar(buffer, this.pos.layout.hp.x + dx, this.pos.layout.hp.y + dy, this.pos.layout.hor);
+		var drenbar = this.readBar(buffer, this.pos.layout.dren.x + dx, this.pos.layout.dren.y + dy, this.pos.layout.hor);
+		var praybar = this.readBar(buffer, this.pos.layout.pray.x + dx, this.pos.layout.pray.y + dy, this.pos.layout.hor);
+		var sumbar = this.readBar(buffer, this.pos.layout.sum.x + dx, this.pos.layout.sum.y + dy, this.pos.layout.hor);
+
+		return {
+			hp: (hptext ? hptext.cur / hptext.max : hpbar),
+			dren: (drentext ? drentext.cur / drentext.max : drenbar),
+			sum: (sumtext ? sumtext.cur / sumtext.max : sumbar),
+			pray: (praytext ? praytext.cur / praytext.max : praybar),
+			exacthp: hptext,
+			exactdren: drentext,
+			exactpray: praytext,
+			exactsum: sumtext
 		};
-		return r;
+
 	}
 
-	readBar(buffer, x, y, hor) {
+	readBarNumber(buffer: ImageData, x: number, y: number, hor: boolean) {
+		if (hor) {
+			var line = OCR.readLine(buffer, chatfont, [255, 255, 255], x + 22, y + 5, true, false);
+			var m = line.text.match(/^(\d+)(\/(\d+)|%)$/);
+			if (m) { return { cur: +m[1], max: (m[2] == "%" ? 100 : +m[3]) }; }
+		}
+		return null;
+	}
+	readBar(buffer: ImageData, x: number, y: number, hor: boolean) {
 		if (hor) { x += 25; y += 11; }
 		else { x += 7; y += 26; }
 		var width = this.pos.layout.barlength;
@@ -84,6 +139,6 @@ export default class ActionbarReader {
 				break;
 			}
 		}
-		return b/width;
+		return b / width;
 	}
 }

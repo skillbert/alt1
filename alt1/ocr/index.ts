@@ -1,4 +1,4 @@
-import { ImageData } from "@alt1/base";
+import { ImageData, RectLike, Rect } from "@alt1/base";
 
 export type Charinfo = { width: number, chr: string, bonus: number, secondary: boolean, pixels: number[] };
 export type FontDefinition = { chars: Charinfo[], width: number, spacewidth: number, shadow: boolean, height: number, basey: number, minrating?: number };
@@ -116,7 +116,7 @@ export function canblend(rm: number, gm: number, bm: number, r1: number, g1: num
  * decomposes a color in 2 given component colors and returns the amount of each color present
  * also return a third (noise) component which is the the amount leftover orthagonal from the 2 given colors
  */
-export function decompose2col(rp, gp, bp, r1, g1, b1, r2, g2, b2) {
+export function decompose2col(rp: number, gp: number, bp: number, r1: number, g1: number, b1: number, r2: number, g2: number, b2: number) {
 	//get the normal of the error (cross-product of both colors)
 	var r3 = g1 * b2 - g2 * b1;
 	var g3 = b1 * r2 - b2 * r1;
@@ -134,7 +134,7 @@ export function decompose2col(rp, gp, bp, r1, g1, b1, r2, g2, b2) {
 /**
  * decomposes a color in 3 given component colors and returns the amount of each color present
  */
-export function decompose3col(rp, gp, bp, r1, g1, b1, r2, g2, b2, r3, g3, b3) {
+export function decompose3col(rp: number, gp: number, bp: number, r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, r3: number, g3: number, b3: number) {
 	//P=x*C1+y*C2+z*C3
 	//assemble as matrix 
 	//M*w=p
@@ -192,22 +192,52 @@ export function findChar(buffer: ImageData, font: FontDefinition, col: ColortTri
  * reads text with unknown exact coord or color. The given coord should be inside the text
  * color selection not implemented yet
  */
-export function findReadLine(buffer: ImageData, font: FontDefinition, cols: [ColortTriplet], x: number, y: number, w = -1, h = -1) {
+export function findReadLine(buffer: ImageData, font: FontDefinition, cols: ColortTriplet[], x: number, y: number, w = -1, h = -1) {
 	if (w == -1) { w = font.width + font.spacewidth; x -= Math.ceil(w / 2); }
 	if (h == -1) { h = 7; y -= 1; }
-	var chr = findChar(buffer, font, cols[0], x, y, w, h);
+	var chr: ReturnType<typeof findChar> = null;
+	if (cols.length > 1) {
+		var sorted = GetChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols);
+		//loop until we have a match (max 2 cols)
+		for (var a = 0; a < 2 && a < sorted.length && chr == null; a++) {
+			chr = findChar(buffer, font, sorted[a].col, x, y, w, h);
+		}
+	}
+	else {
+		chr = findChar(buffer, font, cols[0], x, y, w, h);
+	}
 	if (chr == null) { return { text: "", debugArea: { x, y, w, h } }; }
-	return readLine(buffer, font, cols[0], chr.x, chr.y, true, true);
+	return readLine(buffer, font, cols, chr.x, chr.y, true, true);
+}
+
+function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortTriplet[]) {
+	if (rect.x < 0 || rect.y < 0 || rect.x + rect.width > buf.width || rect.y + rect.height > buf.height) { return null; }
+	var colormap = colors.map(c => ({ col: c, score: 0 }));
+	var data = buf.data;
+	var maxd = 50;
+	for (var colobj of colormap) {
+		var score = 0;
+		var col = colobj.col;
+		for (var y = rect.y; y < rect.y + rect.height; y++) {
+			for (var x = rect.x; x < rect.x + rect.width; x++) {
+				var i = x * 4 + y * 4 * buf.width;
+				var d = Math.abs(data[i] - col[0]) + Math.abs(data[i + 1] - col[1]) + Math.abs(data[i + 2] - col[2]);
+				if (d < maxd) { score += maxd - d; }
+			}
+		}
+		colobj.score = score;
+	}
+	return colormap;
 }
 
 /**
  * reads a line of text with exactly known position and color. y should be the y coord of the text base line, x should be the first pixel of a new character
  */
-export function readLine(buffer: ImageData, font: FontDefinition, colors: ColortTriplet | ColortTriplet[], x: number, y: number, forward: boolean, backward?: boolean) {
+export function readLine(buffer: ImageData, font: FontDefinition, colors: ColortTriplet | ColortTriplet[], x: number, y: number, forward: boolean, backward = false) {
 	var multicol = typeof colors[0] != "number";
 	var allcolors: ColortTriplet[] = multicol ? colors as ColortTriplet[] : [colors as ColortTriplet];
 
-	var detectcolor = function (x, y, backward) {
+	var detectcolor = function (x: number, y: number, backward: boolean) {
 		var best = null as ColortTriplet;
 		var bestscore = Infinity;
 		for (var a = 0; a < allcolors.length; a++) {

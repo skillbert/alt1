@@ -10,6 +10,7 @@ var VueLoaderPlugin = require("vue-loader/lib/plugin");
 var UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 
 
+
 /**
  * Returns a map of with direct subdirectory names as keys and paths of /index.tsx?/ as values for matching directories
  * @param pathstr
@@ -49,6 +50,81 @@ export function findEntries(pathstr: string, reg: RegExp) {
 }
 
 
+export type OutMapper = (entryAbs: string) => webpack.Output;
+export namespace OutMapper {
+	export function otherRoot(srcroot: string, outroot: string): OutMapper {
+		return function (entry) {
+			var dir = path.dirname(entry);
+			var rel = path.relative(srcroot, dir);
+			var outdir = path.resolve(outroot, rel);
+			return {
+				path: outdir,
+				publicPath: "/" + rel.replace(/\\/g, "/") + "/",
+				filename: "[name].bundle.js"
+			}
+		}
+	}
+	export function subdir(dirname: string): OutMapper {
+		return function (entry) {
+			var dir = path.dirname(entry);
+			var name = path.basename(entry);
+			var outdir = path.resolve(dir, dirname, name);
+			return {
+				path: outdir,
+				publicPath: "/",
+				filename: "[name].bundle.js"
+			}
+		}
+	}
+}
+
+export type ModuleShorthand = {
+	entryfile?: string,
+	mapper?: string,
+	hook?: (conf: Alt1WebpackConfiguration) => Alt1WebpackConfiguration,
+	libNameRoot?: string;//the name of the global variable to which the root exports are exported when sued without module bundler
+	libName?: string;//the name of the package when exposed in a module bundler
+};
+
+export function runSubConfigs(mappers: { [id: string]: OutMapper }, pathstr: string, configroot: string) {
+	var buildfiles = glob.sync(pathstr + "/**/*.build.@(ts|tsx|js|jsx)");
+	var configs: Alt1WebpackConfiguration[] = [];
+	for (var file of buildfiles) {
+		var rawmod = require(file);
+		var mod = (rawmod.default || rawmod) as ModuleShorthand;
+		var rootdir = path.dirname(file);
+		var buildname = path.basename(file);
+		var buildmatch = buildname.match(/(\w+)\.build.(\w+)/);
+		if (!buildmatch) { throw new Error("invalid build file name at: " + file); }
+		var entry = buildmatch[1] + "." + buildmatch[2];
+		if (mod.entryfile) { entry = mod.entryfile; }
+		var config = baseConfig(configroot);
+		var outmapper = mappers[mod.mapper];
+		if (!outmapper) { throw new Error("module with no outmapper at: " + file); }
+		var entryabs = path.resolve(rootdir, entry);
+		config.output = outmapper(entryabs);
+		config.entry = { [buildmatch[1]]: entryabs };
+		if (mod.libName) {
+			config.output.libraryTarget = "umd";
+			config.output.library = {
+				root: mod.libNameRoot || mod.libName,
+				commonjs: mod.libName,
+				amd: mod.libName
+			} as any;//typedefs are wrong for this one
+			config.output.globalObject = "(typeof self !== 'undefined' ? self : this)";
+		}
+		if (mod.hook) {
+			config = mod.hook(config);
+		}
+		if (!config) {
+			console.log("module " + file + " skipped by hook function");
+			continue;
+		}
+		configs.push(config);
+	}
+	return configs;
+}
+
 export type NpmConfig = {
 	name: string,
 	main: string,
@@ -65,7 +141,7 @@ export type NpmConfig = {
 export function findSubPackages(pathstr: string) {
 	//var filenames = glob.sync(pathstr + "/**/package.json");
 	//TODO rename these packages back to package.json and fix typescript/webpack require order to use index.ts instead of package.json#main
-	var filenames = glob.sync(pathstr + "/**/libpackage.json");
+	var filenames = glob.sync(pathstr + "/**/package.json");
 	var files: { config: NpmConfig, configFilePath: string }[] = [];
 	for (var file of filenames) {
 		var cnf = JSON.parse(fs.readFileSync(file, { encoding: "utf-8" })) as Partial<NpmConfig>
@@ -129,7 +205,13 @@ type TsConfigJson = {
 };
 
 
-type Alt1WebpackConfiguration = webpack.Configuration & { devServer: any, externals: webpack.ExternalsObjectElement[] };
+type Alt1WebpackConfiguration = webpack.Configuration & {
+	devServer?: {
+		port: number,
+		hot: boolean,
+		proxy: { [match: string]: string }
+	};
+};
 
 
 /**
@@ -173,7 +255,7 @@ export function baseConfig(rootdir: string, configOpts?: Partial<Alt1WebpackOpts
 
 	return {
 		mode: opts.production ? "production" : "development",
-		devtool: opts.production ? false : 'eval-source-map',
+		devtool: opts.production ? "source-map" : 'eval-source-map',
 		target: (opts.nodejs ? "node" : "web"),
 		entry: undefined,
 		output: undefined,
@@ -222,13 +304,32 @@ export function baseConfig(rootdir: string, configOpts?: Partial<Alt1WebpackOpts
 					loader: ['style-loader', 'css-loader', 'sass-loader']
 				},
 				{
-					test: /\.data.png$/,
-					loader: ['imagedata-loader']
+					test: /\.data\.png$/,
+					loader: ['imagedata-loader'],
+				},
+				{
+					test: /\.(png|jpg|gif)$/i,
+					exclude: /\.data\.png$/,
+					use: [
+						{
+							loader: 'url-loader',
+							options: {
+								limit: 8192
+							}
+						}
+					]
+				},
+				{
+					//required to be able to override the built-in json loader with inline loaders
+					type: "javascript/auto",
+					test: /.json$/,
+					loader: ["json-loader"]
 				},
 				{
 					test: /\.fontmeta.json$/,
 					loader: ["font-loader"]
 				}
+				//TODO fix directory structure and add file-loader for images
 			]
 		},
 		plugins: [
@@ -259,7 +360,8 @@ export function baseConfig(rootdir: string, configOpts?: Partial<Alt1WebpackOpts
 	};
 }
 
-
+//remove?
+/*
 export function externalNodeModules(dir: string) {
 	var nodeModules = {};
 	fs.readdirSync(dir).filter(function (x) {
@@ -269,4 +371,4 @@ export function externalNodeModules(dir: string) {
 			nodeModules[mod] = 'commonjs ' + mod;
 		});
 	return nodeModules;
-}
+}*/

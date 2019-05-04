@@ -1,7 +1,7 @@
 import { ImageDetect, transferImageData } from "./index";
 import { RectLike } from "./rect";
 
-export class ImgRef {
+export abstract class ImgRef {
 	public width: number;
 	public height: number;
 	public x: number;
