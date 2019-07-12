@@ -7,7 +7,7 @@ class DtsPlugin extends webpack.Plugin {
 	apply(compiler: webpack.Compiler) {
 		// Specify the event hook to attach to
 		compiler.hooks.emit.tapPromise('dtsplugin', async (compilation) => {
-			compilation.compiler.
+			//compilation.compiler.
 
 
 		});
