@@ -22,7 +22,7 @@ function constructApply(fn, args) {
 
 declare module "webpack-chain" {
 	export interface Rule {
-		oneOf(name: string): Rule;
+		oneOf(name: string): WebpackChain.Rule;
 	}
 }
 

@@ -13,8 +13,10 @@ if (process.argv.indexOf("--custom-webpack") != -1) {
 }
 
 var compilation = webpack(config);
+
 compilation.run((err, stats) => {
 	debugger;
+	console.log(stats.toString());
 	console.log("webpack done "+process.cwd(), err);
 	console.log(compilation==null);
 })
