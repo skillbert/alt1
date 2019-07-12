@@ -1,7 +1,8 @@
 import * as webpack from "webpack";
 import * as path from "path";
 
-import * as base from "./webpack/main";
+import {baseConfig} from "@alt1/webpack";
+import * as webpackutil from "@alt1/webpack/util";
 
 
 var rootdir = path.resolve(__dirname, "./");
@@ -11,19 +12,18 @@ module.exports = [].concat(
 	addLibs()
 );
 
-
 function addLibs() {
 	var libPackages: {
 		name: string,
 		directory: string,
 		rootName: string,
 		configPath: string,
-		config: base.NpmConfig,
+		config: webpackutil.NpmConfig,
 		entryPath: string,
 		mainPath: string
 	}[] = [];
 
-	for (var cnf of base.findSubPackages(libdir)) {
+	for (var cnf of webpackutil.findSubPackages(libdir)) {
 		if (cnf.config.runeappsType != "lib") { continue; }
 		if (!cnf.config.runeappsLibNameRoot) { throw `lib package at ${cnf.configFilePath} does not have a root export name`; }
 
@@ -57,7 +57,7 @@ function addLibs() {
 		var externals = Object.assign({}, libexternals);
 		delete externals[lib.name];
 		var nodetarget = config.runeappsTarget == "node";
-		var basecnf = base.baseConfig(rootdir, { nodejs: nodetarget });
+		var basecnf = baseConfig(rootdir, { nodejs: nodetarget });
 		var conf = Object.assign(basecnf, {
 			entry: { [lib.rootName]: lib.entryPath },
 			output: {

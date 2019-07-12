@@ -10,5 +10,8 @@
 	"optionalDependencies": {
 		"node-fetch": "^2.5.0",
 		"pngjs": "^3.4.0"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
 	}
 }

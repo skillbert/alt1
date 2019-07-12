@@ -1,0 +1,17 @@
+{
+	"name": "@alt1/tooltip",
+	"runeappsType": "lib",
+	"runeappsLibNameRoot": "TooltipReader",
+	"runeappsLibEntry": "./index.ts",
+	"main": "./dist/index.js",
+	"types": "index.ts",
+	"author": "Skillbert",
+	"version": "0.0.2",
+	"dependencies": {
+		"@alt1/base": "file:../base",
+		"@alt1/ocr": "file:../ocr"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
+	}
+}

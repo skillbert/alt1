@@ -11,7 +11,8 @@
 		"experimentalDecorators": true,
 		"paths": {
 			"@alt1/*": [ "alt1/*" ]
-		}
+		},
+		"declaration": true
 	},
 	"exclude": [ "node_modules" ],
 	"compileOnSave": false

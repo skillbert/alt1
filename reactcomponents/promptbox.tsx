@@ -54,7 +54,7 @@ export function show<T extends { [id: string]: any }>(initialValue: T, renderorj
 					return React.cloneElement(ch, {
 						value: r.value[props.name],
 						onChange: (v, n) => {
-							r.value[n] = v;
+							(r.value as any)[n as any] = v;//TODO what is wrong here?
 							if (oldOnChange) { oldOnChange(v, n); }
 							r.setValue(n, v);
 						}

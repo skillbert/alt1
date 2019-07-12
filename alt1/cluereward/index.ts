@@ -1,11 +1,10 @@
-import { ImgRef, RectLike, Rect } from "@alt1/base";
+import { ImgRef, RectLike, Rect, ImageDetect } from "@alt1/base";
 import * as a1lib from "@alt1/base";
-import { webpackImages } from "@alt1/base/imagedetect";
 import * as OCR from "@alt1/ocr";
 
 var font = require("@alt1/ocr/fonts/aa_9px_mono_allcaps.fontmeta.json");
 
-var imgs = webpackImages({
+var imgs = ImageDetect.webpackImages({
 	complete: require("./imgs/complete.data.png"),
 	completeLegacy: require("./imgs/completelegacy.data.png")
 });
@@ -40,7 +39,7 @@ export default class ClueRewardReader {
 		return this.pos;
 	}
 
-	read(img:ImgRef) {
+	read(img: ImgRef) {
 		var buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height);
 		var legacy = buf.getPixel(10, 2)[0] > 30;
 
@@ -58,9 +57,9 @@ export default class ClueRewardReader {
 		if (!str.text) { return null; }
 		var text = str.text.toLowerCase();
 		var m = text.match(/value[: ]+([\d,]+)\b/);
-		if (!m) { return null;}
+		if (!m) { return null; }
 		var value = +m[1].replace(/,/g, "");
-		
+
 		return { hash, value, text };
 	}
 }

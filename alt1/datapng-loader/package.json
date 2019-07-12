@@ -10,5 +10,8 @@
 	"version": "0.0.2",
 	"dependencies": {
 		"@alt1/base": "file:../base"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
 	}
 }

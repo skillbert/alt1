@@ -86,10 +86,8 @@ export function isPngBuffer(bytes: Uint8Array) {
 * @param data Raw bytes of the png file
 */
 export function clearPngColorspace(data: Uint8Array) {
-	var i = 0;
-	//check if it's actually png
-	if (data[i++] != 137 || data[i++] != 80 || data[i++] != 78 || data[i++] != 71) { throw new Error("non-png image received"); }
-	i += 4;
+	if (!isPngBuffer(data)) { throw new Error("non-png image received"); }
+	var i = 8;
 	while (i < data.length) {
 		var length = data[i++] * 0x1000000 + data[i++] * 0x10000 + data[i++] * 0x100 + data[i++];
 		var chunkname = String.fromCharCode(data[i++], data[i++], data[i++], data[i++]);
@@ -236,10 +234,11 @@ export function asyncMap<T extends { [name: string]: Promise<any> }>(input: T) {
 	type subt = { [K in keyof T]: T[K] extends Promise<infer U> ? U : any };
 	var raw = {} as subt;
 	var promises = [];
+
 	for (var a in input) {
 		if (input.hasOwnProperty(a)) {
 			raw[a] = null;
-			promises.push(input[a].then(function (a: number, i: any) { raw[a] = i; r[a] = i; }.bind(null, a)));
+			promises.push(input[a].then(function (a: keyof T, i: any) { raw[a] = i; r[a] = i; }.bind(null, a)));
 		}
 	}
 	var r = {} as subt & { promise: Promise<subt>, loaded: boolean, raw: subt };

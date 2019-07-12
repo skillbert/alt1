@@ -1,9 +1,8 @@
 import * as a1lib from "@alt1/base";
-import { webpackImages } from "@alt1/base/imagedetect";
 import { ImgRef } from "@alt1/base";
 import * as OCR from "@alt1/ocr";
 
-var imgs = webpackImages({
+var imgs =a1lib.ImageDetect.webpackImages({
 	loot: require("./imgs/lootbutton.data.png"),
 	reset: require("./imgs/reset.data.png"),
 	droptext: require("./imgs/droptext.data.png"),
@@ -20,7 +19,7 @@ var fontcolors = [
 	[255, 128, 0]//orange (1b+ and boss pets)
 ];
 
-export default class DropsReader {
+export default class DropsMenuReader {
 	pos = null as a1lib.RectLike;
 	items = [];
 	onincrease = null as (name: string, increase: number, newtotal: number) => any

@@ -1,5 +1,4 @@
-﻿import * as fs from "fs";
-import {PNG} from "pngjs";
+﻿import {PNG} from "pngjs";
 import * as OCR from "@alt1/ocr";
 import * as a1lib from "@alt1/base";
 import * as webpack from "webpack";
@@ -34,7 +33,7 @@ module.exports = async function (this: webpack.loader.LoaderContext, source: str
 	//TODO make sure the image doesn't contain the srgb header
 
 	var bytes = await new Promise((done, err) => {
-		fs.readFile(meta.img, (e, buf) => {
+		this.fs.readFile(meta.img, (e, buf) => {
 			if (e) { err(e); }
 			done(buf);
 		})

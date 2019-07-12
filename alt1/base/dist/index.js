@@ -1,1 +1,1844 @@
-!function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("node-fetch"),require("pngjs")):"function"==typeof define&&define.amd?define([,],e):"object"==typeof exports?exports["@alt1/base"]=e(require("node-fetch"),require("pngjs")):t.A1lib=e(t[void 0],t[void 0])}("undefined"!=typeof self?self:this,function(t,e){return function(t){var e={};function n(r){if(e[r])return e[r].exports;var i=e[r]={i:r,l:!1,exports:{}};return t[r].call(i.exports,i,i.exports,n),i.l=!0,i.exports}return n.m=t,n.c=e,n.d=function(t,e,r){n.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:r})},n.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},n.t=function(t,e){if(1&e&&(t=n(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var i in t)n.d(r,i,function(e){return t[e]}.bind(null,i));return r},n.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return n.d(e,"a",e),e},n.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},n.p="/",n(n.s=0)}([function(t,e,n){"use strict";function r(t){for(var n in t)e.hasOwnProperty(n)||(e[n]=t[n])}Object.defineProperty(e,"__esModule",{value:!0});var i=n(1);e.ImageDetect=i;var a=n(8);e.PasteInput=a;var o=n(5);e.Rect=o.default;var s=n(3);e.ImageData=s.ImageData,r(n(2)),r(n(4))},function(t,e,n){"use strict";var r=this&&this.__awaiter||function(t,e,n,r){return new(n||(n=Promise))(function(i,a){function o(t){try{h(r.next(t))}catch(t){a(t)}}function s(t){try{h(r.throw(t))}catch(t){a(t)}}function h(t){t.done?i(t.value):new n(function(e){e(t.value)}).then(o,s)}h((r=r.apply(t,e||[])).next())})},i=this&&this.__generator||function(t,e){var n,r,i,a,o={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return a={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function s(a){return function(s){return function(a){if(n)throw new TypeError("Generator is already executing.");for(;o;)try{if(n=1,r&&(i=2&a[0]?r.return:a[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,a[1])).done)return i;switch(r=0,i&&(a=[2&a[0],i.value]),a[0]){case 0:case 1:i=a;break;case 4:return o.label++,{value:a[1],done:!1};case 5:o.label++,r=a[1],a=[0];continue;case 7:a=o.ops.pop(),o.trys.pop();continue;default:if(!(i=(i=o.trys).length>0&&i[i.length-1])&&(6===a[0]||2===a[0])){o=0;continue}if(3===a[0]&&(!i||a[1]>i[0]&&a[1]<i[3])){o.label=a[1];break}if(6===a[0]&&o.label<i[1]){o.label=i[1],i=a;break}if(i&&o.label<i[2]){o.label=i[2],o.ops.push(a);break}i[2]&&o.ops.pop(),o.trys.pop();continue}a=e.call(t,o)}catch(t){a=[6,t],r=0}finally{n=i=0}if(5&a[0])throw a[1];return{value:a[0]?a[1]:void 0,done:!0}}([a,s])}}};Object.defineProperty(e,"__esModule",{value:!0});var a=n(2),o=n(4);function s(t){return r(this,void 0,void 0,function(){var e,r,a,o,s,u,d,f,c;return i(this,function(i){switch(i.label){case 0:return"undefined"==typeof Image?[3,2]:((e=new Image).crossOrigin="crossorigin",[4,new Promise(function(n,r){e.onload=function(){n(e.toBuffer())},e.onerror=r,e.src=t})]);case 1:return[2,i.sent()];case 2:return r=n(6),a=n(7),o=n(3).ImageData,s="data:image/png;base64,",t.startsWith(s)?(u=Buffer.from(t.slice(s.length),"base64"),f=new Uint8Array(u.buffer,u.byteOffset,u.byteLength),[3,5]):[3,3];case 3:return[4,r(t).then(function(t){return t.arrayBuffer()})];case 4:d=i.sent(),f=new Uint8Array(d),i.label=5;case 5:return h(f),c=new a.PNG,[4,new Promise(function(t,e){c.on("parsed",function(e){return t(e)}),c.on("error",function(t){return e(t)}),c.parse(Buffer.from(f.buffer,f.byteOffset,f.byteLength))})];case 6:return i.sent(),[2,new o(new Uint8ClampedArray(c.data.buffer,c.data.byteOffset,c.data.byteLength),c.width,c.height)]}})})}function h(t){var e=0;if(137!=t[e++]||80!=t[e++]||78!=t[e++]||71!=t[e++])throw new Error("non-png image received");for(e+=4;e<t.length;){var n=16777216*t[e++]+65536*t[e++]+256*t[e++]+t[e++],r=String.fromCharCode(t[e++],t[e++],t[e++],t[e++]);if("sRGB"==r&&(console.log("- Changed sRGB, old value:",t[e]),t[e]=3,t[e+n+0]=55,t[e+n+1]=199,t[e+n+2]=77,t[e+n+3]=83),"IEND"==r)break;e+=n,e+=4}}function u(t,e,n,r,i,a){void 0===n&&(n=0),void 0===r&&(r=0),void 0===i&&(i=t.width),void 0===a&&(a=t.height);for(var o=[],s=4*e.width,h=4*t.width,u=[],f=0;f<e.width;f++){for(var c=0;c<e.height;c++){var l=4*f+c*s;if(255==e.data[l+3]&&u.push({x:f,y:c}),10==u.length)break}if(10==u.length)break}var p=n+i-e.width,g=r+a-e.height,v=u.length;for(f=n;f<=p;f++)t:for(c=r;c<=g;c++){for(var m=0;m<v;m++){var w=4*(f+u[m].x)+(c+u[m].y)*h,y=4*u[m].x+u[m].y*s,b=0;if(b=(b=(b=b+Math.abs(t.data[w+0]-e.data[y+0])|0)+Math.abs(t.data[w+1]-e.data[y+1])|0)+Math.abs(t.data[w+2]-e.data[y+2])|0,(b*=255/e.data[y+3])>30)continue t}if(d(t,e,f,c,30)!=1/0&&(o.push({x:f,y:c}),o.length>50))return o}return o}function d(t,e,n,r,i){if(void 0===i&&(i=30),n<0||r<0)throw new RangeError;if(n+e.width>t.width||r+e.height>t.height)throw new RangeError;-1==i&&(i=1020);for(var a=0,o=8;o>=1;o/=2)for(var s=0;s<e.width;s+=o)for(var h=0;h<e.height;h+=o){var u=4*(n+s)+(r+h)*t.width*4,d=4*s+h*e.width*4,f=0;if(f=(f=(f=f+Math.abs(t.data[u+0]-e.data[d+0])|0)+Math.abs(t.data[u+1]-e.data[d+1])|0)+Math.abs(t.data[u+2]-e.data[d+2])|0,f*=e.data[d+3]/255,1==o&&(a+=f),f>i)return 1/0}return a/e.width/e.height}function f(t){var e={},n=[];for(var r in t)t.hasOwnProperty(r)&&(e[r]=null,n.push(t[r].then(function(t,n){e[t]=n,i[t]=n}.bind(null,r))));var i={},a=Promise.all(n).then(function(){return i.loaded=!0,i});return Object.defineProperty(i,"loaded",{enumerable:!1,value:!1,writable:!0}),Object.defineProperty(i,"promise",{enumerable:!1,value:a}),Object.defineProperty(i,"raw",{enumerable:!1,value:e}),Object.assign(i,e)}e.imageDataFromUrl=s,e.imageDataFromBase64=function(t){return r(this,void 0,void 0,function(){return i(this,function(e){return[2,s("data:image/png;base64,"+t)]})})},e.isPngBuffer=function(t){return 137==t[0]&&80==t[1]&&78==t[2]&&71==t[3]},e.clearPngColorspace=h,e.findSubimage=function(t,e,n,r,i,s){if(void 0===n&&(n=0),void 0===r&&(r=0),void 0===i&&(i=t.width),void 0===s&&(s=t.height),!t)throw new TypeError;if(!e)throw new TypeError;if(t instanceof a.ImgRefBind&&o.hasAlt1&&alt1.bindFindSubImg){var h=o.encodeImageString(e),d=alt1.bindFindSubImg(t.handle,h,e.width,n,r,i,s);if(!d)throw new o.Alt1Error;return JSON.parse(d)}return u(t.read(),e,n,r,i,s)},e.findSubbuffer=u,e.simpleCompare=d,e.coldif=function(t,e,n,r,i,a,o){return(Math.abs(t-r)+Math.abs(e-i)+Math.abs(n-a))*o/255},e.asyncMap=f,e.webpackImages=function(t){return f(t)}},function(t,e,n){"use strict";var r=this&&this.__extends||function(){var t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var n in e)e.hasOwnProperty(n)&&(t[n]=e[n])};return function(e,n){function r(){this.constructor=e}t(e,n),e.prototype=null===n?Object.create(n):(r.prototype=n.prototype,new r)}}();Object.defineProperty(e,"__esModule",{value:!0});var i=n(0),a=function(){function t(t,e,n,r){this.t="none",this.x=t,this.y=e,this.width=n,this.height=r}return t.prototype.read=function(t,e,n,r){throw void 0===t&&(t=0),void 0===e&&(e=0),void 0===n&&(n=this.width),void 0===r&&(r=this.height),"This imgref ("+this.t+") does not support toData"},t.prototype.findSubimage=function(t,e,n,r,a){return void 0===e&&(e=0),void 0===n&&(n=0),void 0===r&&(r=this.width),void 0===a&&(a=this.height),i.ImageDetect.findSubimage(this,t,e,n,r,a)},t.prototype.toData=function(t,e,n,r){return void 0===t&&(t=this.x),void 0===e&&(e=this.y),void 0===n&&(n=this.width),void 0===r&&(r=this.height),this.read(t-this.x,e-this.y,n,r)},t.prototype.containsArea=function(t){return this.x<=t.x&&this.y<=t.y&&this.x+this.width>=t.x+t.width&&this.y+this.height>=t.y+t.height},t}();e.ImgRef=a;var o=function(t){function e(e,n,r){void 0===n&&(n=0),void 0===r&&(r=0);var i=this;if(e instanceof CanvasRenderingContext2D)(i=t.call(this,n,r,e.canvas.width,e.canvas.height)||this).ctx=e;else{i=t.call(this,n,r,e.width,e.height)||this;var a=e instanceof HTMLCanvasElement?e:e.toCanvas();i.ctx=a.getContext("2d")}return i.t="ctx",i}return r(e,t),e.prototype.read=function(t,e,n,r){return void 0===t&&(t=0),void 0===e&&(e=0),void 0===n&&(n=this.width),void 0===r&&(r=this.height),this.ctx.getImageData(t,e,n,r)},e}(a);e.ImgRefCtx=o;var s=function(t){function e(e,n,r,i,a){void 0===n&&(n=0),void 0===r&&(r=0),void 0===i&&(i=0),void 0===a&&(a=0);var o=t.call(this,n,r,i,a)||this;return o.handle=e,o.t="bind",o}return r(e,t),e.prototype.read=function(t,e,n,r){return void 0===t&&(t=0),void 0===e&&(e=0),void 0===n&&(n=this.width),void 0===r&&(r=this.height),i.transferImageData(this.handle,t,e,n,r)},e}(a);e.ImgRefBind=s;var h=function(t){function e(e,n,r){void 0===n&&(n=0),void 0===r&&(r=0);var i=t.call(this,n,r,e.width,e.height)||this;return i.buf=e,i.t="data",i}return r(e,t),e.prototype.read=function(t,e,n,r){if(void 0===t&&(t=0),void 0===e&&(e=0),void 0===n&&(n=this.width),void 0===r&&(r=this.height),0==t&&0==e&&n==this.width&&r==this.height)return this.buf;for(var i=new ImageData(n,r),a=e;a<e+r;a++)for(var o=t;o<t+n;o++){var s=4*(o-t)+(a-e)*n*4,h=4*o+4*a*this.buf.width;i.data[s]=this.buf.data[h],i.data[s+1]=this.buf.data[h+1],i.data[s+2]=this.buf.data[h+2],i.data[s+3]=this.buf.data[h+3]}return i},e}(a);e.ImgRefData=h},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var r=n(0);!function(){var t="undefined"!=typeof self?self:"undefined"!=typeof global?global:null,n=void 0===t.ImageData,r=function(){var t=0,e=arguments[t]instanceof Uint8ClampedArray?arguments[t++]:null,r=arguments[t++],i=arguments[t++];if(!n){var a=document.createElement("canvas");a.width=r,a.height=i;var o=a.getContext("2d").createImageData(r,i);return e&&o.data.set(e),o}e||(e=new Uint8ClampedArray(r*i*4)),this.width=r,this.height=i,this.data=e};n||(r.prototype=t.ImageData.prototype),t.ImageData=r,e.ImageData=r}(),e.ImageData.prototype.putImageData=function(t,e,n){for(var r=0;r<t.width;r++)for(var i=0;i<t.height;i++){var a=4*(r+e)+4*(i+n)*this.width,o=4*r+4*i*t.width;this.data[a]=t.data[o],this.data[a+1]=t.data[o+1],this.data[a+2]=t.data[o+2],this.data[a+3]=t.data[o+3]}},e.ImageData.prototype.pixelOffset=function(t,e){return 4*t+e*this.width*4},e.ImageData.prototype.getPixelHash=function(t){t||(t=new r.Rect(0,0,this.width,this.height));for(var e=0,n=t.x;n<t.x+t.width;n++)for(var i=t.y;i<t.y+t.height;i++){var a=4*n+4*i*this.width;e=((e=((e=((e=(e<<5)-e+this.data[a]|0)<<5)-e+this.data[a+1]|0)<<5)-e+this.data[a+2]|0)<<5)-e+this.data[a+3]|0}return e},e.ImageData.prototype.clone=function(t){return this.toImage(t).getContext("2d").getImageData(0,0,t.width,t.height)},e.ImageData.prototype.show=function(t,e,n){void 0===t&&(t=5),void 0===e&&(e=5),void 0===n&&(n=1);for(var r=document.getElementsByClassName("debugimage");r.length>10;)r[0].remove();var i=this.toImage();return i.classList.add("debugimage"),i.style.position="absolute",i.style.zIndex="1000",i.style.left=t/n+"px",i.style.top=e/n+"px",i.style.background="purple",i.style.cursor="pointer",i.style.imageRendering="pixelated",i.style.outline="1px solid #0f0",i.style.width=(1==this.width?100:this.width)+"px",i.style.height=(1==this.height?100:this.height)+"px",i.onclick=function(){i.remove()},document.body.appendChild(i),i},e.ImageData.prototype.toImage=function(t){t||(t=new r.Rect(0,0,this.width,this.height));var e=document.createElement("canvas");return e.width=t.width,e.height=t.height,e.getContext("2d").putImageData(this,-t.x,-t.y),e},e.ImageData.prototype.getPixel=function(t,e){var n=4*t+4*e*this.width;return[this.data[n],this.data[n+1],this.data[n+2],this.data[n+3]]},e.ImageData.prototype.getPixelInt=function(t,e){var n=4*t+4*e*this.width;return(this.data[n+3]<<24)+(this.data[n+0]<<16)+(this.data[n+1]<<8)+(this.data[n+2]<<0)},e.ImageData.prototype.getColorDifference=function(t,e,n,r,i,a){void 0===a&&(a=255);var o=4*t+4*e*this.width;return Math.abs(this.data[o]-n)+Math.abs(this.data[o+1]-r)+Math.abs(this.data[o+2]-i)*a/255},e.ImageData.prototype.setPixel=function(t,e){for(var n=[],r=2;r<arguments.length;r++)n[r-2]=arguments[r];var i=Array.isArray(n[0])?n[0]:n,a=i[0],o=i[1],s=i[2],h=i[3],u=4*t+4*e*this.width;this.data[u]=a,this.data[u+1]=o,this.data[u+2]=s,this.data[u+3]=void 0==h?255:h},e.ImageData.prototype.setPixelInt=function(t,e,n){var r=4*t+4*e*this.width;this.data[r]=n>>24&255,this.data[r+1]=n>>16&255,this.data[r+2]=n>>8&255,this.data[r+3]=n>>0&255},e.ImageData.prototype.toJSON=function(t){var e=this.toImage(t).toDataURL("image/png");return e.slice(e.indexOf(",")+1)},e.ImageData.prototype.pixelCompare=function(t,e,n,i){return void 0===e&&(e=0),void 0===n&&(n=0),r.ImageDetect.simpleCompare(this,t,e,n,i)},e.ImageData.prototype.copyTo=function(t,e,n,r,i,a,o){for(var s=0;s<r;s++)for(var h=0;h<i;h++){var u=4*(s+a)+(h+o)*t.width*4,d=4*(s+e)+(h+n)*this.width*4;t.data[u+0]=this.data[d+0],t.data[u+1]=this.data[d+1],t.data[u+2]=this.data[d+2],t.data[u+3]=this.data[d+3]}},"undefined"!=typeof HTMLImageElement&&(HTMLImageElement.prototype.toBuffer=function(t,e,n,r){void 0===t&&(t=0),void 0===e&&(e=0),void 0===n&&(n=this.width),void 0===r&&(r=this.height);var i=document.createElement("canvas");i.width=n,i.height=r;var a=i.getContext("2d");return a.drawImage(this,-t,-e),a.getImageData(0,0,n,r)},HTMLImageElement.prototype.toCanvas=function(t,e,n,r){void 0===t&&(t=0),void 0===e&&(e=0),void 0===n&&(n=this.width),void 0===r&&(r=this.height);var i=document.createElement("canvas");return i.width=n,i.height=r,i.getContext("2d").drawImage(this,-t,-e),i})},function(t,e,n){"use strict";var r=this&&this.__extends||function(){var t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var n in e)e.hasOwnProperty(n)&&(t[n]=e[n])};return function(e,n){function r(){this.constructor=e}t(e,n),e.prototype=null===n?Object.create(n):(r.prototype=n.prototype,new r)}}(),i=this&&this.__assign||Object.assign||function(t){for(var e,n=1,r=arguments.length;n<r;n++)for(var i in e=arguments[n])Object.prototype.hasOwnProperty.call(e,i)&&(t[i]=e[i]);return t},a=this&&this.__awaiter||function(t,e,n,r){return new(n||(n=Promise))(function(i,a){function o(t){try{h(r.next(t))}catch(t){a(t)}}function s(t){try{h(r.throw(t))}catch(t){a(t)}}function h(t){t.done?i(t.value):new n(function(e){e(t.value)}).then(o,s)}h((r=r.apply(t,e||[])).next())})},o=this&&this.__generator||function(t,e){var n,r,i,a,o={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return a={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function s(a){return function(s){return function(a){if(n)throw new TypeError("Generator is already executing.");for(;o;)try{if(n=1,r&&(i=2&a[0]?r.return:a[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,a[1])).done)return i;switch(r=0,i&&(a=[2&a[0],i.value]),a[0]){case 0:case 1:i=a;break;case 4:return o.label++,{value:a[1],done:!1};case 5:o.label++,r=a[1],a=[0];continue;case 7:a=o.ops.pop(),o.trys.pop();continue;default:if(!(i=(i=o.trys).length>0&&i[i.length-1])&&(6===a[0]||2===a[0])){o=0;continue}if(3===a[0]&&(!i||a[1]>i[0]&&a[1]<i[3])){o.label=a[1];break}if(6===a[0]&&o.label<i[1]){o.label=i[1],i=a;break}if(i&&o.label<i[2]){o.label=i[2],o.ops.push(a);break}i[2]&&o.ops.pop(),o.trys.pop();continue}a=e.call(t,o)}catch(t){a=[6,t],r=0}finally{n=i=0}if(5&a[0])throw a[1];return{value:a[0]?a[1]:void 0,done:!0}}([a,s])}}};Object.defineProperty(e,"__esModule",{value:!0});var s=n(1),h=n(5),u=n(2);n(3);var d=function(t){function e(){var e=t.call(this)||this;return e.message="This method can not be ran outside of Alt1",e}return r(e,t),e}(Error);e.NoAlt1Error=d;var f=function(t){function e(){return null!==t&&t.apply(this,arguments)||this}return r(e,t),e}(Error);e.Alt1Error=f,e.newestversion="1.5.3",e.hasAlt1="undefined"!=typeof alt1,e.skinName=e.hasAlt1?alt1.skinName:"default";var c=4e6;function l(){if(!e.hasAlt1)throw new d}function p(){for(var t=[],n=0;n<arguments.length;n++)t[n]=arguments[n];if(!e.hasAlt1)throw new d;var r=h.default.fromArgs.apply(h.default,t),i=new ImageData(r.width,r.height);if(r.width*r.height*4<=c){if(!(s=alt1.getRegion(r.x,r.y,r.width,r.height)))return null;v(s,i,0,0,r.width,r.height)}else{var a=r.x,o=alt1.bindRegion(r.x,r.y,r.width,r.height);if(o<=0)return null;for(;a<r.x+r.width;){var s,u=Math.min(r.x+r.width,Math.floor(a+c/4/r.height));if(!(s=alt1.bindGetRegion(o,a,r.y,u-a,r.height)))return null;v(s,i,a-r.x,0,u-a,r.height),a=u}}return i}function g(t,e,n,r){t=Math.round(t),e=Math.round(e),n=Math.round(n),r=Math.round(r),l();var i=alt1.bindRegion(t,e,n,r);if(i<=0)throw new f("capturehold failed");return new u.ImgRefBind(i,t,e,n,r)}function v(t,e,n,r,i,a){var o=atob(t),s=e.data;i|=0,a|=0;for(var h=4*n+4*r*e.width,u=0|e.width,d=0;d<i;d++)for(var f=0;f<a;f++){var c=h+(4*d|0)+(f*u*4|0)|0,l=(4*d|0)+(4*f*i|0)|0;s[c+0|0]=o.charCodeAt(l+2|0),s[c+1|0]=o.charCodeAt(l+1|0),s[c+2|0]=o.charCodeAt(l+0|0),s[c+3|0]=o.charCodeAt(l+3|0)}return e}e.openbrowser=function(t){e.hasAlt1?alt1.openBrowser(t):window.open(t,"_blank")},e.requireAlt1=l,e.getdisplaybounds=function(){return!!e.hasAlt1&&new h.default(alt1.screenX,alt1.screenY,alt1.screenWidth,alt1.screenHeight)},e.capture=p,e.captureHold=g,e.captureHoldScreen=function(t,e,n,r){t=Math.round(t),e=Math.round(e),n=Math.round(n),r=Math.round(r),l();var i=alt1.bindScreenRegion(t,e,n,r);return!(i<=0)&&new u.ImgRefBind(i,t,e,n,r)},e.captureHoldFullRs=function(){return g(0,0,alt1.rsWidth,alt1.rsHeight)},e.transferImageData=function(t,e,n,r,i){e=Math.round(e),n=Math.round(n),r=Math.round(r),i=Math.round(i),l();for(var a=new ImageData(r,i),o=e;;){var s=Math.min(e+r,Math.floor(o+c/4/i)),h=alt1.bindGetRegion(t,o,n,s-o,i);if(!h)throw new f;if(v(h,a,o-e,0,s-o,i),(o=s)==e+r)break}return a},e.decodeImageString=v,e.encodeImageString=function(t,e,n,r,i){void 0===e&&(e=0),void 0===n&&(n=0),void 0===r&&(r=t.width),void 0===i&&(i=t.height);for(var a="",o=n;o<n+i;o++)for(var s=e;s<e+r;s++){var h=4*s+4*t.width*o|0;a+=String.fromCharCode(t.data[h+2|0]),a+=String.fromCharCode(t.data[h+1|0]),a+=String.fromCharCode(t.data[h+0|0]),a+=String.fromCharCode(t.data[h+3|0])}return btoa(a)},e.mixColor=function(t,e,n,r){return void 0===r&&(r=255),(n<<0)+(e<<8)+(t<<16)+(r<<24)},e.identifyApp=function(t){e.hasAlt1&&alt1.identifyAppUrl(t)};var m=-1;function w(t){return!!e.hasAlt1&&(-1==m&&(m=alt1.versionint),m>=function(t){var e=t.match(/^(\d+)\.(\d+)\.(\d+)$/);if(!e)throw new RangeError("Invalid version string");return 1e3*+e[1]*1e3+1e3*+e[2]+1*+e[3]}(t))}function y(t,e){l(),alt1.events||(alt1.events={}),alt1.events[t]||(alt1.events[t]=[]),alt1.events[t].push(e)}function b(t,e){var n=alt1.events&&alt1.events[t];if(n){var r=n.indexOf(e);-1!=r&&n.splice(r,1)}}e.hasAlt1Version=w,e.getMousePosition=function(){var t=alt1.mousePosition;return-1==t?null:{x:t>>>16,y:65535&t}},e.addResizeElement=function(t,n,r,i,a){e.hasAlt1&&alt1.userResize&&t.addEventListener("mousedown",function(t){alt1.userResize(n,r,i,a),t.preventDefault()})},e.on=y,e.removeListener=b,e.once=function(t,e){l();var n=function(r){b(t,n),e(r)};y(t,n)};var x=function(){function t(t){for(var e=[],n=1;n<arguments.length;n++)e[n-1]=arguments[n];this.framebuffer=null,this.pos=0,this.reading=!1,this.closed=!1,this.pausedindex=-1,this.pausedbuffer=null,this.streamreader=t,e[0]instanceof ImageData?this.setFrameBuffer(e[0]):"number"==typeof e[0]&&this.setFrameBuffer(new ImageData(e[0],e[1]))}return t.prototype.setFrameBuffer=function(t){if(this.reading)throw new Error("can't change framebuffer while reading");this.framebuffer=t},t.prototype.close=function(){this.streamreader.cancel()},t.prototype.nextImage=function(){return a(this,void 0,void 0,function(){var t,e,n;return o(this,function(r){switch(r.label){case 0:if(this.reading)throw new Error("already reading from this stream");if(!this.framebuffer)throw new Error("framebuffer not set");this.reading=!0,-Date.now(),Date.now(),t=!1,r.label=1;case 1:return t?[3,5]:-1!=this.pausedindex&&this.pausedbuffer?(t=this.readChunk(this.pausedindex,this.framebuffer.data,this.pausedbuffer),[3,4]):[3,2];case 2:return Date.now(),[4,this.streamreader.read()];case 3:if(e=r.sent(),Date.now(),e.done)throw new Error("Stream closed while reading");n=e.value,t=this.readChunk(0,this.framebuffer.data,n),r.label=4;case 4:return[3,1];case 5:return Date.now(),this.reading=!1,[2,this.framebuffer]}})})},t.prototype.readChunk=function(t,e,n){t|=0;for(var r=0|e.length,i=this.pos,a=0|n.length;t<a;){for(;t<a&&i<r&&(i%16!=0||!((t+16|0)<=a&&(i+16|0)<=r));){var o=i;i%4==0&&(o=o+2|0),i%4==2&&(o=o-2|0),e[0|o]=n[0|t],t=t+1|0,i=i+1|0}if(i%16==0)for(;(t+16|0)<=a&&(i+16|0)<=r;)e[i+0|0]=n[t+2|0],e[i+1|0]=n[t+1|0],e[i+2|0]=n[t+0|0],e[i+3|0]=n[t+3|0],e[i+4|0]=n[t+6|0],e[i+5|0]=n[t+5|0],e[i+6|0]=n[t+4|0],e[i+7|0]=n[t+7|0],e[i+8|0]=n[t+10|0],e[i+9|0]=n[t+9|0],e[i+10|0]=n[t+8|0],e[i+11|0]=n[t+11|0],e[i+12|0]=n[t+14|0],e[i+13|0]=n[t+13|0],e[i+14|0]=n[t+12|0],e[i+15|0]=n[t+15|0],i=i+16|0,t=t+16|0;if(i>=r)return this.pausedbuffer=null,this.pausedindex=-1,this.pos=0,t!=n.length-1&&(this.pausedbuffer=n,this.pausedindex=t),!0}return this.pos=i,this.pausedbuffer=null,this.pausedindex=-1,!1},t}();function I(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];return a(this,void 0,void 0,function(){var e,n,r,a,h,u;return o(this,function(o){switch(o.label){case 0:return l(),n="object"==typeof t[e=0]?t[e++]:{x:t[e++],y:t[e++],width:t[e++],height:t[e++]},r=t[e++]||"raw",a=t[e++]||.6,w("1.4.6")?(h="https://alt1api/pixel/getregion/"+encodeURIComponent(JSON.stringify(i({},n,{format:r,quality:a}))),"raw"!=r?[3,2]:[4,fetch(h)]):[2,p(n.x,n.y,n.width,n.height)];case 1:return u=o.sent(),[2,new x(u.body.getReader(),n.width,n.height).nextImage()];case 2:return[2,s.imageDataFromUrl(h)]}})})}e.ImageStreamReader=x,e.captureAsync=I,e.captureMultiAsync=function(t){return a(this,void 0,void 0,function(){var e,n,r,i,a,s,h,u,d,f,c,p,g,v;return o(this,function(o){switch(o.label){case 0:for(s in l(),e="raw",n=.6,r={},i=[],a=[],t)t[s]?(i.push(t[s]),a.push(s)):r[s]=null;if(w("1.5.1"))return[3,2];for(h=[],c=0;c<i.length;c++)h.push(I(i[c],e,n));return[4,Promise.all(h)];case 1:for(u=o.sent(),c=0;c<i.length;c++)r[a[c]]=u[c];return[3,7];case 2:return[4,fetch("https://alt1api/pixel/getregionmulti/"+encodeURIComponent(JSON.stringify({areas:i,format:e,quality:n})))];case 3:d=o.sent(),f=new x(d.body.getReader()),c=0,o.label=4;case 4:return c<i.length?(p=i[c],f.setFrameBuffer(new ImageData(p.width,p.height)),g=r,v=a[c],[4,f.nextImage()]):[3,7];case 5:g[v]=o.sent(),o.label=6;case 6:return c++,[3,4];case 7:return[2,r]}})})},e.captureStream=function(t,e,n,r,i,s,h){var u=this;if(l(),!w("1.4.6"))throw new f("This function is not supported in this version of Alt1");var d="https://alt1api/pixel/streamregion/"+encodeURIComponent(JSON.stringify({x:t,y:e,width:n,height:r,fps:i,format:"raw"})),c=(fetch(d).then(function(t){return a(u,void 0,void 0,function(){var e,i,a;return o(this,function(o){switch(o.label){case 0:e=new x(t.body.getReader(),n,r),o.label=1;case 1:o.trys.push([1,5,,6]),o.label=2;case 2:return e.closed||c.closed?[3,4]:[4,e.nextImage()];case 3:return i=o.sent(),c.closed||(s(i),c.framenr++),[3,2];case 4:return[3,6];case 5:if(a=o.sent(),!c.closed){if(e.close(),!h)throw a;h(a)}return[3,6];case 6:return!e.closed&&c.closed&&e.close(),[2]}})})}),{x:t,y:e,width:n,height:r,framenr:0,close:function(){c.closed=!0},closed:!1});return c}},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var r=function(){function t(t,e,n,r){this.x=t,this.y=e,this.width=n,this.height=r}return t.fromArgs=function(){for(var e=[],n=0;n<arguments.length;n++)e[n]=arguments[n];return"object"==typeof e[0]?"number"==typeof e[0][0]?new t(e[0],e[1],e[2],e[3]):new t(e[0].x,e[0].y,e[0].width,e[0].height):new t(e[0],e[1],e[2],e[3])},t.prototype.union=function(t){var e=Math.min(this.x,t.x),n=Math.min(this.y,t.y);return this.width=Math.max(this.x+this.width,t.x+t.width)-e,this.height=Math.max(this.y+this.height,t.y+t.height)-n,this.x=e,this.y=n,this},t.prototype.includePoint=function(e,n){this.union(new t(e,n,0,0))},t.prototype.inflate=function(t,e){this.x-=t,this.y-=e,this.width+=2*t,this.height+=2*e},t.prototype.intersect=function(t){this.x<t.x&&(this.width-=t.x-this.x,this.x=t.x),this.y<t.y&&(this.height-=t.y-this.y,this.y=t.y),this.width=Math.min(this.x+this.width,t.x+t.width)-this.x,this.height=Math.min(this.y+this.height,t.y+t.height)-this.y,(this.width<=0||this.height<=0)&&(this.width=0,this.height=0)},t.prototype.overlaps=function(t){return this.x<t.x+t.width&&this.x+this.width>t.x&&this.y<t.y+t.height&&this.y+this.height>t.y},t.prototype.contains=function(t){return this.x<=t.x&&this.x+this.width>=t.x+t.width&&this.y<=t.y&&this.y+this.height>=t.y+t.height},t.prototype.containsPoint=function(t,e){return this.x<=t&&this.x+this.width>t&&this.y<=e&&this.y+this.height>e},t}();e.default=r},function(e,n){e.exports=t},function(t,n){t.exports=e},function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var r=n(0),i=n(1),a=[],o=!1,s=!1,h=!1;function u(t){var n;for(n in h=!1,e.lastimg=t.toCanvas(),e.lastref=new r.ImgRefCtx(e.lastimg),a)a[n].cb(e.lastimg,e.lastref)}function d(t,e){for(var n in h=!1,a)a[n].error&&a[n].error(t,e)}function f(){window.addEventListener("dragover",function(t){t.preventDefault()}),window.addEventListener("drop",function(t){if(t.dataTransfer){var e=function(t){for(var e="",n=0;n<t.length;n++){var r=t[n],i=r.type.match(/^image\/(\w+)$/);if(i){if("png"==i[1])return r;e=i[1]}}return e&&d("The image you uploaded is not a .png image. Other image type have compression noise and can't be used for image detection.","notpng"),null}(t.dataTransfer.items);t.preventDefault(),e&&l(e.getAsFile())}})}function c(){if(!o){o=!0;var t=function(t){for(var e=0;e<t.clipboardData.items.length;e++)if(-1!=t.clipboardData.items[e].type.indexOf("image")){var n=t.clipboardData.items[e].getAsFile(),r=new Image;r.src=(window.URL||window.webkitURL).createObjectURL(n),r.width>0?u(r):r.onload=function(){u(r)}}};if(!!navigator.userAgent.match(/Chrome/)&&!navigator.userAgent.match(/Edge/))document.addEventListener("paste",t);else{var e=document.createElement("div");e.setAttribute("contenteditable",""),e.className="forcehidden",e.onpaste=function(n){n.clipboardData&&n.clipboardData.items?t(n):setTimeout(function(){var t=e.children[0];if(t&&"IMG"==t.tagName){var n=new Image;n.src=t.src;n.src.match(/^data:([\w\/]+);/);n.width>0?u(n):n.onload=function(){u(n)},e.innerHTML=""}},1)},document.body.appendChild(e)}document.addEventListener("keydown",function(t){"INPUT"!=t.target.tagName&&t.keyCode=="V".charCodeAt(0)&&t.ctrlKey&&(h=!0,setTimeout(function(){h&&d("You pressed Ctrl+V, but no image was pasted by your browser, make sure your clipboard contains an image, and not a link to an image.\n This may also happen if your browser is (very) outdated.","noimg")},1e3),e&&e.focus())})}}function l(t){if(t){var e=new FileReader;e.onload=function(){var t=new Uint8Array(e.result);i.isPngBuffer(t)&&i.clearPngColorspace(t);var n=new Blob([t],{type:"image/png"}),r=new Image;r.onerror=function(){return d("The file you uploaded could not be opened as an image.","invalidfile")};var a=URL.createObjectURL(n);r.src=a,r.width>0?(u(r),URL.revokeObjectURL(a)):r.onload=function(){u(r),URL.revokeObjectURL(a)}},e.readAsArrayBuffer(t)}}e.lastref=null,e.lastimg=null,e.listen=function(t,e,n){a.push({cb:t,error:e}),o||c(),n&&!s&&f()},e.startDragNDrop=f,e.start=c,e.fileDialog=function(){var t=document.createElement("input");return t.type="file",t.accept="image/png",t.onchange=function(){t.files&&t.files[0]&&l(t.files[0])},t.click(),t}}])});
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("node-fetch"), require("pngjs"));
+	else if(typeof define === 'function' && define.amd)
+		define(["node-fetch", "pngjs"], factory);
+	else if(typeof exports === 'object')
+		exports["@alt1/base"] = factory(require("node-fetch"), require("pngjs"));
+	else
+		root["A1lib"] = factory(root["unkown"], root["unkown"]);
+})((typeof self!='undefined'?self:this), function(__WEBPACK_EXTERNAL_MODULE_node_fetch__, __WEBPACK_EXTERNAL_MODULE_pngjs__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./imagedata-extensions.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var a1lib = __webpack_require__("./index.ts");
+(function () {
+    var globalvar = (typeof self != "undefined" ? self : (typeof global != "undefined" ? global : null));
+    var fill = typeof globalvar.ImageData == "undefined";
+    var constr = function () {
+        var i = 0;
+        var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
+        var width = arguments[i++];
+        var height = arguments[i++];
+        if (fill) {
+            if (!data) {
+                data = new Uint8ClampedArray(width * height * 4);
+            }
+            this.width = width;
+            this.height = height;
+            this.data = data;
+        }
+        else {
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext("2d");
+            var imageData = ctx.createImageData(width, height);
+            if (data) {
+                imageData.data.set(data);
+            }
+            return imageData;
+        }
+    };
+    if (!fill) {
+        constr.prototype = globalvar.ImageData.prototype;
+    }
+    globalvar.ImageData = constr;
+    exports.ImageData = constr;
+})();
+exports.ImageData.prototype.putImageData = function (buf, cx, cy) {
+    for (var dx = 0; dx < buf.width; dx++) {
+        for (var dy = 0; dy < buf.height; dy++) {
+            var i1 = (dx + cx) * 4 + (dy + cy) * 4 * this.width;
+            var i2 = dx * 4 + dy * 4 * buf.width;
+            this.data[i1] = buf.data[i2];
+            this.data[i1 + 1] = buf.data[i2 + 1];
+            this.data[i1 + 2] = buf.data[i2 + 2];
+            this.data[i1 + 3] = buf.data[i2 + 3];
+        }
+    }
+};
+exports.ImageData.prototype.pixelOffset = function (x, y) {
+    return x * 4 + y * this.width * 4;
+};
+//creates a hash of a portion of the buffer used to check for changes
+exports.ImageData.prototype.getPixelHash = function (rect) {
+    if (!rect) {
+        rect = new a1lib.Rect(0, 0, this.width, this.height);
+    }
+    var hash = 0;
+    for (var x = rect.x; x < rect.x + rect.width; x++) {
+        for (var y = rect.y; y < rect.y + rect.height; y++) {
+            var i = x * 4 + y * 4 * this.width;
+            hash = (((hash << 5) - hash) + this.data[i]) | 0;
+            hash = (((hash << 5) - hash) + this.data[i + 1]) | 0;
+            hash = (((hash << 5) - hash) + this.data[i + 2]) | 0;
+            hash = (((hash << 5) - hash) + this.data[i + 3]) | 0;
+        }
+    }
+    return hash;
+};
+exports.ImageData.prototype.clone = function (rect) {
+    return this.toImage(rect).getContext("2d").getImageData(0, 0, rect.width, rect.height);
+};
+exports.ImageData.prototype.show = function (x, y, zoom) {
+    if (x === void 0) { x = 5; }
+    if (y === void 0) { y = 5; }
+    if (zoom === void 0) { zoom = 1; }
+    var imgs = document.getElementsByClassName("debugimage");
+    while (imgs.length > 10) {
+        imgs[0].remove();
+    }
+    var el = this.toImage();
+    el.classList.add("debugimage");
+    el.style.position = "absolute";
+    el.style.zIndex = "1000";
+    el.style.left = x / zoom + "px";
+    el.style.top = y / zoom + "px";
+    el.style.background = "purple";
+    el.style.cursor = "pointer";
+    el.style.imageRendering = "pixelated";
+    el.style.outline = "1px solid #0f0";
+    el.style.width = (this.width == 1 ? 100 : this.width) + "px";
+    el.style.height = (this.height == 1 ? 100 : this.height) + "px";
+    el.onclick = function () { el.remove(); };
+    document.body.appendChild(el);
+    return el;
+};
+exports.ImageData.prototype.toImage = function (rect) {
+    if (!rect) {
+        rect = new a1lib.Rect(0, 0, this.width, this.height);
+    }
+    var el = document.createElement("canvas");
+    el.width = rect.width;
+    el.height = rect.height;
+    var ctx = el.getContext("2d");
+    ctx.putImageData(this, -rect.x, -rect.y);
+    return el;
+};
+exports.ImageData.prototype.getPixel = function (x, y) {
+    var i = x * 4 + y * 4 * this.width;
+    return [this.data[i], this.data[i + 1], this.data[i + 2], this.data[i + 3]];
+};
+exports.ImageData.prototype.getPixelInt = function (x, y) {
+    var i = x * 4 + y * 4 * this.width;
+    return (this.data[i + 3] << 24) + (this.data[i + 0] << 16) + (this.data[i + 1] << 8) + (this.data[i + 2] << 0);
+};
+exports.ImageData.prototype.getColorDifference = function (x, y, r, g, b, a) {
+    if (a === void 0) { a = 255; }
+    var i = x * 4 + y * 4 * this.width;
+    return Math.abs(this.data[i] - r) + Math.abs(this.data[i + 1] - g) + Math.abs(this.data[i + 2] - b) * a / 255;
+};
+exports.ImageData.prototype.setPixel = function (x, y) {
+    var color = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        color[_i - 2] = arguments[_i];
+    }
+    var r, g, b, a;
+    var _a = (Array.isArray(color[0]) ? color[0] : color), r = _a[0], g = _a[1], b = _a[2], a = _a[3];
+    var i = x * 4 + y * 4 * this.width;
+    this.data[i] = r;
+    this.data[i + 1] = g;
+    this.data[i + 2] = b;
+    this.data[i + 3] = a == undefined ? 255 : a;
+};
+exports.ImageData.prototype.setPixelInt = function (x, y, color) {
+    var i = x * 4 + y * 4 * this.width;
+    this.data[i] = (color >> 24) & 0xff;
+    this.data[i + 1] = (color >> 16) & 0xff;
+    this.data[i + 2] = (color >> 8) & 0xff;
+    this.data[i + 3] = (color >> 0) & 0xff;
+};
+exports.ImageData.prototype.toJSON = function (rect) {
+    var str = this.toImage(rect).toDataURL("image/png");
+    return str.slice(str.indexOf(",") + 1);
+};
+exports.ImageData.prototype.pixelCompare = function (buf, x, y, max) {
+    if (x === void 0) { x = 0; }
+    if (y === void 0) { y = 0; }
+    return a1lib.ImageDetect.simpleCompare(this, buf, x, y, max);
+};
+exports.ImageData.prototype.copyTo = function (target, sourcex, sourcey, width, height, targetx, targety) {
+    for (var cx = 0; cx < width; cx++) {
+        for (var cy = 0; cy < height; cy++) {
+            var it = (cx + targetx) * 4 + (cy + targety) * target.width * 4;
+            var is = (cx + sourcex) * 4 + (cy + sourcey) * this.width * 4;
+            target.data[it + 0] = this.data[is + 0];
+            target.data[it + 1] = this.data[is + 1];
+            target.data[it + 2] = this.data[is + 2];
+            target.data[it + 3] = this.data[is + 3];
+        }
+    }
+};
+if (typeof HTMLImageElement != "undefined") {
+    HTMLImageElement.prototype.toBuffer = function (x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        var cnv = document.createElement("canvas");
+        cnv.width = w;
+        cnv.height = h;
+        var ctx = cnv.getContext("2d");
+        ctx.drawImage(this, -x, -y);
+        return ctx.getImageData(0, 0, w, h);
+    };
+    HTMLImageElement.prototype.toCanvas = function (x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        var cnv = document.createElement("canvas");
+        cnv.width = w;
+        cnv.height = h;
+        var ctx = cnv.getContext("2d");
+        ctx.drawImage(this, -x, -y);
+        return cnv;
+    };
+}
+
+
+/***/ }),
+
+/***/ "./imagedetect.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var imgref_1 = __webpack_require__("./imgref.ts");
+var wapper = __webpack_require__("./wrapper.ts");
+/**
+* Downloads an image and returns the ImageData
+* Make sure the png image does not have a sRGB chunk or the resulting pixels will differ for different users!!!
+* @param url http(s) or data url to the image
+*/
+function imageDataFromUrl(url) {
+    return __awaiter(this, void 0, void 0, function () {
+        var img, nodefetch, pngjs, imgovr, hdr, raw, buffer, res, buffer, png;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!(typeof Image != "undefined")) return [3 /*break*/, 2];
+                    img = new Image();
+                    img.crossOrigin = "crossorigin";
+                    return [4 /*yield*/, new Promise(function (done, fail) {
+                            img.onload = function () { done(img.toBuffer()); };
+                            img.onerror = fail;
+                            img.src = url;
+                        })];
+                case 1: return [2 /*return*/, _a.sent()];
+                case 2:
+                    nodefetch = __webpack_require__("node-fetch");
+                    pngjs = __webpack_require__("pngjs");
+                    imgovr = __webpack_require__("./imagedata-extensions.ts").ImageData;
+                    hdr = "data:image/png;base64,";
+                    if (!url.startsWith(hdr)) return [3 /*break*/, 3];
+                    raw = Buffer.from(url.slice(hdr.length), "base64");
+                    buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+                    return [3 /*break*/, 5];
+                case 3: return [4 /*yield*/, nodefetch(url).then(function (r) { return r.arrayBuffer(); })];
+                case 4:
+                    res = _a.sent();
+                    buffer = new Uint8Array(res);
+                    _a.label = 5;
+                case 5:
+                    clearPngColorspace(buffer);
+                    png = new pngjs.PNG();
+                    return [4 /*yield*/, new Promise(function (done, err) {
+                            png.on("parsed", function (e) { return done(e); });
+                            png.on("error", function (e) { return err(e); });
+                            png.parse(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
+                        })];
+                case 6:
+                    _a.sent();
+                    return [2 /*return*/, new imgovr(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height)];
+            }
+        });
+    });
+}
+exports.imageDataFromUrl = imageDataFromUrl;
+/**
+* Loads an ImageData object from a base64 encoded png image
+* Make sure the png image does not have a sRGB chunk or the resulting pixels will differ for different users!!!
+* @param data a base64 encoded png image
+*/
+function imageDataFromBase64(data) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, imageDataFromUrl("data:image/png;base64," + data)];
+        });
+    });
+}
+exports.imageDataFromBase64 = imageDataFromBase64;
+/**
+* Used to visualise data as a grayscale image. The imput array must contain one (float) value per pixel.
+* The values are automatically scaled so the lowest value is black and the highest is white
+* @param array The pixels, one values per pixel
+*/
+function imagedataFromArray(array, w, h) {
+    if (array.length != w * h) {
+        throw new Error("Invalid array size");
+    }
+    var min = Math.min.apply(null, array);
+    var max = Math.max.apply(null, array);
+    var range = max - min;
+    var buf = new ImageData(w, h);
+    for (var i = 0; i < w * h; i++) {
+        var ibuf = i * 4;
+        buf.data[ibuf] = buf.data[ibuf + 1] = buf.data[ibuf + 2] = (array[i] - min) / range * 255;
+        buf.data[ibuf + 3] = 255;
+    }
+    return buf;
+}
+/**
+* Checks if a given byte array is a png file (by checking for ?PNG as first 4 bytes)
+* @param bytes Raw bytes of the png file
+*/
+function isPngBuffer(bytes) {
+    return bytes[0] == 137 && bytes[1] == 80 && bytes[2] == 78 && bytes[3] == 71;
+}
+exports.isPngBuffer = isPngBuffer;
+/**
+* Resets the colorspace data in the png file.
+* This makes sure the browser renders the exact colors in the file instead of filtering it in order to obtain the best real life representation of
+* what it looked like on the authors screen. (this feature is often broken and not supported)
+* For example a round trip printscreen -> open in browser results in different colors than the original
+* @param data Raw bytes of the png file
+*/
+function clearPngColorspace(data) {
+    if (!isPngBuffer(data)) {
+        throw new Error("non-png image received");
+    }
+    var i = 8;
+    while (i < data.length) {
+        var length = data[i++] * 0x1000000 + data[i++] * 0x10000 + data[i++] * 0x100 + data[i++];
+        var chunkname = String.fromCharCode(data[i++], data[i++], data[i++], data[i++]);
+        //qw(chunkname, length);
+        if (chunkname == "sRGB") {
+            //Set render intent to absole colormetric, this forces browsers to not mess with the image
+            console.log("- Changed sRGB, old value:", data[i]);
+            //new chunk data
+            data[i] = 3;
+            //new chunk checksum
+            data[i + length + 0] = 0x37;
+            data[i + length + 1] = 0xc7;
+            data[i + length + 2] = 0x4d;
+            data[i + length + 3] = 0x53;
+        }
+        if (chunkname == "IEND") {
+            break;
+        }
+        i += length;
+        i += 4;
+    }
+}
+exports.clearPngColorspace = clearPngColorspace;
+/**
+* finds the given needle ImageBuffer in the given haystack ImgRef this function uses the best optimized available
+* code depending on the type of the haystack. It will use fast c# searching if the haystack is an ImgRefBind, js searching
+* is used otherwise.
+* the checklist argument is no longer used and should ignored or null/undefined
+* The optional sx,sy,sw,sh arguments indicate a bounding rectangle in which to search the needle. The rectangle should be bigger than the needle
+* @returns An array of points where the needle is found. The array is empty if none are found
+*/
+function findSubimage(haystackImgref, needleBuffer, sx, sy, sw, sh) {
+    if (sx === void 0) { sx = 0; }
+    if (sy === void 0) { sy = 0; }
+    if (sw === void 0) { sw = haystackImgref.width; }
+    if (sh === void 0) { sh = haystackImgref.height; }
+    if (!haystackImgref) {
+        throw new TypeError();
+    }
+    if (!needleBuffer) {
+        throw new TypeError();
+    }
+    var max = 30;
+    //check if we can do this in alt1
+    if (haystackImgref instanceof imgref_1.ImgRefBind && wapper.hasAlt1 && alt1.bindFindSubImg) {
+        var needlestr = wapper.encodeImageString(needleBuffer);
+        var r = alt1.bindFindSubImg(haystackImgref.handle, needlestr, needleBuffer.width, sx, sy, sw, sh);
+        if (!r) {
+            throw new wapper.Alt1Error();
+        }
+        return JSON.parse(r);
+    }
+    return findSubbuffer(haystackImgref.read(), needleBuffer, sx, sy, sw, sh);
+}
+exports.findSubimage = findSubimage;
+/**
+* Uses js to find the given needle ImageBuffer in the given haystack ImageBuffer. It is better to use the alt1.bind- functions in
+* combination with a1nxt.findsubimg.
+* the optional sx,sy,sw,sh arguments indicate a bounding rectangle in which to search.
+* @returns An array of points where the needle is found. The array is empty if none are found
+*/
+function findSubbuffer(haystack, needle, sx, sy, sw, sh) {
+    if (sx === void 0) { sx = 0; }
+    if (sy === void 0) { sy = 0; }
+    if (sw === void 0) { sw = haystack.width; }
+    if (sh === void 0) { sh = haystack.height; }
+    var r = [];
+    var maxdif = 30;
+    var maxresults = 50;
+    var needlestride = needle.width * 4;
+    var heystackstride = haystack.width * 4;
+    //built list of non trans pixel to check
+    var checkList = [];
+    for (var x = 0; x < needle.width; x++) {
+        for (var y = 0; y < needle.height; y++) {
+            var i = x * 4 + y * needlestride;
+            if (needle.data[i + 3] == 255) {
+                checkList.push({ x: x, y: y });
+            }
+            if (checkList.length == 10) {
+                break;
+            }
+        }
+        if (checkList.length == 10) {
+            break;
+        }
+    }
+    var cw = (sx + sw) - needle.width;
+    var ch = (sy + sh) - needle.height;
+    var checklength = checkList.length;
+    for (var x = sx; x <= cw; x++) {
+        outer: for (var y = sy; y <= ch; y++) {
+            for (var a = 0; a < checklength; a++) {
+                var i1 = (x + checkList[a].x) * 4 + (y + checkList[a].y) * heystackstride;
+                var i2 = checkList[a].x * 4 + checkList[a].y * needlestride;
+                var d = 0;
+                d = d + Math.abs(haystack.data[i1 + 0] - needle.data[i2 + 0]) | 0;
+                d = d + Math.abs(haystack.data[i1 + 1] - needle.data[i2 + 1]) | 0;
+                d = d + Math.abs(haystack.data[i1 + 2] - needle.data[i2 + 2]) | 0;
+                d *= 255 / needle.data[i2 + 3];
+                if (d > maxdif) {
+                    continue outer;
+                }
+            }
+            if (simpleCompare(haystack, needle, x, y, maxdif) != Infinity) {
+                r.push({ x: x, y: y });
+                if (r.length > maxresults) {
+                    return r;
+                }
+            }
+        }
+    }
+    return r;
+}
+exports.findSubbuffer = findSubbuffer;
+/**
+* Compares two images and returns the average color difference per pixel between them
+* @param max The max color difference at any point in the image before short circuiting the function and returning Infinity. set to -1 to always continue.
+* @returns The average color difference per pixel or Infinity if the difference is more than max at any point in the image
+*/
+function simpleCompare(bigbuf, checkbuf, x, y, max) {
+    if (max === void 0) { max = 30; }
+    if (x < 0 || y < 0) {
+        throw new RangeError();
+    }
+    if (x + checkbuf.width > bigbuf.width || y + checkbuf.height > bigbuf.height) {
+        throw new RangeError();
+    }
+    if (max == -1) {
+        max = 255 * 4;
+    }
+    var go = true;
+    var dif = 0;
+    for (var step = 8; step >= 1; step /= 2) {
+        for (var cx = 0; cx < checkbuf.width; cx += step) {
+            for (var cy = 0; cy < checkbuf.height; cy += step) {
+                var i1 = (x + cx) * 4 + (y + cy) * bigbuf.width * 4;
+                var i2 = cx * 4 + cy * checkbuf.width * 4;
+                var d = 0;
+                d = d + Math.abs(bigbuf.data[i1 + 0] - checkbuf.data[i2 + 0]) | 0;
+                d = d + Math.abs(bigbuf.data[i1 + 1] - checkbuf.data[i2 + 1]) | 0;
+                d = d + Math.abs(bigbuf.data[i1 + 2] - checkbuf.data[i2 + 2]) | 0;
+                d *= checkbuf.data[i2 + 3] / 255;
+                if (step == 1) {
+                    dif += d;
+                }
+                if (d > max) {
+                    return Infinity;
+                }
+            }
+        }
+    }
+    return dif / checkbuf.width / checkbuf.height;
+}
+exports.simpleCompare = simpleCompare;
+/**
+* Returns the difference between two colors (scaled to the alpha of the second color)
+*/
+function coldif(r1, g1, b1, r2, g2, b2, a2) {
+    return (Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2)) * a2 / 255; //only applies alpha for 2nd buffer!
+}
+exports.coldif = coldif;
+/**
+ * Turns map of promises into a map that contains the resolved values after loading.
+ * @param input
+ */
+function asyncMap(input) {
+    var raw = {};
+    var promises = [];
+    for (var a in input) {
+        if (input.hasOwnProperty(a)) {
+            raw[a] = null;
+            promises.push(input[a].then(function (a, i) { raw[a] = i; r[a] = i; }.bind(null, a)));
+        }
+    }
+    var r = {};
+    var promise = Promise.all(promises).then(function () { r.loaded = true; return r; });
+    Object.defineProperty(r, "loaded", { enumerable: false, value: false, writable: true });
+    Object.defineProperty(r, "promise", { enumerable: false, value: promise });
+    Object.defineProperty(r, "raw", { enumerable: false, value: raw });
+    return Object.assign(r, raw);
+}
+exports.asyncMap = asyncMap;
+/**
+* Same as asyncMap, but casts the properties to ImageData in typescript
+*/
+function webpackImages(input) {
+    return asyncMap(input);
+}
+exports.webpackImages = webpackImages;
+
+
+/***/ }),
+
+/***/ "./imgref.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var index_1 = __webpack_require__("./index.ts");
+var ImgRef = /** @class */ (function () {
+    function ImgRef(x, y, w, h) {
+        this.t = "none";
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+    }
+    ImgRef.prototype.read = function (x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        throw ("This imgref (" + this.t + ") does not support toData");
+    };
+    ImgRef.prototype.findSubimage = function (needle, sx, sy, w, h) {
+        if (sx === void 0) { sx = 0; }
+        if (sy === void 0) { sy = 0; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        return index_1.ImageDetect.findSubimage(this, needle, sx, sy, w, h);
+    };
+    ImgRef.prototype.toData = function (x, y, w, h) {
+        if (x === void 0) { x = this.x; }
+        if (y === void 0) { y = this.y; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        return this.read(x - this.x, y - this.y, w, h);
+    };
+    ;
+    ImgRef.prototype.containsArea = function (rect) {
+        return this.x <= rect.x && this.y <= rect.y && this.x + this.width >= rect.x + rect.width && this.y + this.height >= rect.y + rect.height;
+    };
+    return ImgRef;
+}());
+exports.ImgRef = ImgRef;
+var ImgRefCtx = /** @class */ (function (_super) {
+    __extends(ImgRefCtx, _super);
+    function ImgRefCtx(img, x, y) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        var _this = this;
+        if (img instanceof CanvasRenderingContext2D) {
+            _this = _super.call(this, x, y, img.canvas.width, img.canvas.height) || this;
+            _this.ctx = img;
+        }
+        else {
+            _this = _super.call(this, x, y, img.width, img.height) || this;
+            var cnv = (img instanceof HTMLCanvasElement ? img : img.toCanvas());
+            _this.ctx = cnv.getContext("2d");
+        }
+        _this.t = "ctx";
+        return _this;
+    }
+    ImgRefCtx.prototype.read = function (x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        return this.ctx.getImageData(x, y, w, h);
+    };
+    return ImgRefCtx;
+}(ImgRef));
+exports.ImgRefCtx = ImgRefCtx;
+var ImgRefBind = /** @class */ (function (_super) {
+    __extends(ImgRefBind, _super);
+    function ImgRefBind(handle, x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = 0; }
+        if (h === void 0) { h = 0; }
+        var _this = _super.call(this, x, y, w, h) || this;
+        _this.handle = handle;
+        _this.t = "bind";
+        return _this;
+    }
+    ImgRefBind.prototype.read = function (x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        return index_1.transferImageData(this.handle, x, y, w, h);
+    };
+    return ImgRefBind;
+}(ImgRef));
+exports.ImgRefBind = ImgRefBind;
+var ImgRefData = /** @class */ (function (_super) {
+    __extends(ImgRefData, _super);
+    function ImgRefData(buf, x, y) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        var _this = _super.call(this, x, y, buf.width, buf.height) || this;
+        _this.buf = buf;
+        _this.t = "data";
+        return _this;
+    }
+    ImgRefData.prototype.read = function (x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = this.width; }
+        if (h === void 0) { h = this.height; }
+        if (x == 0 && y == 0 && w == this.width && h == this.height) {
+            return this.buf;
+        }
+        var r = new ImageData(w, h);
+        for (var b = y; b < y + h; b++) {
+            for (var a = x; a < x + w; a++) {
+                var i1 = (a - x) * 4 + (b - y) * w * 4;
+                var i2 = a * 4 + b * 4 * this.buf.width;
+                r.data[i1] = this.buf.data[i2];
+                r.data[i1 + 1] = this.buf.data[i2 + 1];
+                r.data[i1 + 2] = this.buf.data[i2 + 2];
+                r.data[i1 + 3] = this.buf.data[i2 + 3];
+            }
+        }
+        return r;
+    };
+    return ImgRefData;
+}(ImgRef));
+exports.ImgRefData = ImgRefData;
+
+
+/***/ }),
+
+/***/ "./index.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+///<reference path="./alt1.d.ts" />
+///<reference path="./alt1lib.d.ts"/>
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+var ImageDetect = __webpack_require__("./imagedetect.ts");
+exports.ImageDetect = ImageDetect;
+var PasteInput = __webpack_require__("./pasteinput.ts");
+exports.PasteInput = PasteInput;
+var rect_1 = __webpack_require__("./rect.ts");
+exports.Rect = rect_1.default;
+var imagedata_extensions_1 = __webpack_require__("./imagedata-extensions.ts");
+exports.ImageData = imagedata_extensions_1.ImageData;
+__export(__webpack_require__("./imgref.ts"));
+__export(__webpack_require__("./wrapper.ts"));
+
+
+/***/ }),
+
+/***/ "./pasteinput.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var index_1 = __webpack_require__("./index.ts");
+var ImageDetect = __webpack_require__("./imagedetect.ts");
+var listeners = [];
+var started = false;
+var dndStarted = false;
+var pasting = false;
+exports.lastref = null;
+exports.lastimg = null;
+function listen(func, errorfunc, dragndrop) {
+    listeners.push({ cb: func, error: errorfunc });
+    if (!started) {
+        start();
+    }
+    if (dragndrop && !dndStarted) {
+        startDragNDrop();
+    }
+}
+exports.listen = listen;
+function pasted(img) {
+    var a;
+    pasting = false;
+    exports.lastimg = img.toCanvas();
+    exports.lastref = new index_1.ImgRefCtx(exports.lastimg);
+    for (a in listeners) {
+        listeners[a].cb(exports.lastimg, exports.lastref);
+    }
+}
+function error(mes, error) {
+    pasting = false;
+    for (var a in listeners) {
+        if (listeners[a].error) {
+            listeners[a].error(mes, error);
+        }
+    }
+}
+function startDragNDrop() {
+    var getitem = function (items) {
+        var foundimage = "";
+        for (var a = 0; a < items.length; a++) {
+            var item = items[a];
+            var m = item.type.match(/^image\/(\w+)$/);
+            if (m) {
+                if (m[1] == "png") {
+                    return item;
+                }
+                else {
+                    foundimage = m[1];
+                }
+            }
+        }
+        if (foundimage) {
+            error("The image you uploaded is not a .png image. Other image type have compression noise and can't be used for image detection.", "notpng");
+        }
+        return null;
+    };
+    window.addEventListener("dragover", function (e) {
+        e.preventDefault();
+    });
+    window.addEventListener("drop", function (e) {
+        if (!e.dataTransfer) {
+            return;
+        }
+        var item = getitem(e.dataTransfer.items);
+        e.preventDefault();
+        if (!item) {
+            return;
+        }
+        fromFile(item.getAsFile());
+    });
+}
+exports.startDragNDrop = startDragNDrop;
+function start() {
+    if (started) {
+        return;
+    }
+    started = true;
+    //determine if we have a clipboard api
+    //try{a=new Event("clipboard"); a="clipboardData" in a;}
+    //catch(e){a=false;}
+    var ischrome = !!navigator.userAgent.match(/Chrome/) && !navigator.userAgent.match(/Edge/);
+    //old method breaks after chrome 41, revert to good old user agent sniffing
+    //nvm, internet explorer (edge) decided that it wants to be chrome, however fails at delivering
+    //turns out this one is interesting, edge is a hybrid between the paste api's
+    var apipasted = function (e) {
+        for (var a = 0; a < e.clipboardData.items.length; a++) { //loop all data types
+            if (e.clipboardData.items[a].type.indexOf("image") != -1) {
+                var file = e.clipboardData.items[a].getAsFile();
+                var img = new Image();
+                img.src = (window.URL || window.webkitURL).createObjectURL(file);
+                if (img.width > 0) {
+                    pasted(img);
+                }
+                else {
+                    img.onload = function () { pasted(img); };
+                }
+            }
+        }
+    };
+    if (ischrome) {
+        document.addEventListener("paste", apipasted);
+    }
+    else {
+        var catcher = document.createElement("div");
+        catcher.setAttribute("contenteditable", "");
+        catcher.className = "forcehidden"; //retarded ie safety/bug, cant apply styles using js//TODO i don't even know what's going on
+        catcher.onpaste = function (e) {
+            if (e.clipboardData && e.clipboardData.items) {
+                apipasted(e);
+                return;
+            }
+            setTimeout(function () {
+                var b = catcher.children[0];
+                if (!b || b.tagName != "IMG") {
+                    return;
+                }
+                var img = new Image();
+                img.src = b.src;
+                var a = img.src.match(/^data:([\w\/]+);/);
+                if (img.width > 0) {
+                    pasted(img);
+                }
+                else {
+                    img.onload = function () { pasted(img); };
+                }
+                catcher.innerHTML = "";
+            }, 1);
+        };
+        document.body.appendChild(catcher);
+    }
+    //detect if ctrl-v is pressed and focus catcher if needed
+    document.addEventListener("keydown", function (e) {
+        if (e.target.tagName == "INPUT") {
+            return;
+        }
+        if (e.keyCode != "V".charCodeAt(0) || !e.ctrlKey) {
+            return;
+        }
+        pasting = true;
+        setTimeout(function () {
+            if (pasting) {
+                error("You pressed Ctrl+V, but no image was pasted by your browser, make sure your clipboard contains an image, and not a link to an image.\n This may also happen if your browser is (very) outdated.", "noimg");
+            }
+        }, 1000);
+        if (catcher) {
+            catcher.focus();
+        }
+    });
+}
+exports.start = start;
+function fileDialog() {
+    var fileinput = document.createElement("input");
+    fileinput.type = "file";
+    fileinput.accept = "image/png";
+    fileinput.onchange = function () { if (fileinput.files && fileinput.files[0]) {
+        fromFile(fileinput.files[0]);
+    } };
+    fileinput.click();
+    return fileinput;
+}
+exports.fileDialog = fileDialog;
+function fromFile(file) {
+    if (!file) {
+        return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+        var bytearray = new Uint8Array(reader.result);
+        if (ImageDetect.isPngBuffer(bytearray)) {
+            ImageDetect.clearPngColorspace(bytearray);
+        }
+        var blob = new Blob([bytearray], { type: "image/png" });
+        var img = new Image();
+        img.onerror = function () { return error("The file you uploaded could not be opened as an image.", "invalidfile"); };
+        var bloburl = URL.createObjectURL(blob);
+        img.src = bloburl;
+        if (img.width > 0) {
+            pasted(img);
+            URL.revokeObjectURL(bloburl);
+        }
+        else {
+            img.onload = function () { pasted(img); URL.revokeObjectURL(bloburl); };
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+
+/***/ }),
+
+/***/ "./rect.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//util class for rectangle maths
+//TODO shit this sucks can we remove it again?
+//more of a shorthand to get {x,y,width,height} than a class
+//kinda starting to like it again
+//TODO remove rant
+Object.defineProperty(exports, "__esModule", { value: true });
+;
+/**
+ * Simple rectangle class with some util functions
+ */
+var Rect = /** @class */ (function () {
+    function Rect(x, y, w, h) {
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+    }
+    Rect.fromArgs = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        if (typeof args[0] == "object") {
+            if (typeof args[0][0] == "number") {
+                return new Rect(args[0], args[1], args[2], args[3]);
+            }
+            else {
+                return new Rect(args[0].x, args[0].y, args[0].width, args[0].height);
+            }
+        }
+        else {
+            return new Rect(args[0], args[1], args[2], args[3]);
+        }
+    };
+    /**
+     * Resizes this Rect to include the full size of a given second rectangle
+     */
+    Rect.prototype.union = function (r2) {
+        var x = Math.min(this.x, r2.x);
+        var y = Math.min(this.y, r2.y);
+        this.width = Math.max(this.x + this.width, r2.x + r2.width) - x;
+        this.height = Math.max(this.y + this.height, r2.y + r2.height) - y;
+        this.x = x;
+        this.y = y;
+        return this;
+    };
+    /**
+     * Resizes this Rect to include a given point
+     */
+    Rect.prototype.includePoint = function (x, y) {
+        this.union(new Rect(x, y, 0, 0));
+    };
+    /**
+     * Grows the rectangle with the given dimensions
+     */
+    Rect.prototype.inflate = function (w, h) {
+        this.x -= w;
+        this.y -= h;
+        this.width += 2 * w;
+        this.height += 2 * h;
+    };
+    /**
+     * Resizes this Rect to the area that overlaps a given Rect
+     * width and height will be set to 0 if the intersection does not exist
+     */
+    Rect.prototype.intersect = function (r2) {
+        if (this.x < r2.x) {
+            this.width -= r2.x - this.x;
+            this.x = r2.x;
+        }
+        if (this.y < r2.y) {
+            this.height -= r2.y - this.y;
+            this.y = r2.y;
+        }
+        this.width = Math.min(this.x + this.width, r2.x + r2.width) - this.x;
+        this.height = Math.min(this.y + this.height, r2.y + r2.height) - this.y;
+        if (this.width <= 0 || this.height <= 0) {
+            this.width = 0;
+            this.height = 0;
+        }
+    };
+    /**
+     * Returns wether this Rect has at least one pixel overlap with a given Rect
+     */
+    Rect.prototype.overlaps = function (r2) {
+        return this.x < r2.x + r2.width && this.x + this.width > r2.x && this.y < r2.y + r2.height && this.y + this.height > r2.y;
+    };
+    /**
+     * Returns wether a given Rect fits completely inside this Rect
+     * @param r2
+     */
+    Rect.prototype.contains = function (r2) {
+        return this.x <= r2.x && this.x + this.width >= r2.x + r2.width && this.y <= r2.y && this.y + this.height >= r2.y + r2.height;
+    };
+    /**
+     * Returns wether a given point lies inside this Rect
+     */
+    Rect.prototype.containsPoint = function (x, y) {
+        return this.x <= x && this.x + this.width > x && this.y <= y && this.y + this.height > y;
+    };
+    return Rect;
+}());
+exports.default = Rect;
+
+
+/***/ }),
+
+/***/ "./wrapper.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var ImageDetect = __webpack_require__("./imagedetect.ts");
+var rect_1 = __webpack_require__("./rect.ts");
+var imgref_1 = __webpack_require__("./imgref.ts");
+__webpack_require__("./imagedata-extensions.ts");
+/**
+ * Thrown when a method is called that can not be used outside of Alt1
+ */
+var NoAlt1Error = /** @class */ (function (_super) {
+    __extends(NoAlt1Error, _super);
+    function NoAlt1Error() {
+        var _this = _super.call(this) || this;
+        _this.message = "This method can not be ran outside of Alt1";
+        return _this;
+    }
+    return NoAlt1Error;
+}(Error));
+exports.NoAlt1Error = NoAlt1Error;
+;
+/**
+ * Thrown when the Alt1 API returns an invalid result
+ * Errors of a different type are throw when internal Alt1 errors occur
+ */
+var Alt1Error = /** @class */ (function (_super) {
+    __extends(Alt1Error, _super);
+    function Alt1Error() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Alt1Error;
+}(Error));
+exports.Alt1Error = Alt1Error;
+/**
+ * The latest Alt1 version
+ */
+exports.newestversion = "1.5.3";
+/**
+ * Wether the Alt1 API is available
+ */
+exports.hasAlt1 = (typeof alt1 != "undefined");
+/**
+ * The name of the Alt1 interface skin. (Always "default" if running in a browser)
+ */
+exports.skinName = exports.hasAlt1 ? alt1.skinName : "default";
+/**
+ * Max number of bytes that can be sent by alt1 in one function
+ * Not completely sure why this number is different than window.alt1.maxtranfer
+ */
+var maxtransfer = 4000000;
+/**
+ * Open a link in the default browser
+ * @deprecated use window.open instead
+ */
+function openbrowser(url) {
+    if (exports.hasAlt1) {
+        alt1.openBrowser(url);
+    }
+    else {
+        window.open(url, '_blank');
+    }
+}
+exports.openbrowser = openbrowser;
+/**
+ * Throw if Alt1 API is not available
+ */
+function requireAlt1() {
+    if (!exports.hasAlt1) {
+        throw new NoAlt1Error();
+    }
+}
+exports.requireAlt1 = requireAlt1;
+/**
+ * Returns an object with a rectangle that spans all screens
+ */
+function getdisplaybounds() {
+    if (!exports.hasAlt1) {
+        return false;
+    }
+    return new rect_1.default(alt1.screenX, alt1.screenY, alt1.screenWidth, alt1.screenHeight);
+}
+exports.getdisplaybounds = getdisplaybounds;
+function capture() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    if (!exports.hasAlt1) {
+        throw new NoAlt1Error();
+    }
+    var i = 0;
+    var rect = rect_1.default.fromArgs.apply(rect_1.default, args);
+    var buf = new ImageData(rect.width, rect.height);
+    if (rect.width * rect.height * 4 <= maxtransfer) {
+        var data = alt1.getRegion(rect.x, rect.y, rect.width, rect.height);
+        if (!data) {
+            return null;
+        }
+        decodeImageString(data, buf, 0, 0, rect.width, rect.height);
+    }
+    else {
+        //split up the request to to exceed the single transfer limit (for now)
+        var x1 = rect.x;
+        var ref = alt1.bindRegion(rect.x, rect.y, rect.width, rect.height);
+        if (ref <= 0) {
+            return null;
+        }
+        while (x1 < rect.x + rect.width) {
+            var x2 = Math.min(rect.x + rect.width, Math.floor(x1 + (maxtransfer / 4 / rect.height)));
+            var data = alt1.bindGetRegion(ref, x1, rect.y, x2 - x1, rect.height);
+            if (!data) {
+                return null;
+            }
+            decodeImageString(data, buf, x1 - rect.x, 0, x2 - x1, rect.height);
+            x1 = x2;
+        }
+    }
+    return buf;
+}
+exports.capture = capture;
+/**
+ * Makes alt1 bind an area of the rs client in memory without sending it to the js client
+ * returns an imgref object which can be used to get pixel data using the imgreftobuf function
+ * currently only one bind can exist per app and the ref in (v) will always be 1
+ */
+function captureHold(x, y, w, h) {
+    x = Math.round(x);
+    y = Math.round(y);
+    w = Math.round(w);
+    h = Math.round(h);
+    requireAlt1();
+    var r = alt1.bindRegion(x, y, w, h);
+    if (r <= 0) {
+        throw new Alt1Error("capturehold failed");
+    }
+    return new imgref_1.ImgRefBind(r, x, y, w, h);
+}
+exports.captureHold = captureHold;
+/**
+ * Same as captureHoldRegion, but captures the screen instead of the rs client. it also uses screen coordinates instead and can capture outside of the rs client
+ */
+function captureHoldScreen(x, y, w, h) {
+    x = Math.round(x);
+    y = Math.round(y);
+    w = Math.round(w);
+    h = Math.round(h);
+    requireAlt1();
+    var r = alt1.bindScreenRegion(x, y, w, h);
+    if (r <= 0) {
+        return false;
+    }
+    return new imgref_1.ImgRefBind(r, x, y, w, h);
+}
+exports.captureHoldScreen = captureHoldScreen;
+/**
+ * bind the full rs window if the rs window can be detected by alt1, otherwise return the full screen
+ */
+function captureHoldFullRs() {
+    return captureHold(0, 0, alt1.rsWidth, alt1.rsHeight);
+}
+exports.captureHoldFullRs = captureHoldFullRs;
+/**
+ * returns a subregion from a bound image
+ * used internally in imgreftobuf if imgref is a bound image
+ * @deprecated This should be handled internall by the imgrefbind.toData method
+ */
+function transferImageData(handle, x, y, w, h) {
+    x = Math.round(x);
+    y = Math.round(y);
+    w = Math.round(w);
+    h = Math.round(h);
+    requireAlt1();
+    var r = new ImageData(w, h);
+    var x1 = x;
+    while (true) { //split up the request to to exceed the single transfer limit (for now)
+        var x2 = Math.min(x + w, Math.floor(x1 + (maxtransfer / 4 / h)));
+        var a = alt1.bindGetRegion(handle, x1, y, x2 - x1, h);
+        if (!a) {
+            throw new Alt1Error();
+        }
+        decodeImageString(a, r, x1 - x, 0, x2 - x1, h);
+        x1 = x2;
+        if (x1 == x + w) {
+            break;
+        }
+        ;
+    }
+    return r;
+}
+exports.transferImageData = transferImageData;
+/**
+ * decodes a returned string from alt1 to an imagebuffer
+ */
+function decodeImageString(imagestring, target, x, y, w, h) {
+    var bin = atob(imagestring);
+    var bytes = target.data;
+    w |= 0;
+    h |= 0;
+    var offset = 4 * x + 4 * y * target.width;
+    var target_width = target.width | 0;
+    for (var a = 0; a < w; a++) {
+        for (var b = 0; b < h; b++) {
+            var i1 = (offset + (a * 4 | 0) + (b * target_width * 4 | 0)) | 0;
+            var i2 = ((a * 4 | 0) + (b * 4 * w | 0)) | 0;
+            bytes[i1 + 0 | 0] = bin.charCodeAt(i2 + 2 | 0); //fix weird red/blue swap in c#
+            bytes[i1 + 1 | 0] = bin.charCodeAt(i2 + 1 | 0);
+            bytes[i1 + 2 | 0] = bin.charCodeAt(i2 + 0 | 0);
+            bytes[i1 + 3 | 0] = bin.charCodeAt(i2 + 3 | 0);
+        }
+    }
+    return target;
+}
+exports.decodeImageString = decodeImageString;
+/**
+ * encodes an imagebuffer to a string
+ */
+function encodeImageString(buf, sx, sy, sw, sh) {
+    if (sx === void 0) { sx = 0; }
+    if (sy === void 0) { sy = 0; }
+    if (sw === void 0) { sw = buf.width; }
+    if (sh === void 0) { sh = buf.height; }
+    var raw = "";
+    for (var y = sy; y < sy + sh; y++) {
+        for (var x = sx; x < sx + sw; x++) {
+            var i = 4 * x + 4 * buf.width * y | 0;
+            raw += String.fromCharCode(buf.data[i + 2 | 0]);
+            raw += String.fromCharCode(buf.data[i + 1 | 0]);
+            raw += String.fromCharCode(buf.data[i + 0 | 0]);
+            raw += String.fromCharCode(buf.data[i + 3 | 0]);
+        }
+    }
+    return btoa(raw);
+}
+exports.encodeImageString = encodeImageString;
+/**
+ * mixes the given color into a single int. This format is used by alt1
+ */
+function mixColor(r, g, b, a) {
+    if (a === void 0) { a = 255; }
+    return (b << 0) + (g << 8) + (r << 16) + (a << 24);
+}
+exports.mixColor = mixColor;
+function identifyApp(url) {
+    if (exports.hasAlt1) {
+        alt1.identifyAppUrl(url);
+    }
+}
+exports.identifyApp = identifyApp;
+function convertAlt1Version(str) {
+    var a = str.match(/^(\d+)\.(\d+)\.(\d+)$/);
+    if (!a) {
+        throw new RangeError("Invalid version string");
+    }
+    return (+a[1]) * 1000 * 1000 + (+a[2]) * 1000 + (+a[3]) * 1;
+}
+var cachedVersionInt = -1;
+/**
+ * checks if alt1 is running and at least the given version. versionstr should be a string with the version eg: 1.3.2
+ * @param versionstr
+ */
+function hasAlt1Version(versionstr) {
+    if (!exports.hasAlt1) {
+        return false;
+    }
+    if (cachedVersionInt == -1) {
+        cachedVersionInt = alt1.versionint;
+    }
+    return cachedVersionInt >= convertAlt1Version(versionstr);
+}
+exports.hasAlt1Version = hasAlt1Version;
+/**
+ * Gets the current cursor position in the game, returns null if the rs window is not active (alt1.rsActive)
+ */
+function getMousePosition() {
+    var pos = alt1.mousePosition;
+    if (pos == -1) {
+        return null;
+    }
+    return { x: pos >>> 16, y: pos & 0xFFFF };
+}
+exports.getMousePosition = getMousePosition;
+/**
+ * Registers a given HTML element as a frame border, when this element is dragged by the user the Alt1 frame will resize accordingly
+ * Use the direction arguements to make a given direction stick to the mouse. eg. Only set left to true to make the element behave as the left border
+ * Or set all to true to move the whole window. Not all combinations are permitted
+ */
+function addResizeElement(el, left, top, right, bot) {
+    if (!exports.hasAlt1 || !alt1.userResize) {
+        return;
+    }
+    el.addEventListener("mousedown", function (e) {
+        alt1.userResize(left, top, right, bot);
+        e.preventDefault();
+    });
+}
+exports.addResizeElement = addResizeElement;
+/**
+ * Add an event listener
+ */
+function on(type, listener) {
+    requireAlt1();
+    if (!alt1.events) {
+        alt1.events = {};
+    }
+    if (!alt1.events[type]) {
+        alt1.events[type] = [];
+    }
+    alt1.events[type].push(listener);
+}
+exports.on = on;
+/**
+ * Removes an event listener
+ */
+function removeListener(type, listener) {
+    var elist = alt1.events && alt1.events[type];
+    if (!elist) {
+        return;
+    }
+    var i = elist.indexOf(listener);
+    if (i == -1) {
+        return;
+    }
+    elist.splice(i, 1);
+}
+exports.removeListener = removeListener;
+/**
+ * Listens for the event to fire once and then stops listening
+ * @param event
+ * @param cb
+ */
+function once(type, listener) {
+    requireAlt1();
+    var fn = function (e) {
+        removeListener(type, fn);
+        listener(e);
+    };
+    on(type, fn);
+}
+exports.once = once;
+;
+/**
+ * Used to read a set of images from a binary stream returned by the Alt1 API
+ */
+var ImageStreamReader = /** @class */ (function () {
+    function ImageStreamReader(reader) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        this.framebuffer = null;
+        this.pos = 0;
+        this.reading = false;
+        this.closed = false;
+        //paused state
+        this.pausedindex = -1;
+        this.pausedbuffer = null;
+        this.streamreader = reader;
+        if (args[0] instanceof ImageData) {
+            this.setFrameBuffer(args[0]);
+        }
+        else if (typeof args[0] == "number") {
+            this.setFrameBuffer(new ImageData(args[0], args[1]));
+        }
+    }
+    /**
+     *
+     */
+    ImageStreamReader.prototype.setFrameBuffer = function (buffer) {
+        if (this.reading) {
+            throw new Error("can't change framebuffer while reading");
+        }
+        this.framebuffer = buffer;
+    };
+    /**
+     * Closes the underlying stream and ends reading
+     */
+    ImageStreamReader.prototype.close = function () {
+        this.streamreader.cancel();
+    };
+    /**
+     * Reads a single image from the stream
+     */
+    ImageStreamReader.prototype.nextImage = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var synctime, starttime, r, res, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (this.reading) {
+                            throw new Error("already reading from this stream");
+                        }
+                        if (!this.framebuffer) {
+                            throw new Error("framebuffer not set");
+                        }
+                        this.reading = true;
+                        synctime = -Date.now();
+                        starttime = Date.now();
+                        r = false;
+                        _a.label = 1;
+                    case 1:
+                        if (!!r) return [3 /*break*/, 5];
+                        if (!(this.pausedindex != -1 && this.pausedbuffer)) return [3 /*break*/, 2];
+                        r = this.readChunk(this.pausedindex, this.framebuffer.data, this.pausedbuffer);
+                        return [3 /*break*/, 4];
+                    case 2:
+                        synctime += Date.now();
+                        return [4 /*yield*/, this.streamreader.read()];
+                    case 3:
+                        res = _a.sent();
+                        synctime -= Date.now();
+                        if (res.done) {
+                            throw new Error("Stream closed while reading");
+                        }
+                        data = res.value;
+                        r = this.readChunk(0, this.framebuffer.data, data);
+                        _a.label = 4;
+                    case 4: return [3 /*break*/, 1];
+                    case 5:
+                        synctime += Date.now();
+                        //console.log("Decoded async image, " + this.framebuffer.width + "x" + this.framebuffer.height + " time: " + (Date.now() - starttime) + "ms (" + synctime + "ms main thread)");
+                        this.reading = false;
+                        return [2 /*return*/, this.framebuffer];
+                }
+            });
+        });
+    };
+    ImageStreamReader.prototype.readChunk = function (i, framedata, buffer) {
+        //very hot code, explicit int32 casting with |0 speeds it up by ~ x2
+        i = i | 0;
+        var framesize = framedata.length | 0;
+        var pos = this.pos;
+        var datalen = buffer.length | 0;
+        //var data32 = new Float64Array(buffer.buffer);
+        //var framedata32 = new Float64Array(framedata.buffer);
+        //fix possible buffer misalignment
+        //align to 16 for extra loop unrolling
+        while (i < datalen) {
+            //slow loop, fix alignment and other issues
+            while (i < datalen && pos < framesize && (pos % 16 != 0 || !((i + 16 | 0) <= datalen && (pos + 16 | 0) <= framesize))) {
+                var rel = pos;
+                if (pos % 4 == 0) {
+                    rel = rel + 2 | 0;
+                }
+                if (pos % 4 == 2) {
+                    rel = rel - 2 | 0;
+                }
+                framedata[rel | 0] = buffer[i | 0];
+                i = i + 1 | 0;
+                pos = pos + 1 | 0;
+            }
+            //fast unrolled loop for large chunks i wish js had some sort of memcpy
+            if (pos % 16 == 0) {
+                while ((i + 16 | 0) <= datalen && (pos + 16 | 0) <= framesize) {
+                    framedata[pos + 0 | 0] = buffer[i + 2 | 0];
+                    framedata[pos + 1 | 0] = buffer[i + 1 | 0];
+                    framedata[pos + 2 | 0] = buffer[i + 0 | 0];
+                    framedata[pos + 3 | 0] = buffer[i + 3 | 0];
+                    framedata[pos + 4 | 0] = buffer[i + 6 | 0];
+                    framedata[pos + 5 | 0] = buffer[i + 5 | 0];
+                    framedata[pos + 6 | 0] = buffer[i + 4 | 0];
+                    framedata[pos + 7 | 0] = buffer[i + 7 | 0];
+                    framedata[pos + 8 | 0] = buffer[i + 10 | 0];
+                    framedata[pos + 9 | 0] = buffer[i + 9 | 0];
+                    framedata[pos + 10 | 0] = buffer[i + 8 | 0];
+                    framedata[pos + 11 | 0] = buffer[i + 11 | 0];
+                    framedata[pos + 12 | 0] = buffer[i + 14 | 0];
+                    framedata[pos + 13 | 0] = buffer[i + 13 | 0];
+                    framedata[pos + 14 | 0] = buffer[i + 12 | 0];
+                    framedata[pos + 15 | 0] = buffer[i + 15 | 0];
+                    //could speed it up another x2 but wouldn't be able to swap r/b swap and possible alignment issues
+                    //framedata32[pos / 8 + 0 | 0] = data32[i / 8 + 0 | 0];
+                    //framedata32[pos / 8 + 1 | 0] = data32[i / 8 + 1 | 0];
+                    //framedata32[pos / 4 + 2 | 0] = data32[i / 4 + 2 | 0];
+                    //framedata32[pos / 4 + 3 | 0] = data32[i / 4 + 3 | 0];
+                    pos = pos + 16 | 0;
+                    i = i + 16 | 0;
+                }
+            }
+            if (pos >= framesize) {
+                this.pausedbuffer = null;
+                this.pausedindex = -1;
+                this.pos = 0;
+                if (i != buffer.length - 1) {
+                    this.pausedbuffer = buffer;
+                    this.pausedindex = i;
+                }
+                return true;
+            }
+        }
+        this.pos = pos;
+        this.pausedbuffer = null;
+        this.pausedindex = -1;
+        return false;
+    };
+    return ImageStreamReader;
+}());
+exports.ImageStreamReader = ImageStreamReader;
+function captureAsync() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    return __awaiter(this, void 0, void 0, function () {
+        var i, rect, format, quality, url, res, imgreader;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    requireAlt1();
+                    i = 0;
+                    rect = (typeof args[i] == "object" ? args[i++] : { x: args[i++], y: args[i++], width: args[i++], height: args[i++] });
+                    format = args[i++] || "raw";
+                    quality = args[i++] || 0.6;
+                    if (!hasAlt1Version("1.4.6")) {
+                        return [2 /*return*/, capture(rect.x, rect.y, rect.width, rect.height)];
+                    }
+                    url = "https://alt1api/pixel/getregion/" + encodeURIComponent(JSON.stringify(__assign({}, rect, { format: format, quality: quality })));
+                    if (!(format == "raw")) return [3 /*break*/, 2];
+                    return [4 /*yield*/, fetch(url)];
+                case 1:
+                    res = _a.sent();
+                    imgreader = new ImageStreamReader(res.body.getReader(), rect.width, rect.height);
+                    return [2 /*return*/, imgreader.nextImage()];
+                case 2: return [2 /*return*/, ImageDetect.imageDataFromUrl(url)];
+            }
+        });
+    });
+}
+exports.captureAsync = captureAsync;
+/**
+ * Asynchronously captures multple area's. This method captures the images in the same render frame if possible
+ * @param areas
+ */
+function captureMultiAsync(areas) {
+    return __awaiter(this, void 0, void 0, function () {
+        var format, quality, r, capts, captids, id, proms, a, results, a, res, imgreader, a, capt, _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    requireAlt1();
+                    format = "raw";
+                    quality = 0.6;
+                    r = {};
+                    capts = [];
+                    captids = [];
+                    for (id in areas) {
+                        if (areas[id]) {
+                            capts.push(areas[id]);
+                            captids.push(id);
+                        }
+                        else {
+                            r[id] = null;
+                        }
+                    }
+                    if (!!hasAlt1Version("1.5.1")) return [3 /*break*/, 2];
+                    proms = [];
+                    for (a = 0; a < capts.length; a++) {
+                        proms.push(captureAsync(capts[a], format, quality));
+                    }
+                    return [4 /*yield*/, Promise.all(proms)];
+                case 1:
+                    results = _c.sent();
+                    for (a = 0; a < capts.length; a++) {
+                        r[captids[a]] = results[a];
+                    }
+                    return [3 /*break*/, 7];
+                case 2: return [4 /*yield*/, fetch("https://alt1api/pixel/getregionmulti/" + encodeURIComponent(JSON.stringify({ areas: capts, format: format, quality: quality })))];
+                case 3:
+                    res = _c.sent();
+                    imgreader = new ImageStreamReader(res.body.getReader());
+                    a = 0;
+                    _c.label = 4;
+                case 4:
+                    if (!(a < capts.length)) return [3 /*break*/, 7];
+                    capt = capts[a];
+                    imgreader.setFrameBuffer(new ImageData(capt.width, capt.height));
+                    _a = r;
+                    _b = captids[a];
+                    return [4 /*yield*/, imgreader.nextImage()];
+                case 5:
+                    _a[_b] = _c.sent();
+                    _c.label = 6;
+                case 6:
+                    a++;
+                    return [3 /*break*/, 4];
+                case 7: return [2 /*return*/, r];
+            }
+        });
+    });
+}
+exports.captureMultiAsync = captureMultiAsync;
+/**
+ * Starts capturing a realtime stream of the game. Make sure you keep reading the stream and close it when you're done or Alt1 WILL crash
+ * @param framecb Called whenever a new frame is decoded
+ * @param errorcb Called whenever an error occurs, the error is rethrown if not defined
+ * @param fps Maximum fps of the stream
+ */
+function captureStream(x, y, width, height, fps, framecb, errorcb) {
+    var _this = this;
+    requireAlt1();
+    if (!hasAlt1Version("1.4.6")) {
+        throw new Alt1Error("This function is not supported in this version of Alt1");
+    }
+    var url = "https://alt1api/pixel/streamregion/" + encodeURIComponent(JSON.stringify({ x: x, y: y, width: width, height: height, fps: fps, format: "raw" }));
+    var res = fetch(url).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
+        var reader, img, e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    reader = new ImageStreamReader(res.body.getReader(), width, height);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 5, , 6]);
+                    _a.label = 2;
+                case 2:
+                    if (!(!reader.closed && !state.closed)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, reader.nextImage()];
+                case 3:
+                    img = _a.sent();
+                    if (!state.closed) {
+                        framecb(img);
+                        state.framenr++;
+                    }
+                    return [3 /*break*/, 2];
+                case 4: return [3 /*break*/, 6];
+                case 5:
+                    e_1 = _a.sent();
+                    if (!state.closed) {
+                        reader.close();
+                        if (errorcb) {
+                            errorcb(e_1);
+                        }
+                        else {
+                            throw e_1;
+                        }
+                    }
+                    return [3 /*break*/, 6];
+                case 6:
+                    if (!reader.closed && state.closed) {
+                        reader.close();
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    var state = {
+        x: x, y: y, width: width, height: height,
+        framenr: 0,
+        close: function () { state.closed = true; },
+        closed: false,
+    };
+    return state;
+}
+exports.captureStream = captureStream;
+
+
+/***/ }),
+
+/***/ 0:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__("./index.ts");
+
+
+/***/ }),
+
+/***/ "node-fetch":
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_node_fetch__;
+
+/***/ }),
+
+/***/ "pngjs":
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_pngjs__;
+
+/***/ })
+
+/******/ });
+});
+//# sourceMappingURL=index.js.map

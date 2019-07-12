@@ -12,5 +12,8 @@
 		"@alt1/base": "file:../base",
 		"@alt1/ocr": "file:../ocr",
 		"pngjs": "^3.3.3"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
 	}
 }

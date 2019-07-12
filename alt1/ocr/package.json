@@ -1,13 +1,16 @@
 {
 	"name": "@alt1/ocr",
-	"runeappsType": "lib",
-	"runeappsLibNameRoot": "OCR",
-	"runeappsLibEntry": "./index.ts",
+	"umdGlobal": "OCR",
 	"main": "./dist/index.js",
-	"types": "./index.ts",
 	"author": "Skillbert",
 	"version": "0.0.2",
 	"dependencies": {
 		"@alt1/base": "file:../base"
+	},
+	"devDependencies": {
+		"@alt1/ocr": "file:../ocr"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js --custom-webpack -p"
 	}
 }

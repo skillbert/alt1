@@ -4,11 +4,14 @@
 	"runeappsTarget": "node",
 	"runeappsLibNameRoot": "Alt1ImageDataLoader",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.js",
+	"main": "./index.ts",
 	"types": "./index.ts",
 	"author": "Skillbert",
 	"version": "0.0.2",
 	"dependencies": {
 		"@alt1/base": "file:../base"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
 	}
 }

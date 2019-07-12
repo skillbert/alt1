@@ -10,5 +10,8 @@
 	"dependencies": {
 		"@alt1/base": "file:../base",
 		"@alt1/ocr": "file:../ocr"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
 	}
 }

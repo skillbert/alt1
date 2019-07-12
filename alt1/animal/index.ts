@@ -44,11 +44,11 @@ export default class AnimalReader {
 		var pos = img.findSubimage(imgs.happynessicon);
 		if (pos.length == 0) { return null; }
 
-		this.pos = { x: pos[0].x - 44, y: pos[0].y - 154, width: 496, height: 232};
+		this.pos = { x: pos[0].x - 44, y: pos[0].y - 154, width: 496, height: 232 };
 		return this.pos;
 	}
 
-	private readMultiline(data,col,x,y) {
+	private readMultiline(data, col, x, y) {
 		var t = OCR.findReadLine(data, stdfont, [col], x, y);
 		if (t.text == "") {
 			var t0 = OCR.findReadLine(data, stdfont, [col], x, y - 6);
@@ -58,10 +58,11 @@ export default class AnimalReader {
 		return t.text;
 	}
 
-	read() {
+	read(img: ImgRef) {
 		if (!this.pos) { return null; }
 
-		var data = a1lib.capture(this.pos);
+
+		var data = (img ? img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height) : a1lib.capture(this.pos));
 		if (!data) { return null; }
 
 		//confirm interface

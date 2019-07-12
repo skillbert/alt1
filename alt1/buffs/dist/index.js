@@ -1,1 +1,490 @@
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(require("@alt1/base"),require("@alt1/ocr")):"function"==typeof define&&define.amd?define(["@alt1/base","@alt1/ocr"],t):"object"==typeof exports?exports["@alt1/buffs-reader"]=t(require("@alt1/base"),require("@alt1/ocr")):e.BuffsReader=t(e.A1lib,e.OCR)}("undefined"!=typeof self?self:this,function(e,t){return function(e){var t={};function r(i){if(t[i])return t[i].exports;var f=t[i]={i:i,l:!1,exports:{}};return e[i].call(f.exports,f,f.exports,r),f.l=!0,f.exports}return r.m=e,r.c=t,r.d=function(e,t,i){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:i})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var i=Object.create(null);if(r.r(i),Object.defineProperty(i,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var f in e)r.d(i,f,function(t){return e[t]}.bind(null,f));return i},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="/",r(r.s=1)}([function(t,r){t.exports=e},function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var i=r(0),f=r(2),n=r(0),o=i.ImageDetect.webpackImages({buff:r(3),debuff:r(4)}),u=r(5);function a(e,t){return(e%t+t)%t}var s=function(){function e(e,t,r,i){this.buffer=e,this.bufferx=t,this.buffery=r,this.isdebuff=i}return e.prototype.readArg=function(e){return A.readArg(this.buffer,this.bufferx+2,this.buffery+24,e)},e.prototype.readTime=function(){return A.readTime(this.buffer,this.bufferx+2,this.buffery+24)},e.prototype.compareBuffer=function(e){return A.compareBuffer(this.buffer,this.bufferx+1,this.buffery+1,e)},e.prototype.countMatch=function(e,t){return A.countMatch(this.buffer,this.bufferx+1,this.buffery+1,e,t)},e}();t.Buff=s;var A=function(){function e(){this.pos=null,this.debuffs=!1}return e.prototype.find=function(e){if(e||(e=i.captureHoldFullRs()),!e)return null;var t=e.findSubimage(this.debuffs?o.debuff:o.buff);if(0==t.length)return null;var r=[];for(var f in t){var n=!1;for(var u in r)if(0==a(r[u].x-t[f].x,30)&&0==a(r[u].x-t[f].x,30)){r[u].x=Math.min(r[u].x,t[f].x),r[u].y=Math.min(r[u].y,t[f].y),r[u].n++,n=!0;break}n||r.push({x:t[f].x,y:t[f].y,n:1})}var s=0,A=0,c=null;for(var f in r)console.log("buff grid ["+r[f].x+","+r[f].y+"], n:"+r[f].n),r[f].n>s&&(s=r[f].n,c=r[f]),r[f].n>=2&&A++;return A>1&&console.log("Warning, more than one possible buff bar location"),this.pos={x:c.x,y:c.y},!0},e.prototype.getCaptRect=function(){return new i.Rect(this.pos.x,this.pos.y,180,90)},e.prototype.read=function(e){var t=[],r=this.getCaptRect();e||(e=i.capture(r.x,r.y,r.width,r.height));for(var f=0;f<18;f++){var n=f%6*30,u=30*Math.floor(f/6);if(!(e.pixelCompare(this.debuffs?o.debuff:o.buff,n,u)!=1/0))break;t.push(new s(e,n,u,this.debuffs))}return t},e.compareBuffer=function(t,r,i,f){var n=e.countMatch(t,r,i,f,!0);return!(n.failed>0)&&!(n.tested<50)},e.countMatch=function(e,t,r,f,n){for(var o={tested:0,failed:0,skipped:0,passed:0},u=e.data,a=f.data,s=0;s<f.height;s++)for(var A=0;A<f.width;A++){var c=e.pixelOffset(t+A,r+s),l=f.pixelOffset(A,s);if(255==a[l+3])if(255!=u[c]||255!=u[c+1]||255!=u[c+2])if(0!=u[c]||0!=u[c+1]||0!=u[c+2]){var d=i.ImageDetect.coldif(u[c],u[c+1],u[c+2],a[l],a[l+1],a[l+2],255);if(o.tested++,d>35){if(o.failed++,n)return o}else o.passed++}else o.skipped++;else o.skipped++;else o.skipped++}return o},e.isolateBuffer=function(t,r,f,n){if(!(e.countMatch(t,r,f,n).passed<50)){for(var o=0,u=t.data,a=n.data,s=0;s<n.height;s++)for(var A=0;A<n.width;A++){var c=t.pixelOffset(r+A,f+s),l=n.pixelOffset(A,s);if(255==a[l+3])if(!(255==u[c]&&255==u[c+1]&&255==u[c+2]||0==u[c]&&0==u[c+1]&&0==u[c+2]))(255==a[l]&&255==a[l+1]&&255==a[l+2]||0==a[l]&&0==a[l+1]&&0==a[l+2])&&(a[l+0]=u[c+0],a[l+1]=u[c+1],a[l+2]=u[c+2],a[l+3]=u[c+3],o++),i.ImageDetect.coldif(u[c],u[c+1],u[c+2],a[l],a[l+1],a[l+2],255)>0&&(a[l+0]=a[l+1]=a[l+2]=a[l+3]=0,o++)}o>0&&console.log(o+" pixels remove from buff template image")}},e.readArg=function(e,t,r,i){for(var n=[],o=-10;o<10;o+=10){var a=f.readLine(e,u,[255,255,255],t,r+o,!0);a.text&&n.push(a.text)}var s={time:0,arg:""};"timearg"==i&&n.length>1&&(s.arg=n.pop());var A,c=n.join("");"arg"==i?s.arg=c:(A=c.match(/^(\d+)h$/))?s.time=60*+A[1]*60:(A=c.match(/^(\d+)m$/))?s.time=60*+A[1]:(A=c.match(/^(\d+)$/))&&(s.time=+A[1]);return s},e.readTime=function(e,t,r){return this.readArg(e,t,r,"time").time},e.matchBuff=function(e,t){for(var r in e)if(e[r].compareBuffer(t))return e[r];return null},e.matchBuffMulti=function(t,r){if(r.final)return e.matchBuff(t,r.imgdata);var i=-1,f=0;if(r.imgdata)for(var n=0;n<t.length;n++){var o=e.countMatch(t[n].buffer,t[n].bufferx+1,t[n].buffery+1,r.imgdata,!1);o.passed>f&&(f=o.passed,i=n)}return f<50?null:(e.isolateBuffer(t[i].buffer,t[i].bufferx+1,t[i].buffery+1,r.imgdata),t[i])},e}();t.default=A;var c=function(){function e(e,t,r,i,f){this.imgdata=e,this.name=t,this.buffid=r,this.final=i,this.isdebuff=f}return e.prototype.toJSON=function(){return""!=this.buffid?{buffid:this.buffid}:{name:this.name,final:this.final,buffid:"",imgstr:this.imgdata.toJSON(),isdebuff:this.isdebuff}},e.fromPreset=function(t){var r=e.buffs[t];return new e(r.img,r.n,t,!0,r.isdebuff)},e.fromObject=function(t){if("object"!=typeof t||null==t)return null;if("string"==typeof t.buffid&&""!=t.buffid)return t.buffid in e.buffs?e.fromPreset(t.buffid):null;var r="string"==typeof t.name?t.name:"Unknown buff",f=!!t.isdebuff,o=new e(null,r,"",!!t.final,f);if(t.imgdata instanceof n.ImageData)o.imgdata=t.imgdata;else{if("string"!=typeof t.imgstr)return null;i.ImageDetect.imageDataFromBase64(t.imgstr).then(function(e){return o.imgdata=e})}return o},e.buffs={familiar:{n:"Familiar",img:null,isdebuff:!1},adren:{n:"Adrenaline potion",img:null,isdebuff:!0},overload:{n:"Overload",img:null,isdebuff:!1},perfectplus:{n:"Perfect plus",img:null,isdebuff:!1},prayrenewal:{n:"Prayer renewal",img:null,isdebuff:!1},aggression:{n:"Aggression potion",img:null,isdebuff:!1}},e}();t.BuffInfo=c,i.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAB6UlEQVRIS72UPUsDQRRF0woi2FiIIoJgYyo/moCVoCBGEMFCsLNSJIJ/QGIVGxG1l1goaGGXSoyFKIi/QOyttLATMu4Z89bdl5fsWqzFYWbu7t6b92YmOefcv2GKWWGKWWGKmsvXz2CIa5vl/RYtCVPUHF3duO2Ds2D6sy5ubLnCzHy4TospaorlPTe1tBIGRoP/gilqCBvMTzoqIghK1xfOam8nTFEzlh93hYV1t1za9SEE9/YN+XBarN9vhylGwZgQquFQYM66u6vHh6Lv1O7dcf0peN32EExRwKxyeu6qD42wfRJMgCDPFitVP57UG+7w5cP1D4wENr9+MfMoo4VZN7e65oOoyJ/AZisxZB+ZM7KmMkLYR7h9+wps4p6xRRTCCOGIUyHIHmEcRQLg+b3hYa49YwuBiggjiBGGpydCYx1AFVG0n9Ai+NYEFXCvCGUuVREiF1yMJUz7WJgiyJ4QKi0lDF32icMjVervLUwR5BD4gxG0E2M/Dw4JIz9Ef5OEKQJhXGBGqpMTKScQ9DdJmCL7IkhFfv+a7QOe6e+SMEX2AWQtLSUYJCz6ThpMUYNpNID2ZhYGGEuABPPvot/rhClaECJQmX6eBlNsR+3u0d+pv1YkmGISaS+xxhSzwhSzwhSzweW+AbQ+QlX0mRk7AAAAAElFTkSuQmCC").then(function(e){return c.buffs.familiar.img=e}),i.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAIAAAACtmMCAAACCElEQVRIS7XWX0vTcRTH8QkSyFwhKSpY0YVg4Gihc6JsiUoWmVYIEsIEUW/U+edG8EKQwJtChJ5AF130PLz2CXTbg/DW9/jI2fH85lai8GF8PTvnxfntN7elStnM/FBaWZt4cLuYgJZqYO3NtjVIaCaiqqKv+pnj+Q6SSrX4UPE9xI9HUR2CjFs/LHzfzpGTo7GNpWGhShKtivZHkjtdroo/j/MEDlQidWJtAb0SA6cZE+GSIrF+j0bRugnDb5fKyrtPH8j49Pvi5Jub0CjqCWslTK6slhVDRwslL5I6oi2YFCsHe0QoHOfB7FAQiUSh18TQRxjePf2lbH79NvJ5MckRbXNNVCn0ES8u7Bzdl/hj51Fo+1fRcxK5P7ffkUndliByr/tbu3yn0lxkbPt5jsxtVOC4LYizxS8q7pd6fbPGG4ni/kxOEaFa0IrlJ6+Ysv7mYnvbQ2b+vsxfvC6ePctx5mJ55EyF+lbn4/8QeQW5RvYyQqg/h/+cOqJQE3UrQGe6eiBYSuFMBS68McXVRL+mFpTIgVsBYaI4XlDCp4ZQDdYRhdqCDXbEQrQ1TRR1owhX6B74nR4A4hHIztRLIx8RtaZfsCYG1LjzzqciuNhQ0YdQ4Ejte0ZPKLS+6EszSThwjXo/+iI91m9c/OYi1iRUkz5WtE4/fiUG1GJP+eGm/Xf9myKbuQSEJ1EoVwG7xAAAAABJRU5ErkJggg==").then(function(e){return c.buffs.adren.img=e}),i.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAIAAAACtmMCAAABUUlEQVRIS73WMUvDUBSG4Ti2Rh38CV0tCFYUQZEMYgehzsUOIigUFFwENwedxM3dn+p3ecPxeHMT01gK7xTOeThTkmxQ9IeTnEbTLXV6m7eMeWWCtKxqjefrk6demzTpdagg1llXrxsqy9Z8PPRj2oIGDWKdBff+sKs+Xo7UfDoyVPkVbgoiB5po06T9r7d9lRSJRTuzFJPc3ec2IpwuRdRzsknWSzF5IAtaPp/OaHx5QcfFWRVlnTODmOSUNq9vZhbi4cFJ3ZmtxPvnR+XFneGeF5UtCkmIflRpOe9t+iKOEiKPli9Gc2rJYpVT3cUkR3XoasUGjiKU9ZWIoH9y5NGE6M/sJoIkxJYcgbL4S/TvnkVFOEQ58ftRLSQqUHbl/IjdzvQcr7IgVr8zLVHPKSGq/HJxZuRqoTmbVHZgKXo0cpsDIrgg/uefQrFiwqDofwPpgNSSjcGGfQAAAABJRU5ErkJggg==").then(function(e){return c.buffs.overload.img=e}),i.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAC80lEQVRIS72U60uTYRiHRXQrKNLU5tw8b842D0PNch86mrY2c6OZTpunFMlzSbZVamYpHpIwTxSJkkUgiqGVGqF+SAkJqUjI/phf96tEY9xu+aE+XDzPe90n7r3bvAD8N1j5r2DlTjybtNPBx/4GVrqj8EYJHXzME6x0R5Stng4+5glW7kT8nX5EFzfSlY97gpUcurFpxDkeQW1/TI98jidYyRHfMogQw2XIs0twuKGXFJ/nDlZyxNR0QHQwmK7wiq3rhDhg+74bWOmKbmwKqvo/A5SVbTRYsnXfDazkiKlrR3znOJIGJhGQdpYUn+cOVnIk9c8ieXgeEf/jq69pG0FEyU1Eld+mRz7HE6x0JbHnFSLLmiDyPwRN61NSfJ4nWOmKumkIYXk18NnvD23vJJRVD0jzue5gpSvq5gF6V7XwCVchsWuCvpndCLtYTiE+fydYKaC63gNVw0MoajsRfcUBGf2YRXEpSLg3ilPjq0hpHYbMXEqpfD0HKwWU1e1Q1tOw6g5EltohNRZCY++DceYLMp4v4cTgNI60DEBhraR0vocrrBQINZchvNiBsKJGKCvvQmqpgH7qE7LnNmB4vY7MF8s4SQO11+5DrEmmEr6PM6wUkF0ogkRfAMm5AoTn1yA05ypMb9ZgWdyE+d1XGCc+Iv3JDFIdPfBLOEolfB9nWCkgzy6G9Pz2MJkhH5LMXGTPrCBv+SdyFr7DNL2GzJG3SGvuQ5BWRyV8H2dYKSA30TD6l5cZbbQhDcu4BBMNswrD3m/APPMZ+tE56GjYXu0xKuH7OMNKAVlWIeRZNsgEjMKGuVvDhM0sC9vDhM1Sb3VDrNZSCd/HGVb+RmqwIZi2C6GPU6q3wjS7irylTVjmv8E0uYL0oSkkVDTCd98BSud7OMNKZ4LOWGirfHp/VphpWO6HH3Suw/hyEce7RhF62khpfK0rrHRFFBgCcaAUCkspYgvroCiogiKnHH5KDYX5Gg5WusPbdw+8fcVbuMbcA69fyI/29WmtmR0AAAAASUVORK5CYII=").then(function(e){return c.buffs.perfectplus.img=e}),i.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAADRElEQVRIS7WV60uUURDGt/8iCPKDEBkZpGl+yMjVIjWUXJYyL2gaWl6QLpaZlqwKaWblWpurFKGoZUmmqLFlYkIraBZZeAnMlNLIwCzM0Kedcc9e311dqw/P8r5zZua3M2fOeWUAViWZbI3hxyzbdSlJGpeTAMTnqBGVq10xUNLoTCJxXF4VKrs/oujxCA4dL14RUNLoTAJ0rWscX+aAsdlFlHRNQJmR/39hBHo/s4gCQ3UxWerVwShIyNFadOYVBlIbBUjK31L2BmNQVLrKYQJhpwGJP69x6Gcr6xdjUHhyDi639MMr6KDDRMLuaF1K5gdjkDzqFE5Ud0PbOYLIwnrsCIlzKaEzLf0YkwXEZqFMN4SKnim0DM3ynpzWNMNnX+w/AZpAEWn5XBGBaMJorPWf5lHYMYZ0bRuv/y2QYTQMVw17RIe0bWQW338DC4tgaG3/V2h0g8i71Y6AvdGSMPEnhGzXhUyO/opkHL7Riuv6SfR+nmfQkw9zONf0DopcDTx890gmE7Zj+ZUIVCZJ+ghZBciVKcjStuOibpQrItDJskZs3BYsmUTYvAMV3JnU0jq4efhJ+rK/6cHosHmnEqnqZh6UiMxyePqFSAYLG4FiVHd4enPqX2B3Yi7cPeXSMVYvRgeqsPBu97KgxDOlfOtn1L5Edd8UVE1vcORmB1/MYn8tY00JTAajQ1h0mp2z5Tp1gCqqez3NR+T5+C8G3tZPoOhBDx8jn/ADVjmsQELCQTjZ2n1DExB76R7S63t5oAamFzD5c+kL8HT0B842D/NaaGoBdgWau2MFWU4UQFNX9qiX94gqoYoIREeFRGC6EGid/LLLG8xdkkrqSBRA+5lR2gDV/T6+8evfznBFAkZwaivt34WaLv46bPUxTrNUUkfiAIPozCly1Uip0XN1zwytG/y2wCA6m9RGavP2yKNYu37TEshVGEkEesoV/K+LH/Zxcrp5qKL81mEeENrXde7eJhDHWiZaqUSCoLAEnrqUqi6+6vIaX3FF1Opgw41kCeI48eCqRCI6wDR1FboBZFd3wn9/kl1FphjLF1clEm7wkvMlQF9uN/ctkiD2tzW4KpE4ObuEry5HIJKdYTUSAGcgALI/e5pKefLwVWwAAAAASUVORK5CYII=").then(function(e){return c.buffs.prayrenewal.img=e}),i.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAClklEQVRIS72W/UtTYRTHDyTZL+ElqH6QCswKAq2cL7hmL6ai4pZTCbTMDB1aips236Z3253CdvdKpauGIAT1Z347z3JxuzsbJqwfPj/s+5zzfDg8Z2ME4L8hhrVCDO3kDBfMUDf01Xb+KNecBjG08/NwAN8/9iEff4xw4OxCMbTz42AAx9lefNrrwfayA20tlzmWa6shhlZi+1meqh8FsxeZiAsbSy7MzC7wkVxfDTG0Ek98RsI8hJnMw4hlsPZBx7xvGZp2iY/lnkqIoZ105iuSqTyiRhor/i243eMcy7XVEEM7mew3pFgYNVJYWg6ipbWNY7m2GmJoJ5srQE0X28vUXqYmUzIjlmbZOu7dd3As11ZDDK2YycOiKJn6gkg0BX9gG9OvfXwk11dDDK1kWZJLsSx+gIiewNZmDIsLgdps45F5hELyCAf7eWTDOcRDJkJ+Hd1dPXws91RCDEuEG1/C7HqH45089jt8iLbPYefOLILNU5i+PsQlcl8lxLDEbsMoIpoXe9cmsaM9x5bmQZDcWKFBTJOLS+S+SoihYvOch0VjzHiRXW30j8xPQ5ihR+ijFi6V+yXEUKHzRFGWlFCyEMvWT2RvWDZOHVwq90uIocIqUugWWYBlb+kJXlAXOukml8t32BFDvcELgwVWwjxpUXZByYYxR08xSU546PS/JmKoJimXjf2WXXRjlWU+eoZX9BBeakc3NXNb+T12yoJdnsDQJspQy6I2siRbZNkM9WCCOjFIrdz69z0SYqioJNs4kb2n/uJGjtADLpfvsCOGCrUQSlBaEKtMbeM8v9nIP7yXQgxLOOtvwVl/u7j26qug3mzt/DDc5MBdauQSua8SYijRVHcVTXVXcIPO9mdHIYa1AfQLMXTLFSHSKD0AAAAASUVORK5CYII=").then(function(e){return c.buffs.aggression.img=e})},function(e,r){e.exports=t},function(e,t,r){e.exports=r(0).ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAB0AAAAdCAYAAABWk2cPAAAAOklEQVRIS+3NQQ0AIAzF0NmYNYRhdxA89F9ok3durd2T9qa3SnGKcopyinKKcopyinKKcor6cJrVcwDOR2Z9uA13TQAAAABJRU5ErkJggg==")},function(e,t,r){e.exports=r(0).ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAB0AAAAdCAYAAABWk2cPAAAAOElEQVRIS+3NuREAMBDCQPqvzT2dnx5EYjGzpMpKpu1Fz+5VGEUZRRlFGUUZRRlFGUUZRX0Y7cpsGBdLzbBQD6EAAAAASUVORK5CYII=")},function(e,t){e.exports={chars:[{width:7,chr:"0",bonus:120,secondary:!1,pixels:[0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,1,1,255,255,1,3,255,0,1,4,255,0,1,5,255,0,1,6,255,255,2,0,255,255,2,2,255,0,2,7,255,255,3,1,255,255,3,6,255,255,3,8,255,0,4,2,255,255,4,3,255,255,4,4,255,255,4,5,255,255,4,7,255,0,5,3,255,0,5,4,255,0,5,5,255,0,5,6,255,0]},{width:4,chr:"1",bonus:95,secondary:!1,pixels:[0,1,255,255,0,7,255,255,1,0,255,255,1,1,255,255,1,2,255,255,1,3,255,255,1,4,255,255,1,5,255,255,1,6,255,255,1,7,255,255,1,8,255,0,2,1,255,0,2,2,255,0,2,3,255,0,2,4,255,0,2,5,255,0,2,6,255,0,2,7,255,255,2,8,255,0]},{width:7,chr:"2",bonus:140,secondary:!1,pixels:[0,1,255,255,0,6,255,255,0,7,255,255,1,0,255,255,1,2,255,0,1,5,255,255,1,7,255,255,1,8,255,0,2,0,255,255,2,1,255,0,2,4,255,255,2,6,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,3,255,255,3,5,255,0,3,7,255,255,3,8,255,0,4,1,255,255,4,2,255,255,4,4,255,0,4,7,255,255,4,8,255,0,5,2,255,0,5,3,255,0,5,8,255,0]},{width:6,chr:"3",bonus:115,secondary:!1,pixels:[0,1,255,255,0,6,255,255,1,0,255,255,1,2,255,0,1,3,255,255,1,7,255,255,2,0,255,255,2,1,255,0,2,3,255,255,2,4,255,0,2,7,255,255,2,8,255,0,3,1,255,255,3,2,255,255,3,4,255,255,3,5,255,255,3,6,255,255,3,8,255,0,4,2,255,0,4,3,255,0,4,5,255,0,4,6,255,0,4,7,255,0]},{width:5,chr:"4",bonus:110,secondary:!1,pixels:[0,0,255,255,0,1,255,255,0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,1,1,255,0,1,2,255,0,1,3,255,0,1,4,255,0,1,5,255,255,1,6,255,0,2,3,255,255,2,4,255,255,2,5,255,255,2,6,255,255,2,7,255,255,3,4,255,0,3,5,255,255,3,6,255,0,3,7,255,0,3,8,255,0]},{width:6,chr:"5",bonus:135,secondary:!1,pixels:[0,0,255,255,0,1,255,255,0,2,255,255,0,3,255,255,0,6,255,255,1,0,255,255,1,1,255,0,1,2,255,0,1,3,255,255,1,4,255,0,1,7,255,255,2,0,255,255,2,1,255,0,2,3,255,255,2,4,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,4,255,255,3,5,255,255,3,6,255,255,3,8,255,0,4,1,255,0,4,5,255,0,4,6,255,0,4,7,255,0]},{width:7,chr:"6",bonus:160,secondary:!1,pixels:[0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,0,6,255,255,1,1,255,255,1,3,255,0,1,4,255,255,1,5,255,0,1,6,255,0,1,7,255,255,2,0,255,255,2,2,255,0,2,3,255,255,2,5,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,3,255,255,3,4,255,0,3,7,255,255,3,8,255,0,4,1,255,255,4,4,255,255,4,5,255,255,4,6,255,255,4,8,255,0,5,2,255,0,5,5,255,0,5,6,255,0,5,7,255,0]},{width:6,chr:"7",bonus:105,secondary:!1,pixels:[0,0,255,255,0,6,255,255,0,7,255,255,1,0,255,255,1,1,255,0,1,4,255,255,1,5,255,255,1,7,255,0,1,8,255,0,2,0,255,255,2,1,255,0,2,2,255,255,2,3,255,255,2,5,255,0,2,6,255,0,3,0,255,255,3,1,255,255,3,3,255,0,3,4,255,0,4,1,255,0,4,2,255,0]},{width:7,chr:"8",bonus:170,secondary:!1,pixels:[0,1,255,255,0,2,255,255,0,4,255,255,0,5,255,255,0,6,255,255,1,0,255,255,1,2,255,0,1,3,255,255,1,5,255,0,1,6,255,0,1,7,255,255,2,0,255,255,2,1,255,0,2,3,255,255,2,4,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,3,255,255,3,4,255,0,3,7,255,255,3,8,255,0,4,1,255,255,4,2,255,255,4,4,255,255,4,5,255,255,4,6,255,255,4,8,255,0,5,2,255,0,5,3,255,0,5,5,255,0,5,6,255,0,5,7,255,0]},{width:7,chr:"9",bonus:130,secondary:!1,pixels:[0,1,255,255,0,2,255,255,1,0,255,255,1,2,255,0,1,3,255,255,2,0,255,255,2,1,255,0,2,4,255,255,3,0,255,255,3,1,255,0,3,4,255,255,3,5,255,0,4,1,255,255,4,2,255,255,4,3,255,255,4,4,255,255,4,5,255,255,4,6,255,255,4,7,255,255,5,2,255,0,5,3,255,0,5,4,255,0,5,5,255,0,5,6,255,0,5,7,255,0,5,8,255,0]},{width:7,chr:"m",bonus:130,secondary:!1,pixels:[0,4,255,255,0,5,255,255,0,6,255,255,0,7,255,255,1,3,255,255,1,5,255,0,1,6,255,0,1,7,255,0,1,8,255,0,2,4,255,255,2,5,255,255,2,6,255,255,2,7,255,255,3,3,255,255,3,5,255,0,3,6,255,0,3,7,255,0,3,8,255,0,4,4,255,255,4,5,255,255,4,6,255,255,4,7,255,255,5,5,255,0,5,6,255,0,5,7,255,0,5,8,255,0]},{width:3,chr:"(",bonus:85,secondary:!1,pixels:[0,1,255,255,0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,0,6,255,255,0,7,255,255,0,8,255,25,1,0,255,255,1,2,255,0,1,3,255,0,1,4,255,0,1,5,255,0,1,6,255,0,1,7,255,0,1,8,255,255,2,1,255,0]},{width:2,chr:")",bonus:70,secondary:!1,pixels:[0,1,255,255,0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,0,6,255,255,0,7,255,255,1,2,255,0,1,3,255,0,1,4,255,0,1,5,255,0,1,6,255,0,1,7,255,0,1,8,255,0]}],width:7,spacewidth:4,shadow:!0,height:9,basey:7}}])});
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("@alt1/base"), require("@alt1/ocr"));
+	else if(typeof define === 'function' && define.amd)
+		define(["@alt1/base", "@alt1/ocr"], factory);
+	else if(typeof exports === 'object')
+		exports["@alt1/buffs-reader"] = factory(require("@alt1/base"), require("@alt1/ocr"));
+	else
+		root["BuffsReader"] = factory(root["A1lib"], root["OCR"]);
+})((typeof self!='undefined'?self:this), function(__WEBPACK_EXTERNAL_MODULE__alt1_base__, __WEBPACK_EXTERNAL_MODULE__alt1_ocr__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "../ocr/fonts/pixel_digits_8px_shadow.fontmeta.json":
+/***/ (function(module) {
+
+module.exports = {"chars":[{"width":7,"chr":"0","bonus":120,"secondary":false,"pixels":[0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,1,1,255,255,1,3,255,0,1,4,255,0,1,5,255,0,1,6,255,255,2,0,255,255,2,2,255,0,2,7,255,255,3,1,255,255,3,6,255,255,3,8,255,0,4,2,255,255,4,3,255,255,4,4,255,255,4,5,255,255,4,7,255,0,5,3,255,0,5,4,255,0,5,5,255,0,5,6,255,0]},{"width":4,"chr":"1","bonus":95,"secondary":false,"pixels":[0,1,255,255,0,7,255,255,1,0,255,255,1,1,255,255,1,2,255,255,1,3,255,255,1,4,255,255,1,5,255,255,1,6,255,255,1,7,255,255,1,8,255,0,2,1,255,0,2,2,255,0,2,3,255,0,2,4,255,0,2,5,255,0,2,6,255,0,2,7,255,255,2,8,255,0]},{"width":7,"chr":"2","bonus":140,"secondary":false,"pixels":[0,1,255,255,0,6,255,255,0,7,255,255,1,0,255,255,1,2,255,0,1,5,255,255,1,7,255,255,1,8,255,0,2,0,255,255,2,1,255,0,2,4,255,255,2,6,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,3,255,255,3,5,255,0,3,7,255,255,3,8,255,0,4,1,255,255,4,2,255,255,4,4,255,0,4,7,255,255,4,8,255,0,5,2,255,0,5,3,255,0,5,8,255,0]},{"width":6,"chr":"3","bonus":115,"secondary":false,"pixels":[0,1,255,255,0,6,255,255,1,0,255,255,1,2,255,0,1,3,255,255,1,7,255,255,2,0,255,255,2,1,255,0,2,3,255,255,2,4,255,0,2,7,255,255,2,8,255,0,3,1,255,255,3,2,255,255,3,4,255,255,3,5,255,255,3,6,255,255,3,8,255,0,4,2,255,0,4,3,255,0,4,5,255,0,4,6,255,0,4,7,255,0]},{"width":5,"chr":"4","bonus":110,"secondary":false,"pixels":[0,0,255,255,0,1,255,255,0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,1,1,255,0,1,2,255,0,1,3,255,0,1,4,255,0,1,5,255,255,1,6,255,0,2,3,255,255,2,4,255,255,2,5,255,255,2,6,255,255,2,7,255,255,3,4,255,0,3,5,255,255,3,6,255,0,3,7,255,0,3,8,255,0]},{"width":6,"chr":"5","bonus":135,"secondary":false,"pixels":[0,0,255,255,0,1,255,255,0,2,255,255,0,3,255,255,0,6,255,255,1,0,255,255,1,1,255,0,1,2,255,0,1,3,255,255,1,4,255,0,1,7,255,255,2,0,255,255,2,1,255,0,2,3,255,255,2,4,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,4,255,255,3,5,255,255,3,6,255,255,3,8,255,0,4,1,255,0,4,5,255,0,4,6,255,0,4,7,255,0]},{"width":7,"chr":"6","bonus":160,"secondary":false,"pixels":[0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,0,6,255,255,1,1,255,255,1,3,255,0,1,4,255,255,1,5,255,0,1,6,255,0,1,7,255,255,2,0,255,255,2,2,255,0,2,3,255,255,2,5,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,3,255,255,3,4,255,0,3,7,255,255,3,8,255,0,4,1,255,255,4,4,255,255,4,5,255,255,4,6,255,255,4,8,255,0,5,2,255,0,5,5,255,0,5,6,255,0,5,7,255,0]},{"width":6,"chr":"7","bonus":105,"secondary":false,"pixels":[0,0,255,255,0,6,255,255,0,7,255,255,1,0,255,255,1,1,255,0,1,4,255,255,1,5,255,255,1,7,255,0,1,8,255,0,2,0,255,255,2,1,255,0,2,2,255,255,2,3,255,255,2,5,255,0,2,6,255,0,3,0,255,255,3,1,255,255,3,3,255,0,3,4,255,0,4,1,255,0,4,2,255,0]},{"width":7,"chr":"8","bonus":170,"secondary":false,"pixels":[0,1,255,255,0,2,255,255,0,4,255,255,0,5,255,255,0,6,255,255,1,0,255,255,1,2,255,0,1,3,255,255,1,5,255,0,1,6,255,0,1,7,255,255,2,0,255,255,2,1,255,0,2,3,255,255,2,4,255,0,2,7,255,255,2,8,255,0,3,0,255,255,3,1,255,0,3,3,255,255,3,4,255,0,3,7,255,255,3,8,255,0,4,1,255,255,4,2,255,255,4,4,255,255,4,5,255,255,4,6,255,255,4,8,255,0,5,2,255,0,5,3,255,0,5,5,255,0,5,6,255,0,5,7,255,0]},{"width":7,"chr":"9","bonus":130,"secondary":false,"pixels":[0,1,255,255,0,2,255,255,1,0,255,255,1,2,255,0,1,3,255,255,2,0,255,255,2,1,255,0,2,4,255,255,3,0,255,255,3,1,255,0,3,4,255,255,3,5,255,0,4,1,255,255,4,2,255,255,4,3,255,255,4,4,255,255,4,5,255,255,4,6,255,255,4,7,255,255,5,2,255,0,5,3,255,0,5,4,255,0,5,5,255,0,5,6,255,0,5,7,255,0,5,8,255,0]},{"width":7,"chr":"m","bonus":130,"secondary":false,"pixels":[0,4,255,255,0,5,255,255,0,6,255,255,0,7,255,255,1,3,255,255,1,5,255,0,1,6,255,0,1,7,255,0,1,8,255,0,2,4,255,255,2,5,255,255,2,6,255,255,2,7,255,255,3,3,255,255,3,5,255,0,3,6,255,0,3,7,255,0,3,8,255,0,4,4,255,255,4,5,255,255,4,6,255,255,4,7,255,255,5,5,255,0,5,6,255,0,5,7,255,0,5,8,255,0]},{"width":3,"chr":"(","bonus":85,"secondary":false,"pixels":[0,1,255,255,0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,0,6,255,255,0,7,255,255,0,8,255,25,1,0,255,255,1,2,255,0,1,3,255,0,1,4,255,0,1,5,255,0,1,6,255,0,1,7,255,0,1,8,255,255,2,1,255,0]},{"width":2,"chr":")","bonus":70,"secondary":false,"pixels":[0,1,255,255,0,2,255,255,0,3,255,255,0,4,255,255,0,5,255,255,0,6,255,255,0,7,255,255,1,2,255,0,1,3,255,0,1,4,255,0,1,5,255,0,1,6,255,0,1,7,255,0,1,8,255,0]}],"width":7,"spacewidth":4,"shadow":true,"height":9,"basey":7};
+
+/***/ }),
+
+/***/ "./imgs/buffborder.data.png":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports=__webpack_require__("@alt1/base").ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAB0AAAAdCAYAAABWk2cPAAAAOklEQVRIS+3NQQ0AIAzF0NmYNYRhdxA89F9ok3durd2T9qa3SnGKcopyinKKcopyinKKcor6cJrVcwDOR2Z9uA13TQAAAABJRU5ErkJggg==")
+
+/***/ }),
+
+/***/ "./imgs/debuffborder.data.png":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports=__webpack_require__("@alt1/base").ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAAB0AAAAdCAYAAABWk2cPAAAAOElEQVRIS+3NuREAMBDCQPqvzT2dnx5EYjGzpMpKpu1Fz+5VGEUZRRlFGUUZRRlFGUUZRX0Y7cpsGBdLzbBQD6EAAAAASUVORK5CYII=")
+
+/***/ }),
+
+/***/ "./index.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var a1lib = __webpack_require__("@alt1/base");
+var OCR = __webpack_require__("@alt1/ocr");
+var base_1 = __webpack_require__("@alt1/base");
+var imgs = a1lib.ImageDetect.webpackImages({
+    buff: __webpack_require__("./imgs/buffborder.data.png"),
+    debuff: __webpack_require__("./imgs/debuffborder.data.png"),
+});
+var font = __webpack_require__("../ocr/fonts/pixel_digits_8px_shadow.fontmeta.json");
+function negmod(a, b) {
+    return ((a % b) + b) % b;
+}
+var Buff = /** @class */ (function () {
+    function Buff(buffer, x, y, isdebuff) {
+        this.buffer = buffer;
+        this.bufferx = x;
+        this.buffery = y;
+        this.isdebuff = isdebuff;
+    }
+    Buff.prototype.readArg = function (type) {
+        return BuffReader.readArg(this.buffer, this.bufferx + 2, this.buffery + 24, type);
+    };
+    Buff.prototype.readTime = function () {
+        return BuffReader.readTime(this.buffer, this.bufferx + 2, this.buffery + 24);
+    };
+    Buff.prototype.compareBuffer = function (img) {
+        return BuffReader.compareBuffer(this.buffer, this.bufferx + 1, this.buffery + 1, img);
+    };
+    Buff.prototype.countMatch = function (img, aggressive) {
+        return BuffReader.countMatch(this.buffer, this.bufferx + 1, this.buffery + 1, img, aggressive);
+    };
+    return Buff;
+}());
+exports.Buff = Buff;
+var BuffReader = /** @class */ (function () {
+    function BuffReader() {
+        this.pos = null;
+        this.debuffs = false;
+    }
+    BuffReader.prototype.find = function (img) {
+        var gridsize = 30;
+        if (!img) {
+            img = a1lib.captureHoldFullRs();
+        }
+        if (!img) {
+            return null;
+        }
+        var poslist = img.findSubimage(this.debuffs ? imgs.debuff : imgs.buff);
+        if (poslist.length == 0) {
+            return null;
+        }
+        var grids = [];
+        for (var a in poslist) {
+            var ongrid = false;
+            for (var b in grids) {
+                if (negmod(grids[b].x - poslist[a].x, gridsize) == 0 && negmod(grids[b].x - poslist[a].x, gridsize) == 0) {
+                    grids[b].x = Math.min(grids[b].x, poslist[a].x);
+                    grids[b].y = Math.min(grids[b].y, poslist[a].y);
+                    grids[b].n++;
+                    ongrid = true;
+                    break;
+                }
+            }
+            if (!ongrid) {
+                grids.push({ x: poslist[a].x, y: poslist[a].y, n: 1 });
+            }
+        }
+        var max = 0, above2 = 0, best = null;
+        for (var a in grids) {
+            console.log("buff grid [" + grids[a].x + "," + grids[a].y + "], n:" + grids[a].n);
+            if (grids[a].n > max) {
+                max = grids[a].n;
+                best = grids[a];
+            }
+            if (grids[a].n >= 2) {
+                above2++;
+            }
+        }
+        if (above2 > 1) {
+            console.log("Warning, more than one possible buff bar location");
+        }
+        this.pos = { x: best.x, y: best.y };
+        return true;
+    };
+    BuffReader.prototype.getCaptRect = function () {
+        return new a1lib.Rect(this.pos.x, this.pos.y, 180, 90);
+    };
+    BuffReader.prototype.read = function (buffer) {
+        var r = [];
+        var rect = this.getCaptRect();
+        if (!buffer) {
+            buffer = a1lib.capture(rect.x, rect.y, rect.width, rect.height);
+        }
+        for (var i = 0; i < 18; i++) {
+            var x = i % 6 * 30;
+            var y = Math.floor(i / 6) * 30;
+            var match = buffer.pixelCompare((this.debuffs ? imgs.debuff : imgs.buff), x, y) != Infinity;
+            if (!match) {
+                break;
+            }
+            r.push(new Buff(buffer, x, y, this.debuffs));
+        }
+        return r;
+    };
+    BuffReader.compareBuffer = function (buffer, ox, oy, buffimg) {
+        var r = BuffReader.countMatch(buffer, ox, oy, buffimg, true);
+        if (r.failed > 0) {
+            return false;
+        }
+        if (r.tested < 50) {
+            return false;
+        }
+        return true;
+    };
+    BuffReader.countMatch = function (buffer, ox, oy, buffimg, agressive) {
+        var r = { tested: 0, failed: 0, skipped: 0, passed: 0 };
+        var data1 = buffer.data;
+        var data2 = buffimg.data;
+        //var debug = new ImageData(buffimg.width, buffimg.height);
+        for (var y = 0; y < buffimg.height; y++) {
+            for (var x = 0; x < buffimg.width; x++) {
+                var i1 = buffer.pixelOffset(ox + x, oy + y);
+                var i2 = buffimg.pixelOffset(x, y);
+                //debug.data[i2] = 255; debug.data[i2 + 1] = debug.data[i2 + 2] = 0; debug.data[i2 + 3] = 255;
+                if (data2[i2 + 3] != 255) {
+                    r.skipped++;
+                    continue;
+                } //transparent buff pixel
+                if (data1[i1] == 255 && data1[i1 + 1] == 255 && data1[i1 + 2] == 255) {
+                    r.skipped++;
+                    continue;
+                } //white pixel - part of buff time text
+                if (data1[i1] == 0 && data1[i1 + 1] == 0 && data1[i1 + 2] == 0) {
+                    r.skipped++;
+                    continue;
+                } //black pixel - part of buff time text
+                var d = a1lib.ImageDetect.coldif(data1[i1], data1[i1 + 1], data1[i1 + 2], data2[i2], data2[i2 + 1], data2[i2 + 2], 255);
+                r.tested++;
+                //debug.data[i2] = debug.data[i2 + 1] = debug.data[i2 + 2] = d * 10;
+                if (d > 35) {
+                    //qw(pixelschecked); debug.show();
+                    r.failed++;
+                    if (agressive) {
+                        return r;
+                    }
+                }
+                else {
+                    r.passed++;
+                }
+            }
+        }
+        //debug.show(); qw(pixelschecked);
+        return r;
+    };
+    BuffReader.isolateBuffer = function (buffer, ox, oy, buffimg) {
+        var count = BuffReader.countMatch(buffer, ox, oy, buffimg);
+        if (count.passed < 50) {
+            return;
+        }
+        var removed = 0;
+        var data1 = buffer.data;
+        var data2 = buffimg.data;
+        //var debug = new ImageData(buffimg.width, buffimg.height);
+        for (var y = 0; y < buffimg.height; y++) {
+            for (var x = 0; x < buffimg.width; x++) {
+                var i1 = buffer.pixelOffset(ox + x, oy + y);
+                var i2 = buffimg.pixelOffset(x, y);
+                //debug.data[i2] = 255; debug.data[i2 + 1] = debug.data[i2 + 2] = 0; debug.data[i2 + 3] = 255;
+                if (data2[i2 + 3] != 255) {
+                    continue;
+                } //transparent buff pixel
+                //==== new buffer has text on it ====
+                if (data1[i1] == 255 && data1[i1 + 1] == 255 && data1[i1 + 2] == 255 || data1[i1] == 0 && data1[i1 + 1] == 0 && data1[i1 + 2] == 0) {
+                    continue;
+                }
+                //==== old buf has text on it, use the new one ====
+                if (data2[i2] == 255 && data2[i2 + 1] == 255 && data2[i2 + 2] == 255 || data2[i2] == 0 && data2[i2 + 1] == 0 && data2[i2 + 2] == 0) {
+                    data2[i2 + 0] = data1[i1 + 0];
+                    data2[i2 + 1] = data1[i1 + 1];
+                    data2[i2 + 2] = data1[i1 + 2];
+                    data2[i2 + 3] = data1[i1 + 3];
+                    removed++;
+                }
+                var d = a1lib.ImageDetect.coldif(data1[i1], data1[i1 + 1], data1[i1 + 2], data2[i2], data2[i2 + 1], data2[i2 + 2], 255);
+                //debug.data[i2] = debug.data[i2 + 1] = debug.data[i2 + 2] = d * 10;
+                if (d > 0) {
+                    //qw(pixelschecked); debug.show();
+                    data2[i2 + 0] = data2[i2 + 1] = data2[i2 + 2] = data2[i2 + 3] = 0;
+                    removed++;
+                }
+            }
+        }
+        //debug.show(); qw(pixelschecked);
+        if (removed > 0) {
+            console.log(removed + " pixels remove from buff template image");
+        }
+    };
+    BuffReader.readArg = function (buffer, ox, oy, type) {
+        var lines = [];
+        for (var dy = -10; dy < 10; dy += 10) { //the timer can be spread to a second line at certain times (229m)
+            var result = OCR.readLine(buffer, font, [255, 255, 255], ox, oy + dy, true);
+            if (result.text) {
+                lines.push(result.text);
+            }
+        }
+        var r = { time: 0, arg: "" };
+        if (type == "timearg" && lines.length > 1) {
+            r.arg = lines.pop();
+        }
+        var str = lines.join("");
+        if (type == "arg") {
+            r.arg = str;
+        }
+        else {
+            var m;
+            if (m = str.match(/^(\d+)h$/)) {
+                r.time = +m[1] * 60 * 60;
+            }
+            else if (m = str.match(/^(\d+)m$/)) {
+                r.time = +m[1] * 60;
+            }
+            else if (m = str.match(/^(\d+)$/)) {
+                r.time = +m[1];
+            }
+        }
+        return r;
+    };
+    BuffReader.readTime = function (buffer, ox, oy) {
+        return this.readArg(buffer, ox, oy, "time").time;
+    };
+    BuffReader.matchBuff = function (state, buffimg) {
+        for (var a in state) {
+            if (state[a].compareBuffer(buffimg)) {
+                return state[a];
+            }
+        }
+        return null;
+    };
+    BuffReader.matchBuffMulti = function (state, buffinfo) {
+        if (buffinfo.final) { //cheap way if we known exactly what we're searching for
+            return BuffReader.matchBuff(state, buffinfo.imgdata);
+        }
+        else { //expensive way if we are not sure the template is final
+            var bestindex = -1;
+            var bestscore = 0;
+            if (buffinfo.imgdata) {
+                for (var a = 0; a < state.length; a++) {
+                    var count = BuffReader.countMatch(state[a].buffer, state[a].bufferx + 1, state[a].buffery + 1, buffinfo.imgdata, false);
+                    if (count.passed > bestscore) {
+                        bestscore = count.passed;
+                        bestindex = a;
+                    }
+                }
+            }
+            if (bestscore < 50) {
+                return null;
+            }
+            //update the isolated buff
+            BuffReader.isolateBuffer(state[bestindex].buffer, state[bestindex].bufferx + 1, state[bestindex].buffery + 1, buffinfo.imgdata);
+            return state[bestindex];
+        }
+    };
+    return BuffReader;
+}());
+exports.default = BuffReader;
+var BuffInfo = /** @class */ (function () {
+    function BuffInfo(imgdata, name, id, final, debuff) {
+        this.imgdata = imgdata;
+        this.name = name;
+        this.buffid = id;
+        this.final = final;
+        this.isdebuff = debuff;
+    }
+    BuffInfo.prototype.toJSON = function () {
+        if (this.buffid != "") {
+            return { buffid: this.buffid };
+        }
+        else {
+            return { name: this.name, final: this.final, buffid: "", imgstr: this.imgdata.toJSON(), isdebuff: this.isdebuff };
+        }
+    };
+    BuffInfo.fromPreset = function (buffid) {
+        var buffmeta = BuffInfo.buffs[buffid];
+        return new BuffInfo(buffmeta.img, buffmeta.n, buffid, true, buffmeta.isdebuff);
+    };
+    BuffInfo.fromObject = function (obj) {
+        if (typeof obj != "object" || obj == null) {
+            return null;
+        }
+        if (typeof obj.buffid == "string" && obj.buffid != "") {
+            if (!(obj.buffid in BuffInfo.buffs)) {
+                return null;
+            }
+            return BuffInfo.fromPreset(obj.buffid);
+        }
+        else {
+            //fix the image
+            var name = (typeof obj.name == "string" ? obj.name : "Unknown buff");
+            var isdebuff = !!obj.isdebuff;
+            var final = !!obj.final;
+            var r = new BuffInfo(null, name, "", final, isdebuff);
+            var imgdata;
+            if (obj.imgdata instanceof base_1.ImageData) {
+                r.imgdata = obj.imgdata;
+            }
+            else if (typeof obj.imgstr == "string") {
+                a1lib.ImageDetect.imageDataFromBase64(obj.imgstr).then(function (i) { return r.imgdata = i; });
+            }
+            else {
+                return null;
+            }
+            return r;
+        }
+    };
+    BuffInfo.buffs = {
+        familiar: { n: "Familiar", img: null, isdebuff: false },
+        adren: { n: "Adrenaline potion", img: null, isdebuff: true },
+        overload: { n: "Overload", img: null, isdebuff: false },
+        perfectplus: { n: "Perfect plus", img: null, isdebuff: false },
+        prayrenewal: { n: "Prayer renewal", img: null, isdebuff: false },
+        aggression: { n: "Aggression potion", img: null, isdebuff: false }
+    };
+    return BuffInfo;
+}());
+exports.BuffInfo = BuffInfo;
+a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAB6UlEQVRIS72UPUsDQRRF0woi2FiIIoJgYyo/moCVoCBGEMFCsLNSJIJ/QGIVGxG1l1goaGGXSoyFKIi/QOyttLATMu4Z89bdl5fsWqzFYWbu7t6b92YmOefcv2GKWWGKWWGKmsvXz2CIa5vl/RYtCVPUHF3duO2Ds2D6sy5ubLnCzHy4TospaorlPTe1tBIGRoP/gilqCBvMTzoqIghK1xfOam8nTFEzlh93hYV1t1za9SEE9/YN+XBarN9vhylGwZgQquFQYM66u6vHh6Lv1O7dcf0peN32EExRwKxyeu6qD42wfRJMgCDPFitVP57UG+7w5cP1D4wENr9+MfMoo4VZN7e65oOoyJ/AZisxZB+ZM7KmMkLYR7h9+wps4p6xRRTCCOGIUyHIHmEcRQLg+b3hYa49YwuBiggjiBGGpydCYx1AFVG0n9Ai+NYEFXCvCGUuVREiF1yMJUz7WJgiyJ4QKi0lDF32icMjVervLUwR5BD4gxG0E2M/Dw4JIz9Ef5OEKQJhXGBGqpMTKScQ9DdJmCL7IkhFfv+a7QOe6e+SMEX2AWQtLSUYJCz6ThpMUYNpNID2ZhYGGEuABPPvot/rhClaECJQmX6eBlNsR+3u0d+pv1YkmGISaS+xxhSzwhSzwhSzweW+AbQ+QlX0mRk7AAAAAElFTkSuQmCC")
+    .then(function (i) { return BuffInfo.buffs.familiar.img = i; });
+a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAIAAAACtmMCAAACCElEQVRIS7XWX0vTcRTH8QkSyFwhKSpY0YVg4Gihc6JsiUoWmVYIEsIEUW/U+edG8EKQwJtChJ5AF130PLz2CXTbg/DW9/jI2fH85lai8GF8PTvnxfntN7elStnM/FBaWZt4cLuYgJZqYO3NtjVIaCaiqqKv+pnj+Q6SSrX4UPE9xI9HUR2CjFs/LHzfzpGTo7GNpWGhShKtivZHkjtdroo/j/MEDlQidWJtAb0SA6cZE+GSIrF+j0bRugnDb5fKyrtPH8j49Pvi5Jub0CjqCWslTK6slhVDRwslL5I6oi2YFCsHe0QoHOfB7FAQiUSh18TQRxjePf2lbH79NvJ5MckRbXNNVCn0ES8u7Bzdl/hj51Fo+1fRcxK5P7ffkUndliByr/tbu3yn0lxkbPt5jsxtVOC4LYizxS8q7pd6fbPGG4ni/kxOEaFa0IrlJ6+Ysv7mYnvbQ2b+vsxfvC6ePctx5mJ55EyF+lbn4/8QeQW5RvYyQqg/h/+cOqJQE3UrQGe6eiBYSuFMBS68McXVRL+mFpTIgVsBYaI4XlDCp4ZQDdYRhdqCDXbEQrQ1TRR1owhX6B74nR4A4hHIztRLIx8RtaZfsCYG1LjzzqciuNhQ0YdQ4Ejte0ZPKLS+6EszSThwjXo/+iI91m9c/OYi1iRUkz5WtE4/fiUG1GJP+eGm/Xf9myKbuQSEJ1EoVwG7xAAAAABJRU5ErkJggg==")
+    .then(function (i) { return BuffInfo.buffs.adren.img = i; });
+a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAIAAAACtmMCAAABUUlEQVRIS73WMUvDUBSG4Ti2Rh38CV0tCFYUQZEMYgehzsUOIigUFFwENwedxM3dn+p3ecPxeHMT01gK7xTOeThTkmxQ9IeTnEbTLXV6m7eMeWWCtKxqjefrk6demzTpdagg1llXrxsqy9Z8PPRj2oIGDWKdBff+sKs+Xo7UfDoyVPkVbgoiB5po06T9r7d9lRSJRTuzFJPc3ec2IpwuRdRzsknWSzF5IAtaPp/OaHx5QcfFWRVlnTODmOSUNq9vZhbi4cFJ3ZmtxPvnR+XFneGeF5UtCkmIflRpOe9t+iKOEiKPli9Gc2rJYpVT3cUkR3XoasUGjiKU9ZWIoH9y5NGE6M/sJoIkxJYcgbL4S/TvnkVFOEQ58ftRLSQqUHbl/IjdzvQcr7IgVr8zLVHPKSGq/HJxZuRqoTmbVHZgKXo0cpsDIrgg/uefQrFiwqDofwPpgNSSjcGGfQAAAABJRU5ErkJggg==")
+    .then(function (i) { return BuffInfo.buffs.overload.img = i; });
+a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAC80lEQVRIS72U60uTYRiHRXQrKNLU5tw8b842D0PNch86mrY2c6OZTpunFMlzSbZVamYpHpIwTxSJkkUgiqGVGqF+SAkJqUjI/phf96tEY9xu+aE+XDzPe90n7r3bvAD8N1j5r2DlTjybtNPBx/4GVrqj8EYJHXzME6x0R5Stng4+5glW7kT8nX5EFzfSlY97gpUcurFpxDkeQW1/TI98jidYyRHfMogQw2XIs0twuKGXFJ/nDlZyxNR0QHQwmK7wiq3rhDhg+74bWOmKbmwKqvo/A5SVbTRYsnXfDazkiKlrR3znOJIGJhGQdpYUn+cOVnIk9c8ieXgeEf/jq69pG0FEyU1Eld+mRz7HE6x0JbHnFSLLmiDyPwRN61NSfJ4nWOmKumkIYXk18NnvD23vJJRVD0jzue5gpSvq5gF6V7XwCVchsWuCvpndCLtYTiE+fydYKaC63gNVw0MoajsRfcUBGf2YRXEpSLg3ilPjq0hpHYbMXEqpfD0HKwWU1e1Q1tOw6g5EltohNRZCY++DceYLMp4v4cTgNI60DEBhraR0vocrrBQINZchvNiBsKJGKCvvQmqpgH7qE7LnNmB4vY7MF8s4SQO11+5DrEmmEr6PM6wUkF0ogkRfAMm5AoTn1yA05ypMb9ZgWdyE+d1XGCc+Iv3JDFIdPfBLOEolfB9nWCkgzy6G9Pz2MJkhH5LMXGTPrCBv+SdyFr7DNL2GzJG3SGvuQ5BWRyV8H2dYKSA30TD6l5cZbbQhDcu4BBMNswrD3m/APPMZ+tE56GjYXu0xKuH7OMNKAVlWIeRZNsgEjMKGuVvDhM0sC9vDhM1Sb3VDrNZSCd/HGVb+RmqwIZi2C6GPU6q3wjS7irylTVjmv8E0uYL0oSkkVDTCd98BSud7OMNKZ4LOWGirfHp/VphpWO6HH3Suw/hyEce7RhF62khpfK0rrHRFFBgCcaAUCkspYgvroCiogiKnHH5KDYX5Gg5WusPbdw+8fcVbuMbcA69fyI/29WmtmR0AAAAASUVORK5CYII=")
+    .then(function (i) { return BuffInfo.buffs.perfectplus.img = i; });
+a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAADRElEQVRIS7WV60uUURDGt/8iCPKDEBkZpGl+yMjVIjWUXJYyL2gaWl6QLpaZlqwKaWblWpurFKGoZUmmqLFlYkIraBZZeAnMlNLIwCzM0Kedcc9e311dqw/P8r5zZua3M2fOeWUAViWZbI3hxyzbdSlJGpeTAMTnqBGVq10xUNLoTCJxXF4VKrs/oujxCA4dL14RUNLoTAJ0rWscX+aAsdlFlHRNQJmR/39hBHo/s4gCQ3UxWerVwShIyNFadOYVBlIbBUjK31L2BmNQVLrKYQJhpwGJP69x6Gcr6xdjUHhyDi639MMr6KDDRMLuaF1K5gdjkDzqFE5Ud0PbOYLIwnrsCIlzKaEzLf0YkwXEZqFMN4SKnim0DM3ynpzWNMNnX+w/AZpAEWn5XBGBaMJorPWf5lHYMYZ0bRuv/y2QYTQMVw17RIe0bWQW338DC4tgaG3/V2h0g8i71Y6AvdGSMPEnhGzXhUyO/opkHL7Riuv6SfR+nmfQkw9zONf0DopcDTx890gmE7Zj+ZUIVCZJ+ghZBciVKcjStuOibpQrItDJskZs3BYsmUTYvAMV3JnU0jq4efhJ+rK/6cHosHmnEqnqZh6UiMxyePqFSAYLG4FiVHd4enPqX2B3Yi7cPeXSMVYvRgeqsPBu97KgxDOlfOtn1L5Edd8UVE1vcORmB1/MYn8tY00JTAajQ1h0mp2z5Tp1gCqqez3NR+T5+C8G3tZPoOhBDx8jn/ADVjmsQELCQTjZ2n1DExB76R7S63t5oAamFzD5c+kL8HT0B842D/NaaGoBdgWau2MFWU4UQFNX9qiX94gqoYoIREeFRGC6EGid/LLLG8xdkkrqSBRA+5lR2gDV/T6+8evfznBFAkZwaivt34WaLv46bPUxTrNUUkfiAIPozCly1Uip0XN1zwytG/y2wCA6m9RGavP2yKNYu37TEshVGEkEesoV/K+LH/Zxcrp5qKL81mEeENrXde7eJhDHWiZaqUSCoLAEnrqUqi6+6vIaX3FF1Opgw41kCeI48eCqRCI6wDR1FboBZFd3wn9/kl1FphjLF1clEm7wkvMlQF9uN/ctkiD2tzW4KpE4ObuEry5HIJKdYTUSAGcgALI/e5pKefLwVWwAAAAASUVORK5CYII=")
+    .then(function (i) { return BuffInfo.buffs.prayrenewal.img = i; });
+a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAClklEQVRIS72W/UtTYRTHDyTZL+ElqH6QCswKAq2cL7hmL6ai4pZTCbTMDB1aips236Z3253CdvdKpauGIAT1Z347z3JxuzsbJqwfPj/s+5zzfDg8Z2ME4L8hhrVCDO3kDBfMUDf01Xb+KNecBjG08/NwAN8/9iEff4xw4OxCMbTz42AAx9lefNrrwfayA20tlzmWa6shhlZi+1meqh8FsxeZiAsbSy7MzC7wkVxfDTG0Ek98RsI8hJnMw4hlsPZBx7xvGZp2iY/lnkqIoZ105iuSqTyiRhor/i243eMcy7XVEEM7mew3pFgYNVJYWg6ipbWNY7m2GmJoJ5srQE0X28vUXqYmUzIjlmbZOu7dd3As11ZDDK2YycOiKJn6gkg0BX9gG9OvfXwk11dDDK1kWZJLsSx+gIiewNZmDIsLgdps45F5hELyCAf7eWTDOcRDJkJ+Hd1dPXws91RCDEuEG1/C7HqH45089jt8iLbPYefOLILNU5i+PsQlcl8lxLDEbsMoIpoXe9cmsaM9x5bmQZDcWKFBTJOLS+S+SoihYvOch0VjzHiRXW30j8xPQ5ihR+ijFi6V+yXEUKHzRFGWlFCyEMvWT2RvWDZOHVwq90uIocIqUugWWYBlb+kJXlAXOukml8t32BFDvcELgwVWwjxpUXZByYYxR08xSU546PS/JmKoJimXjf2WXXRjlWU+eoZX9BBeakc3NXNb+T12yoJdnsDQJspQy6I2siRbZNkM9WCCOjFIrdz69z0SYqioJNs4kb2n/uJGjtADLpfvsCOGCrUQSlBaEKtMbeM8v9nIP7yXQgxLOOtvwVl/u7j26qug3mzt/DDc5MBdauQSua8SYijRVHcVTXVXcIPO9mdHIYa1AfQLMXTLFSHSKD0AAAAASUVORK5CYII=")
+    .then(function (i) { return BuffInfo.buffs.aggression.img = i; });
+
+
+/***/ }),
+
+/***/ 0:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__("./index.ts");
+
+
+/***/ }),
+
+/***/ "@alt1/base":
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__alt1_base__;
+
+/***/ }),
+
+/***/ "@alt1/ocr":
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__alt1_ocr__;
+
+/***/ })
+
+/******/ });
+});
+//# sourceMappingURL=index.js.map

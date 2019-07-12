@@ -1,0 +1,14 @@
+{
+	"name": "@alt1/dropsmenu",
+	"umdGlobal": "DropsMenuReader",
+	"main": "./dist/index.js",
+	"author": "Skillbert",
+	"version": "0.0.2",
+	"dependencies": {
+		"@alt1/base": "file:../base",
+		"@alt1/ocr": "file:../ocr"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
+	}
+}

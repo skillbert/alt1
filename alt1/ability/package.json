@@ -1,8 +1,6 @@
 {
 	"name": "@alt1/ability-reader",
-	"runeappsType": "lib",
-	"runeappsLibNameRoot": "AbilityReader",
-	"runeappsLibEntry": "./index.ts",
+	"umdGlobal":"AbilityReader",
 	"main": "./dist/index.js",
 	"types": "./index.ts",
 	"author": "Skillbert",
@@ -10,5 +8,11 @@
 	"dependencies": {
 		"@alt1/base": "file:../base",
 		"@alt1/ocr": "file:../ocr"
+	},
+	"devDependencies": {
+		"@alt1/webpack":"file:../webpack"
+	},
+	"scripts": {
+		"build":"node ../../buildutil.js"
 	}
 }

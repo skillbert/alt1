@@ -148,7 +148,7 @@ ImageData.prototype.toImage = function (rect?) {
 	return el;
 }
 
-ImageData.prototype.getPixel = function (x, y) {
+ImageData.prototype.getPixel = function (x, y): [number, number, number, number] {
 	var i = x * 4 + y * 4 * this.width;
 	return [this.data[i], this.data[i + 1], this.data[i + 2], this.data[i + 3]];
 }

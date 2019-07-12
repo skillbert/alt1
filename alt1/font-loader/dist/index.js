@@ -1,1 +1,249 @@
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t(require("pngjs")):"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports["@alt1/font-loader"]=t(require("pngjs")):e.Alt1FontLoader=t(e[void 0])}("undefined"!=typeof self?self:this,function(e){return function(e){var t={};function n(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}return n.m=e,n.c=t,n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)n.d(r,o,function(t){return e[t]}.bind(null,o));return r},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="/",n(n.s=0)}([function(e,t,n){"use strict";var r=this&&this.__awaiter||function(e,t,n,r){return new(n||(n=Promise))(function(o,i){function u(e){try{c(r.next(e))}catch(e){i(e)}}function a(e){try{c(r.throw(e))}catch(e){i(e)}}function c(e){e.done?o(e.value):new n(function(t){t(e.value)}).then(u,a)}c((r=r.apply(e,t||[])).next())})},o=this&&this.__generator||function(e,t){var n,r,o,i,u={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return i={next:a(0),throw:a(1),return:a(2)},"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i;function a(i){return function(a){return function(i){if(n)throw new TypeError("Generator is already executing.");for(;u;)try{if(n=1,r&&(o=2&i[0]?r.return:i[0]?r.throw||((o=r.return)&&o.call(r),0):r.next)&&!(o=o.call(r,i[1])).done)return o;switch(r=0,o&&(i=[2&i[0],o.value]),i[0]){case 0:case 1:o=i;break;case 4:return u.label++,{value:i[1],done:!1};case 5:u.label++,r=i[1],i=[0];continue;case 7:i=u.ops.pop(),u.trys.pop();continue;default:if(!(o=(o=u.trys).length>0&&o[o.length-1])&&(6===i[0]||2===i[0])){u=0;continue}if(3===i[0]&&(!o||i[1]>o[0]&&i[1]<o[3])){u.label=i[1];break}if(6===i[0]&&u.label<o[1]){u.label=o[1],o=i;break}if(o&&u.label<o[2]){u.label=o[2],u.ops.push(i);break}o[2]&&u.ops.pop(),u.trys.pop();continue}i=t.call(e,u)}catch(e){i=[6,e],r=0}finally{n=o=0}if(5&i[0])throw i[1];return{value:i[0]?i[1]:void 0,done:!0}}([i,a])}}};Object.defineProperty(t,"__esModule",{value:!0});var i=n(1),u=n(2),a=n(3),c=n(4);function l(e,t,n,r,o){var i=new c.ImageData(r,o);return e.copyTo(i,t,n,r,o,0,0),i}e.exports=function(e){return r(this,void 0,void 0,function(){var t,n,r,f,s,d,p,b,h,y,w,g;return o(this,function(o){switch(o.label){case 0:return t=this,(n=JSON.parse(e)).img||(n.img=this.resourcePath.replace(/\.fontmeta\.json$/,".data.png")),this.addDependency(n.img),this.async(),[4,new Promise(function(e,t){i.readFile(n.img,function(n,r){n&&t(n),e(r)})})];case 1:return r=o.sent(),f=new Uint8Array(r.buffer,r.byteOffset,r.byteLength),c.ImageDetect.clearPngColorspace(f),s=new u.PNG,[4,new Promise(function(e,t){s.on("parsed",function(t){return e(t)}),s.on("error",function(e){return t(e)}),s.parse(r)})];case 2:if(o.sent(),d=new c.ImageData(new Uint8ClampedArray(s.data.buffer,s.data.byteOffset,s.data.byteLength),s.width,s.height),p=null,b=d.height-1,"removebg"==n.unblendmode&&(p=l(d,0,(b/=2)+1,d.width,b)),h=l(d,0,0,d.width,b),"removebg"==n.unblendmode)y=a.unblendKnownBg(h,p,n.shadow,n.color[0],n.color[1],n.color[2]);else{if("raw"!=n.unblendmode)throw"no unblend mode";y=a.unblendTrans(h,n.shadow,n.color[0],n.color[1],n.color[2])}return w=new c.ImageData(d.width,b+1),y.copyTo(w,0,0,y.width,y.height,0,0),d.copyTo(w,0,b,d.width,1,0,b),g=a.generatefont(w,n.chars,n.seconds,n.bonus,n.basey,n.spacewidth,n.treshold,n.shadow),t.callback(null,JSON.stringify(g)),[2]}})})}},function(e,t){e.exports=require("fs")},function(t,n){t.exports=e},function(e,t){e.exports=require("@alt1/ocr")},function(e,t){e.exports=require("@alt1/base")}])});
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("@alt1/base"), require("@alt1/ocr"), require("pngjs"));
+	else if(typeof define === 'function' && define.amd)
+		define(["@alt1/base", "@alt1/ocr", "pngjs"], factory);
+	else if(typeof exports === 'object')
+		exports["@alt1/font-loader"] = factory(require("@alt1/base"), require("@alt1/ocr"), require("pngjs"));
+	else
+		root["Alt1FontLoader"] = factory(root["A1lib"], root["OCR"], root["unkown"]);
+})((typeof self!='undefined'?self:this), function(__WEBPACK_EXTERNAL_MODULE__alt1_base__, __WEBPACK_EXTERNAL_MODULE__alt1_ocr__, __WEBPACK_EXTERNAL_MODULE_pngjs__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./index.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var pngjs_1 = __webpack_require__("pngjs");
+var OCR = __webpack_require__("@alt1/ocr");
+var a1lib = __webpack_require__("@alt1/base");
+function cloneImage(img, x, y, w, h) {
+    var clone = new a1lib.ImageData(w, h);
+    img.copyTo(clone, x, y, w, h, 0, 0);
+    return clone;
+}
+module.exports = function (source) {
+    return __awaiter(this, void 0, void 0, function () {
+        var me, meta, bytes, byteview, png, img, bg, pxheight, inimg, outimg, unblended, font;
+        var _this = this;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    me = this;
+                    meta = JSON.parse(source);
+                    if (!meta.img) {
+                        meta.img = this.resourcePath.replace(/\.fontmeta\.json$/, ".data.png");
+                    }
+                    this.addDependency(meta.img);
+                    this.async();
+                    return [4 /*yield*/, new Promise(function (done, err) {
+                            _this.fs.readFile(meta.img, function (e, buf) {
+                                if (e) {
+                                    err(e);
+                                }
+                                done(buf);
+                            });
+                        })];
+                case 1:
+                    bytes = _a.sent();
+                    byteview = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+                    a1lib.ImageDetect.clearPngColorspace(byteview);
+                    png = new pngjs_1.PNG();
+                    return [4 /*yield*/, new Promise(function (done, err) {
+                            png.on("parsed", function (e) { return done(e); });
+                            png.on("error", function (e) { return err(e); });
+                            png.parse(bytes);
+                        })];
+                case 2:
+                    _a.sent();
+                    img = new a1lib.ImageData(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height);
+                    bg = null;
+                    pxheight = img.height - 1;
+                    if (meta.unblendmode == "removebg") {
+                        pxheight /= 2;
+                        bg = cloneImage(img, 0, pxheight + 1, img.width, pxheight);
+                    }
+                    inimg = cloneImage(img, 0, 0, img.width, pxheight);
+                    if (meta.unblendmode == "removebg") {
+                        outimg = OCR.unblendKnownBg(inimg, bg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
+                    }
+                    else if (meta.unblendmode == "raw") {
+                        outimg = OCR.unblendTrans(inimg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
+                    }
+                    else {
+                        throw "no unblend mode";
+                    }
+                    unblended = new a1lib.ImageData(img.width, pxheight + 1);
+                    outimg.copyTo(unblended, 0, 0, outimg.width, outimg.height, 0, 0);
+                    img.copyTo(unblended, 0, pxheight, img.width, 1, 0, pxheight);
+                    font = OCR.generatefont(unblended, meta.chars, meta.seconds, meta.bonus, meta.basey, meta.spacewidth, meta.treshold, meta.shadow);
+                    me.callback(null, JSON.stringify(font));
+                    return [2 /*return*/];
+            }
+        });
+    });
+};
+//debug function used to be able to view an image while inside a webpack process
+//paste the returned string in a console with old alt1 libraries loaded
+function exportimg(img) {
+    return "(function(){var b=new ImageData(" + img.width + "," + img.height + "); b.data.set([" + img.data + "]); b.show(); console.clear(); return b;})()";
+}
+
+
+/***/ }),
+
+/***/ 0:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__("./index.ts");
+
+
+/***/ }),
+
+/***/ "@alt1/base":
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__alt1_base__;
+
+/***/ }),
+
+/***/ "@alt1/ocr":
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__alt1_ocr__;
+
+/***/ }),
+
+/***/ "pngjs":
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_pngjs__;
+
+/***/ })
+
+/******/ });
+});
+//# sourceMappingURL=index.js.map
