@@ -1,4 +1,4 @@
-import * as a1lib from "./index";
+import * as a1lib from "./";
 
 declare global {
 	interface ImageData {
@@ -48,7 +48,7 @@ export var ImageData: ImageDataConstr;
 
 (function () {
 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
-	var fill = typeof globalvar.ImageData == "undefined";
+	var fill = typeof globalvar.ImageData == "undefined" || typeof globalvar.document == "undefined";
 
 	var constr = function (this: any) {
 		var i = 0;

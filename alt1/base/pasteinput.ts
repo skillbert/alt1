@@ -1,4 +1,4 @@
-import { ImgRefCtx } from "./index";
+import { ImgRefCtx } from "./";
 import * as ImageDetect from "./imagedetect";
 
 

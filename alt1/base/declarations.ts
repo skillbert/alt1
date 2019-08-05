@@ -1,5 +1,8 @@
 import * as a1lib from "./index";
 
+//raw typings output of alt1.helpTypescript()
+import * as _unused from "./alt1api";
+
 declare global {
 	//function require(file: string): any;
 
@@ -19,9 +22,7 @@ declare global {
 	}
 
 	//for some reason this got removed from ts standard declaretion files
-	interface Storage {
-		[key: string]: string
-	}
+	//interface Storage { [key: string]: string }
 }
 
 export { };

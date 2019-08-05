@@ -1,7 +1,7 @@
 import * as ImageDetect from "./imagedetect";
 import Rect, { RectLike } from "./rect";
 import { ImgRefBind, ImgRefCtx, ImgRefData, ImgRef } from "./imgref";
-import "./imagedata-extensions";
+import { ImageData } from "./imagedata-extensions";
 
 declare global {
 	namespace alt1 {
@@ -482,7 +482,7 @@ export async function captureMultiAsync<T extends { [id: string]: RectLike }>(ar
 
 	var r = {} as { [K in keyof T]: ImageData };
 	var capts = [] as RectLike[];
-	var captids = [] as string[];
+	var captids = [] as (keyof T)[];
 	for (var id in areas) {
 		if (areas[id]) { capts.push(areas[id]); captids.push(id); }
 		else { r[id] = null; }

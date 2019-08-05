@@ -24,11 +24,13 @@ declare module "webpack-chain" {
 	export interface Rule {
 		oneOf(name: string): WebpackChain.Rule;
 	}
+
 }
 
 export default class Alt1Chain {
 	rootdir: string;
 	private externalMap: webpack.ExternalsObjectElement = {};
+	tsconfigfile: string = null;
 	tsOptions;
 	chain: WebpackChain;
 	constructor(rootdir: string, opts?: Partial<Alt1WebpackOpts>) {
@@ -38,7 +40,8 @@ export default class Alt1Chain {
 		while (true) {
 			var file = path.resolve(dir, "tsconfig.json");
 			if (fs.existsSync(file)) {
-				var tsconfig = JSON.parse(fs.readFileSync(file, "utf8").trimLeft());
+				this.tsconfigfile = file;
+				var tsconfig = JSON.parse(fs.readFileSync(file, "utf8").replace(/^[^{}]+/, ""));
 				this.tsOptions = { compilerOptions: tsconfig.compilerOptions, appendTsSuffixTo: [/\.vue$/] };
 				break;
 			}
@@ -58,6 +61,13 @@ export default class Alt1Chain {
 		this.chain.entry("index").add(path.resolve(this.rootdir, filename));
 	}
 
+	outputTypes(dirname: string | false) {
+		this.tsOptions.compilerOptions.declaration = !!dirname;
+		this.tsOptions.compilerOptions.declarationDir = (dirname ? path.resolve(this.rootdir, dirname) : undefined);
+		//this.tsOptions.compilerOptions.outFile = (dirname ? "index.js" : undefined);
+		//this.tsOptions.compilerOptions.module="system";
+	}
+
 	output(dirname: string) {
 		this.chain.output.path(path.resolve(this.rootdir, dirname));
 	}
@@ -75,6 +85,17 @@ export default class Alt1Chain {
 	}
 	addExternal(id: string, packname: string, windowExport: string) {
 		this.externalMap[id] = { root: windowExport, commonjs: packname, commonjs2: packname, amd: packname } as any;
+	}
+	useTsconfigPaths() {
+		this.chain.resolve.plugin("tsconfigpaths").use(TsconfigPathsPlugin as any).init((cl) => {
+			//typings of webpack-chain are wrong (again)
+			//use some hardcore casting
+			return new (cl as any as typeof TsconfigPathsPlugin)({
+				configFile: this.tsconfigfile,
+				extensions: this.chain.resolve.extensions.values(),
+				mainFields: this.chain.resolve.mainFields.values()
+			}) as any;
+		});
 	}
 
 	production(prod: boolean, hotproxy?: string) {
@@ -111,7 +132,7 @@ export default class Alt1Chain {
 	}
 
 	configureOpts(override?: Partial<Alt1WebpackOpts>) {
-		var opts = { ...getCmdConfig(), override };
+		var opts = { ...getCmdConfig(), ...override };
 		this.production(opts.production);
 		this.ugly(opts.ugly);
 		this.dropconsole(opts.dropConsole);
@@ -165,6 +186,14 @@ export type Alt1WebpackOpts = {
 	nodejs: boolean
 };
 
+export type NpmConfig = {
+	name?: string,
+	umdGlobal?: string,
+	runeappsLibNameRoot?: string,
+	dependencies: { [name: string]: string },
+	optionalDependencies: { [name: string]: string }
+};
+
 export function getCmdConfig() {
 	var baseopts: Alt1WebpackOpts = {
 		production: false,
@@ -198,6 +227,19 @@ export function getCmdConfig() {
 	return baseopts;
 }
 
+export function getPackageInfo(fileabs: string) {
+	var cnf = JSON.parse(fs.readFileSync(fileabs, { encoding: "utf-8" })) as Partial<NpmConfig>
+	if (!cnf.name) { throw "no package name on " + fileabs; }
+	if (!cnf.umdGlobal && !cnf.runeappsLibNameRoot) { throw "no umdGlobal on " + fileabs; }
+
+	return {
+		dir: path.dirname(fileabs),
+		name: cnf.name,
+		umdName: cnf.umdGlobal || cnf.runeappsLibNameRoot,
+		dependencies: cnf.dependencies || {},
+		optionalDependencies: cnf.optionalDependencies || {}
+	};
+}
 
 type TsConfigJson = {
 	compilerOptions: {

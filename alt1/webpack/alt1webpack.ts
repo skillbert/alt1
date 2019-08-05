@@ -2,7 +2,7 @@ import * as webpack from "webpack";
 import * as path from "path";
 import * as glob from "glob";
 import * as fs from "fs";
-import Alt1Chain from "./index";
+import Alt1Chain, { getPackageInfo } from "./index";
 
 
 var nodeCompatExternals = ["pngjs", "node-fetch"];
@@ -50,31 +50,10 @@ export function chainAlt1Lib(rootdir: string) {
 	}
 	if (!foundentry) { throw new Error("couldn't find entry file in " + rootdir); }
 	config.output("./dist");
+	config.outputTypes("./types");
 	return config;
 }
 var cachedPackageMeta: { [name: string]: { dir: string, umdName: string, name: string } } = null;
-
-export type NpmConfig = {
-	name?: string,
-	umdGlobal?: string,
-	runeappsLibNameRoot?: string,
-	dependencies: { [name: string]: string },
-	optionalDependencies: { [name: string]: string }
-};
-
-function getPackageInfo(fileabs: string) {
-	var cnf = JSON.parse(fs.readFileSync(fileabs, { encoding: "utf-8" })) as Partial<NpmConfig>
-	if (!cnf.name) { throw "no package name on " + fileabs; }
-	if (!cnf.umdGlobal && !cnf.runeappsLibNameRoot) { throw "no umdGlobal on " + fileabs; }
-
-	return {
-		dir: path.dirname(fileabs),
-		name: cnf.name,
-		umdName: cnf.umdGlobal || cnf.runeappsLibNameRoot,
-		dependencies: cnf.dependencies || {},
-		optionalDependencies: cnf.optionalDependencies || {}
-	};
-}
 
 export function findSubPackages(pathstr: string) {
 	if (!cachedPackageMeta) {

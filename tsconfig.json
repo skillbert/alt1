@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"lib": [ "es6", "dom" ],
-		"target": "es5",
+		"target": "es6",
 		"sourceMap": true,
 		"alwaysStrict": true,
 		"jsx": "react",
@@ -11,9 +11,8 @@
 		"experimentalDecorators": true,
 		"paths": {
 			"@alt1/*": [ "alt1/*" ]
-		},
-		"declaration": true
+		}
 	},
-	"exclude": [ "node_modules" ],
+	"exclude": [ "node_modules", "types", "**/dist" ],
 	"compileOnSave": false
 }
