@@ -4,7 +4,7 @@
 		"build": "lerna run build -- -- -p --types",
 		"pretty-build": "lerna run build -- -- -p --nougly",
 		"start": "lerna run build -- -- --watch",
-		"types":"tsc -p tsconfig-types.json"
+		"types":"tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes"
 	},
 	"dependencies": {
 		"@alt1/ability-reader": "file:alt1\\ability",

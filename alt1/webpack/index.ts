@@ -186,6 +186,7 @@ export type Alt1WebpackOpts = {
 export type NpmConfig = {
 	name?: string,
 	umdGlobal?: string,
+	types?:string,
 	runeappsLibNameRoot?: string,
 	dependencies: { [name: string]: string },
 	optionalDependencies: { [name: string]: string }
@@ -232,6 +233,7 @@ export function getPackageInfo(fileabs: string) {
 	return {
 		dir: path.dirname(fileabs),
 		name: cnf.name,
+		types:cnf.types,
 		umdName: cnf.umdGlobal || cnf.runeappsLibNameRoot,
 		dependencies: cnf.dependencies || {},
 		optionalDependencies: cnf.optionalDependencies || {}

@@ -2,13 +2,13 @@ import * as webpack from "webpack";
 import * as path from "path";
 import * as glob from "glob";
 import * as fs from "fs";
-import Alt1Chain, { getPackageInfo } from "./index";
+import Alt1Chain, { getPackageInfo } from "@alt1/webpack";
 
 
 var nodeCompatExternals = ["pngjs", "node-fetch"];
 
 export function addAlt1Externals(config: Alt1Chain) {
-	var packages = findSubPackages(path.resolve(__dirname, ".."));
+	var packages = findSubPackages(path.resolve(__dirname, "../alt1"));
 	for (var a in packages) {
 		config.addExternal(a, packages[a].name, packages[a].umdName);
 	}
@@ -23,8 +23,8 @@ export function chainAlt1Lib(rootdir: string) {
 	if (!filenamematch) { throw new Error("Can't get file name for " + pack.name); }
 	var config = new Alt1Chain(rootdir);
 	config.makeUmd(pack.name, pack.umdName);
-	config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../../node_modules"));
-	config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../"));
+	config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../node_modules"));
+	config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../alt1"));
 
 	var alldeps = { ...pack.optionalDependencies, ...pack.dependencies };
 	for (var dep in alldeps) {
@@ -53,7 +53,7 @@ export function chainAlt1Lib(rootdir: string) {
 	config.output("./dist");
 	return config;
 }
-var cachedPackageMeta: { [name: string]: { dir: string, umdName: string, name: string } } = null;
+var cachedPackageMeta: { [name: string]: ReturnType<typeof getPackageInfo> } = null;
 
 export function findSubPackages(pathstr: string) {
 	if (!cachedPackageMeta) {

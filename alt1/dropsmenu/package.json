@@ -1,7 +1,8 @@
 {
 	"name": "@alt1/dropsmenu",
 	"umdGlobal": "DropsMenuReader",
-	"main": "./dist/index.js",
+	"main": "./dist/index.min.js",
+	"types": "./types/",
 	"author": "Skillbert",
 	"version": "0.0.2",
 	"dependencies": {

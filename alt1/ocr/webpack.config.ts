@@ -1,7 +1,7 @@
 import A1webpack from "../webpack/index";
 import * as fs from "fs";
 import * as path from "path";
-import { chainAlt1Lib, addAlt1Externals } from "../webpack/alt1webpack";
+import { chainAlt1Lib, addAlt1Externals } from "../../scripts/alt1webpack";
 
 var cnf = chainAlt1Lib(__dirname);
 
