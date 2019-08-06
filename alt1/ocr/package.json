@@ -5,13 +5,17 @@
 	"types": "./types/",
 	"author": "Skillbert",
 	"version": "0.0.4",
+	"publishConfig": {
+		"access": "public"
+	},
 	"dependencies": {
-		"@alt1/base": "file:../base"
+		"@alt1/base": "^0.0.4"
 	},
 	"devDependencies": {
-		"@alt1/ocr": "file:../ocr"
+		"@alt1/ocr": "^0.0.4"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js --custom-webpack -p"
-	}
+	},
+	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
 }

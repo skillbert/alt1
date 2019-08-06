@@ -7,11 +7,15 @@
 	"types": "./types/",
 	"author": "Skillbert",
 	"version": "0.0.4",
+	"publishConfig": {
+		"access": "public"
+	},
 	"optionalDependencies": {
 		"node-fetch": "^2.5.0",
 		"pngjs": "^3.4.0"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
-	}
+	},
+	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
 }

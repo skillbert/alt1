@@ -5,14 +5,15 @@
 	"types": "./types/",
 	"author": "Skillbert",
 	"version": "0.0.4",
-	"dependencies": {
-		"@alt1/base": "file:../base",
-		"@alt1/ocr": "file:../ocr"
+	"publishConfig": {
+		"access": "public"
 	},
-	"devDependencies": {
-		"@alt1/webpack": "file:../webpack"
+	"dependencies": {
+		"@alt1/base": "^0.0.4",
+		"@alt1/ocr": "^0.0.4"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
-	}
+	},
+	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
 }
