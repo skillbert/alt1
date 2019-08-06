@@ -1,4 +1,4 @@
-import * as a1lib from "./";
+import * as a1lib from "./index";
 
 declare global {
 	interface ImageData {

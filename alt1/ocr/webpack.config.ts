@@ -12,10 +12,11 @@ var files = fs.readdirSync(fontdir);debugger;
 for (var file of files) {
 	var m = file.match(/([\w-]+)\.fontmeta\.json$/i);
 	if (m) {
+		var name="fonts/" + m[1];
 		var fontcnf = new A1webpack(__dirname);
 		fontcnf.chain.output.path(path.resolve(__dirname, "./dist"));
 		fontcnf.makeUmd(m[1], m[1]);
-		fontcnf.chain.entry("fonts/" + m[1]).add(path.resolve(fontdir, file));
+		fontcnf.entry(name,path.resolve(fontdir,file));
 		addAlt1Externals(fontcnf);
 		configs.push(fontcnf);
 	}

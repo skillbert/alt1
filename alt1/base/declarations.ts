@@ -1,4 +1,3 @@
-import * as a1lib from "./index";
 
 //raw typings output of alt1.helpTypescript()
 import * as _unused from "./alt1api";

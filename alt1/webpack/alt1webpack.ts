@@ -18,9 +18,10 @@ export function addAlt1Externals(config: Alt1Chain) {
 }
 
 export function chainAlt1Lib(rootdir: string) {
+	var pack = getPackageInfo(path.resolve(rootdir, "package.json"));
+	var filenamematch = pack.name.match(/^@alt1\/([\w-]+)$/);
+	if (!filenamematch) { throw new Error("Can't get file name for " + pack.name); }
 	var config = new Alt1Chain(rootdir);
-	var packagefile = path.resolve(config.rootdir, "package.json");
-	var pack = getPackageInfo(packagefile);
 	config.makeUmd(pack.name, pack.umdName);
 	config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../../node_modules"));
 	config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../"));
@@ -44,13 +45,12 @@ export function chainAlt1Lib(rootdir: string) {
 		var entrypath = path.resolve(rootdir, entryfile);
 		if (fs.existsSync(entrypath)) {
 			foundentry = true;
-			config.entry(entrypath);
+			config.entry("index", entrypath);
 			break;
 		}
 	}
 	if (!foundentry) { throw new Error("couldn't find entry file in " + rootdir); }
 	config.output("./dist");
-	config.outputTypes("./types");
 	return config;
 }
 var cachedPackageMeta: { [name: string]: { dir: string, umdName: string, name: string } } = null;

@@ -1,11 +1,9 @@
 {
 	"name": "@runeapps/alt1",
 	"scripts": {
-		"build": "lerna run build -- -- -p",
+		"build": "lerna run build -- -- -p --types",
 		"pretty-build": "lerna run build -- -- -p --nougly",
-		"start": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-		"old-build": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/webpack/bin/webpack.js --display-modules -p",
-		"old-pretty-build": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/webpack/bin/webpack.js --display-modules -p --nougly --esnext"
+		"start": "lerna run build -- -- --watch"
 	},
 	"dependencies": {
 		"@alt1/ability-reader": "file:alt1\\ability",
@@ -46,7 +44,7 @@
 		"ts-node": "^7.0.1",
 		"tsconfig-paths": "^3.6.0",
 		"tsconfig-paths-webpack-plugin": "^3.2.0",
-		"typescript": "^2.9.2",
+		"typescript": "^3.5.3",
 		"uglifyjs-webpack-plugin": "^2.1.3",
 		"url-loader": "^2.0.0",
 		"vue-loader": "^15.4.2",

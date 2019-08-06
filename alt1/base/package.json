@@ -3,8 +3,8 @@
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "A1lib",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.js",
-	"types": "./types/",
+	"main": "./dist/index.min.js",
+	"types": "./dist/index.d.ts",
 	"author": "Skillbert",
 	"version": "0.0.2",
 	"optionalDependencies": {
@@ -12,6 +12,6 @@
 		"pngjs": "^3.4.0"
 	},
 	"scripts": {
-		"build":"node ../../buildutil.js"
+		"build": "node ../../buildutil.js"
 	}
 }

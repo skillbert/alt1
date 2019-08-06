@@ -6,7 +6,6 @@ import * as fs from "fs";
 import * as webpackNodeExternals from "webpack-node-externals";
 import * as WebpackChain from "webpack-chain";
 
-
 //daslkjdsalkdjqlkewjqwlkejqewwqe
 //webpack-chain is so fucking dumb 
 
@@ -56,16 +55,9 @@ export default class Alt1Chain {
 		this.chain.node.clear().set("false", true);
 	}
 
-	entry(filename: string, append?: boolean) {
-		if (!append) { this.chain.entry("index").clear(); }
-		this.chain.entry("index").add(path.resolve(this.rootdir, filename));
-	}
-
-	outputTypes(dirname: string | false) {
-		this.tsOptions.compilerOptions.declaration = !!dirname;
-		this.tsOptions.compilerOptions.declarationDir = (dirname ? path.resolve(this.rootdir, dirname) : undefined);
-		//this.tsOptions.compilerOptions.outFile = (dirname ? "index.js" : undefined);
-		//this.tsOptions.compilerOptions.module="system";
+	entry(name:string,filename: string, append?: boolean) {
+		if (!append) { this.chain.entry(name).clear(); }
+		this.chain.entry(name).add(path.resolve(this.rootdir, filename));
 	}
 
 	output(dirname: string) {
@@ -110,6 +102,8 @@ export default class Alt1Chain {
 				.proxy({ "*": (hotproxy || "http://localhost/") })
 				.port(8088);
 		}
+		this.chain.output.filename(prod ? "[name].min.js" : "[name].js");
+		this.chain.output.chunkFilename(prod ? "[name]_[id].min.js" : "[name]_[id].min.js");
 	}
 
 	ugly(ugly: boolean) {
@@ -119,10 +113,13 @@ export default class Alt1Chain {
 	}
 
 	dropconsole(drop: boolean) {
+		//TODO this causes errors as webpack now uses terser plugin for minification
+		/*
 		this.chain.optimization.minimizer("uglifyjs-webpack-plugin")
 			.clear()
 			.use(UglifyJSPlugin, [{ uglifyOptions: { drop_console: drop } }])
 			.init(constructApply)
+			*/
 	}
 	nodejs(node: boolean) {
 		this.chain.target(node ? "node" : "web");
