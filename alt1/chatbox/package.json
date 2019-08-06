@@ -6,12 +6,12 @@
 	"main": "./dist/index.min.js",
 	"types": "./types/",
 	"author": "Skillbert",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
-		"@alt1/base": "^0.0.4"
+		"@alt1/base": "^0.0.5"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
