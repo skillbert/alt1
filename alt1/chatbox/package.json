@@ -6,11 +6,11 @@
 	"main": "./dist/index.min.js",
 	"types": "./types/",
 	"author": "Skillbert",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"dependencies": {
 		"@alt1/base": "file:../base"
 	},
 	"scripts": {
-		"build":"node ../../buildutil.js"
+		"build": "node ../../buildutil.js"
 	}
 }
