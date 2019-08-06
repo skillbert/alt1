@@ -19,7 +19,7 @@ export default class TooltipReader {
     tracking = false;
 
     private trackcallback: (state: TooltipState) => any = null;
-    private trackinterval = 0;
+    private trackinterval = null;
 
     track(callback: (state: TooltipState) => any, interval = 30) {
         if (!interval) { interval = 30; }

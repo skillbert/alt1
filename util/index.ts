@@ -120,8 +120,6 @@ export function uuid() {
 	return uuid;
 }
 
-export type ObjMap<T> = { [id: string]: T };
-
 //because js still has no proper way for this (ie11)
 export function initArray<T>(l: number, val: T): T[] {
 	var r = [];

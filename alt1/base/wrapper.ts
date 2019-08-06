@@ -2,6 +2,7 @@ import * as ImageDetect from "./imagedetect";
 import Rect, { RectLike } from "./rect";
 import { ImgRefBind, ImgRefCtx, ImgRefData, ImgRef } from "./imgref";
 import { ImageData } from "./imagedata-extensions";
+import "./alt1api";
 
 declare global {
 	namespace alt1 {
