@@ -42,6 +42,8 @@ if (!buildTypesOnly) {
 	}
 }
 
+//nvfm
+/*
 //build types
 if (buildTypes) {
 	var ts = require("typescript");
@@ -94,4 +96,4 @@ if (buildTypes) {
 	for (var wr of writes) {
 		//fs.unlinkSync(wr);
 	}
-}
+}*/

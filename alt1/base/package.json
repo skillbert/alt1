@@ -4,7 +4,7 @@
 	"runeappsLibNameRoot": "A1lib",
 	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.min.js",
-	"types": "./dist/index.d.ts",
+	"types": "../../types/alt1/base/",
 	"author": "Skillbert",
 	"version": "0.0.2",
 	"optionalDependencies": {
