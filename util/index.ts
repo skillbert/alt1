@@ -1,3 +1,7 @@
+//TODO ideally this should be moved somewhere else
+
+
+
 export function copyToClipboard(str: string) {
 	var el = document.createElement('textarea');
 	el.value = str;
