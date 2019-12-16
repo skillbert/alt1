@@ -1,6 +1,5 @@
 //TODO ideally this should be moved somewhere else
-
-
+import * as React from "react";
 
 export function copyToClipboard(str: string) {
 	var el = document.createElement('textarea');
@@ -14,7 +13,7 @@ export function copyToClipboard(str: string) {
 
 
 export type DragHandlerState = { x: number, y: number, dx: number, dy: number, sx: number, sy: number, end: boolean, start: boolean };
-export function newDragHandler(mousedownevent: MouseEvent | React.MouseEvent, movefunc: (state: DragHandlerState, end: boolean) => any, endfunc: (state: DragHandlerState, end: boolean) => any, mindist: number) {
+export function newDragHandler(mousedownevent: MouseEvent | React.MouseEvent, movefunc: (state: DragHandlerState, end: boolean) => any, endfunc?: (state: DragHandlerState, end: boolean) => any, mindist?: number) {
 	var locked = mindist != undefined;
 	var mouseloc: DragHandlerState;
 
@@ -152,7 +151,7 @@ export function listdate(time: number) {
 	return d.getDate() + " " + fullmonthnames[d.getMonth()] + " " + d.getFullYear();
 }
 
-export function dlpagejson<D=any>(url: string, obj: any, func: (data: D) => any, errorfunc: () => any) {
+export function dlpagejson<D = any>(url: string, obj: any, func: (data: D) => any, errorfunc: () => any) {
 	var req = new XMLHttpRequest();
 	req.onload = function () {
 		var obj = null;

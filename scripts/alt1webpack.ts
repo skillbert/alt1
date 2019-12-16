@@ -5,15 +5,11 @@ import * as fs from "fs";
 import Alt1Chain, { getPackageInfo } from "@alt1/webpack";
 
 
-var nodeCompatExternals = ["pngjs", "node-fetch"];
 
 export function addAlt1Externals(config: Alt1Chain) {
 	var packages = findSubPackages(path.resolve(__dirname, "../alt1"));
 	for (var a in packages) {
 		config.addExternal(a, packages[a].name, packages[a].umdName);
-	}
-	for (var ext of nodeCompatExternals) {
-		config.addExternal(ext, ext, ext);
 	}
 }
 

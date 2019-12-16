@@ -8,7 +8,10 @@ declare global {
 
 		clone(rect: a1lib.RectLike): ImageData;
 
-		show(x?: number, y?: number, zoom?: number): HTMLCanvasElement;
+		show: {
+			(x?: number, y?: number, zoom?: number): HTMLCanvasElement;
+			maxImages: number;
+		}
 
 		toImage(rect?: a1lib.RectLike): HTMLCanvasElement;
 
@@ -35,6 +38,7 @@ declare global {
 	}
 }
 
+declare var __non_webpack_require__;
 
 type ImageDataConstr = {
 	prototype: ImageData;
@@ -117,9 +121,13 @@ ImageData.prototype.clone = function (rect) {
 	return this.toImage(rect).getContext("2d").getImageData(0, 0, rect.width, rect.height);
 }
 
-ImageData.prototype.show = function (x = 5, y = 5, zoom = 1) {
+ImageData.prototype.show = function (this: ImageData, x = 5, y = 5, zoom = 1) {
+	if (typeof document == "undefined") {
+		console.error("need a document to show an imagedata object");
+		return;
+	}
 	var imgs = document.getElementsByClassName("debugimage");
-	while (imgs.length > 10) { imgs[0].remove(); }
+	while (imgs.length > ImageData.prototype.show.maxImages) { imgs[0].remove(); }
 	var el = this.toImage();
 	el.classList.add("debugimage")
 	el.style.position = "absolute";
@@ -135,7 +143,8 @@ ImageData.prototype.show = function (x = 5, y = 5, zoom = 1) {
 	el.onclick = function () { el.remove(); }
 	document.body.appendChild(el);
 	return el;
-}
+} as typeof ImageData["prototype"]["show"];
+ImageData.prototype.show.maxImages = 10;
 
 ImageData.prototype.toImage = function (rect?) {
 	if (!rect) { rect = new a1lib.Rect(0, 0, this.width, this.height); }
@@ -181,9 +190,18 @@ ImageData.prototype.setPixelInt = function (x, y, color) {
 	this.data[i + 3] = (color >> 0) & 0xff;
 }
 
-ImageData.prototype.toJSON = function (rect?) {
-	var str: string = this.toImage(rect).toDataURL("image/png");
-	return str.slice(str.indexOf(",") + 1);
+ImageData.prototype.toJSON = function (this: ImageData, rect?) {
+	if (typeof HTMLCanvasElement != "undefined") {
+		var str = this.toImage(rect).toDataURL("image/png");
+		return str.slice(str.indexOf(",") + 1);
+	} else {
+		var PNG = __non_webpack_require__("pngjs").PNG;
+		var png = new PNG({ width: this.width, height: this.height });
+		var bytes = new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength);
+		bytes.set(this.data, 0);
+		var buf = PNG.sync.write(png);
+		return buf.toString("base64");
+	}
 }
 
 ImageData.prototype.pixelCompare = function (buf: ImageData, x = 0, y = 0, max?: number) {
@@ -202,8 +220,6 @@ ImageData.prototype.copyTo = function (target: ImageData, sourcex: number, sourc
 		}
 	}
 }
-
-
 
 if (typeof HTMLImageElement != "undefined") {
 	HTMLImageElement.prototype.toBuffer = function (this: HTMLImageElement, x = 0, y = 0, w = this.width, h = this.height) {

@@ -1,7 +1,7 @@
-﻿import {PNG} from "pngjs";
+﻿import { PNG } from "pngjs";
 import * as OCR from "@alt1/ocr";
 import * as a1lib from "@alt1/base";
-import * as webpack from "webpack";
+import { loader } from "webpack";
 
 type FontMeta = {
 	basey: number,
@@ -13,17 +13,18 @@ type FontMeta = {
 	seconds: string
 	img?: string,
 	bonus?: { [char: string]: number },
-	unblendmode: "removebg" | "raw"
+	unblendmode: "removebg" | "raw" | "blackbg"
 };
 
 
-function cloneImage(img:ImageData,x,y,w,h) {
+function cloneImage(img: ImageData, x, y, w, h) {
 	var clone = new a1lib.ImageData(w, h);
 	img.copyTo(clone, x, y, w, h, 0, 0);
 	return clone;
 }
 
-module.exports = async function (this: webpack.loader.LoaderContext, source: string) {
+module.exports = async function (this: loader.LoaderContext, source: string) {
+	this.cacheable(true);
 	var me = this;
 	var meta = JSON.parse(source) as FontMeta;
 	if (!meta.img) { meta.img = this.resourcePath.replace(/\.fontmeta\.json$/, ".data.png"); }
@@ -55,11 +56,13 @@ module.exports = async function (this: webpack.loader.LoaderContext, source: str
 		bg = cloneImage(img, 0, pxheight + 1, img.width, pxheight);
 	}
 	var inimg = cloneImage(img, 0, 0, img.width, pxheight);
-	var outimg;
+	var outimg: ImageData;
 	if (meta.unblendmode == "removebg") {
 		outimg = OCR.unblendKnownBg(inimg, bg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
 	} else if (meta.unblendmode == "raw") {
 		outimg = OCR.unblendTrans(inimg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
+	} else if (meta.unblendmode == "blackbg") {
+		outimg = OCR.unblendBlackBackground(inimg, meta.color[0], meta.color[1], meta.color[2])
 	} else {
 		throw "no unblend mode";
 	}

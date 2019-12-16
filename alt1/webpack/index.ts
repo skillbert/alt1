@@ -9,6 +9,7 @@ import * as WebpackChain from "webpack-chain";
 //daslkjdsalkdjqlkewjqwlkejqewwqe
 //webpack-chain is so fucking dumb 
 
+var nodeCompatExternals = ["pngjs", "node-fetch"];
 
 
 //no types so import like this
@@ -34,6 +35,7 @@ export default class Alt1Chain {
 	chain: WebpackChain;
 	constructor(rootdir: string, opts?: Partial<Alt1WebpackOpts>) {
 		this.chain = new WebpackChain();
+		this.chain.context(rootdir);
 		this.rootdir = rootdir;
 		var dir = path.resolve(rootdir);
 		while (true) {
@@ -41,6 +43,7 @@ export default class Alt1Chain {
 			if (fs.existsSync(file)) {
 				this.tsconfigfile = file;
 				var tsconfig = JSON.parse(fs.readFileSync(file, "utf8").replace(/^[^{}]+/, ""));
+				tsconfig.compilerOptions.module = "esnext";//enables tree shaking
 				this.tsOptions = { compilerOptions: tsconfig.compilerOptions, appendTsSuffixTo: [/\.vue$/] };
 				break;
 			}
@@ -55,7 +58,7 @@ export default class Alt1Chain {
 		this.chain.node.clear().set("false", true);
 	}
 
-	entry(name:string,filename: string, append?: boolean) {
+	entry(name: string, filename: string, append?: boolean) {
 		if (!append) { this.chain.entry(name).clear(); }
 		this.chain.entry(name).add(path.resolve(this.rootdir, filename));
 	}
@@ -82,10 +85,12 @@ export default class Alt1Chain {
 		this.chain.resolve.plugin("tsconfigpaths").use(TsconfigPathsPlugin as any).init((cl) => {
 			//typings of webpack-chain are wrong (again)
 			//use some hardcore casting
+			var mainFields = this.chain.resolve.mainFields.values();
+			if (mainFields.length == 0) { mainFields = ['module', 'main']; }
 			return new (cl as any as typeof TsconfigPathsPlugin)({
 				configFile: this.tsconfigfile,
 				extensions: this.chain.resolve.extensions.values(),
-				mainFields: this.chain.resolve.mainFields.values()
+				mainFields: mainFields
 			}) as any;
 		});
 	}
@@ -123,8 +128,9 @@ export default class Alt1Chain {
 	}
 	nodejs(node: boolean) {
 		this.chain.target(node ? "node" : "web");
-		var ext = [this.externalMap];
+		var ext = [];
 		if (node) { ext.push(webpackNodeExternals({ modulesFromFile: true, modulesDir: this.rootdir }) as any); }
+		ext.push(this.externalMap);
 		this.chain.externals(ext);
 	}
 
@@ -144,6 +150,9 @@ export default class Alt1Chain {
 		this.chain.resolve.extensions.clear().merge([".wasm", ".tsx", ".ts", ".mjs", ".jsx", ".js", ".json"]);
 
 		this.chain.output.globalObject("(typeof self!='undefined'?self:this)");
+		for (var ext of nodeCompatExternals) {
+			this.addExternal(ext, ext, ext);
+		}
 
 		this.chain.module.rule("typescript")
 			.test(/\.(ts|tsx)$/)
@@ -164,12 +173,18 @@ export default class Alt1Chain {
 		this.chain.module.rule("imagefiles")
 			.oneOf("image")
 			.test(/\.(png|jpg|gif)$/i)
-			.use("url-loader").loader("url-loader").options({ limit: 8192 });
+			.use("url-loader").loader("url-loader").options({ limit: 8192, name: "[path][name].[ext]" });
 		this.chain.module.rule("jsonfiles")
+			.test(/\.json$/)
+			.type("javascript/auto")
+			.use("json-loader").loader("json-loader");
+		this.chain.module.rule("jsonfile")
+			.test(/\.fontmeta\.json$/)
 			.oneOf("fontmeta")
-			.test(/\.fontmeta\.json/)
 			.use("font-loader").loader("font-loader");
-
+		this.chain.module.rule("html")
+			.test(/\.html$/)
+			.use("file").loader("file-loader").options({ name: "[path][name].[ext]" });
 	}
 
 }
@@ -186,7 +201,7 @@ export type Alt1WebpackOpts = {
 export type NpmConfig = {
 	name?: string,
 	umdGlobal?: string,
-	types?:string,
+	types?: string,
 	runeappsLibNameRoot?: string,
 	dependencies: { [name: string]: string },
 	optionalDependencies: { [name: string]: string }
@@ -233,7 +248,7 @@ export function getPackageInfo(fileabs: string) {
 	return {
 		dir: path.dirname(fileabs),
 		name: cnf.name,
-		types:cnf.types,
+		types: cnf.types,
 		umdName: cnf.umdGlobal || cnf.runeappsLibNameRoot,
 		dependencies: cnf.dependencies || {},
 		optionalDependencies: cnf.optionalDependencies || {}

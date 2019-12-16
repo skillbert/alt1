@@ -1,8 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { CSSProperties } from "react";
 
-require("./niscomponents.scss");
+require("./promptbox.scss");
 
 
 export function show<T extends { [id: string]: any }>(initialValue: T, renderorjsx: React.ReactElement<any> | ((state: T) => React.ReactElement<any>)) {
@@ -147,11 +146,12 @@ export interface InputProps<T=any> {
 abstract class Item<P={}, S={}, SS=any> extends React.Component<P & ItemProps, S, SS>{
 	static type = "passive";
 	getStyle() {
-		var r = {} as CSSProperties;
+		var r = {} as React.CSSProperties;
 		if (this.props.flexgrow != undefined) {
 			r.flex = `${this.props.flexgrow} 1 0%`;
 			r.width = "0px";
 		}
+
 		return r;
 	}
 }
@@ -179,7 +179,7 @@ export class Hr extends Item{
 
 export class Button extends Item<{ onClick?: React.MouseEventHandler }> {
 	render() {
-		return <div className="pb2-button" onClick={this.props.onClick} style={this.getStyle()}>{this.props.children}</div>;
+		return <div className="pb2-button" onClick={this.props.onClick as any} style={this.getStyle()}>{this.props.children}</div>;
 	}
 }
 

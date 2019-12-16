@@ -1,5 +1,6 @@
 import { ImgRef, ImgRefBind } from "./imgref";
 import * as wapper from "./wrapper";
+import { ImageData as ImageDataFill } from "./imagedata-extensions";
 
 
 /**
@@ -17,28 +18,26 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 			img.src = url;
 		}) as ImageData;
 	} else {
-		//polyfill if we're not running in browser
-		var nodefetch = require("node-fetch") as typeof fetch;
-		var pngjs = require("pngjs");
-		var imgovr = require("@alt1/base/imagedata-extensions").ImageData as typeof ImageData;
 		var hdr = "data:image/png;base64,";
 		if (url.startsWith(hdr)) {
 			var raw = Buffer.from(url.slice(hdr.length), "base64");
 			var buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
 		}
 		else {
+			var nodefetch = require("node-fetch");
 			var res = await nodefetch(url).then(r => r.arrayBuffer());
 			var buffer = new Uint8Array(res);
 		}
 		clearPngColorspace(buffer);
-		var png = new pngjs.PNG();
+		var PNG = require("pngjs").PNG;
+		var png = new PNG();
 		await new Promise((done, err) => {
 			png.on("parsed", (e: any) => done(e));
 			png.on("error", (e: any) => err(e));
 			png.parse(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
 		});
 
-		return new imgovr(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height);
+		return new ImageDataFill(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height);
 	}
 }
 

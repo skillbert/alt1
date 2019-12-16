@@ -1,0 +1,259 @@
+.modalcontainer {
+	pointer-events: none;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	z-index: 10000;
+}
+.modalcontainer > * {
+	pointer-events: initial;
+}
+.modalcontainer > .pb2 {
+	position: relative !important;
+	left: 0px !important;
+	top: 0px !important;
+}
+
+.pb2 {
+	transition: opacity 0.3s;
+	z-index: 100;
+	max-width: 100%;
+}
+
+.pb2_default {
+	position: fixed;
+	font-family: "Microsoft New Tai Lue", "Calibri", sans-serif;
+	font-size: 16px;
+	color: #000;
+	left: 50%;
+	top: 50%;
+}
+
+.pb2_default .contentboxinner {
+	box-sizing: border-box;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.pb2_nis {
+	position: fixed;
+	font-family: sans-serif;
+	font-size: 14px;
+	color: var(--nis-col-std, #d8d8d8);
+	left: 50%;
+	top: 50%;
+}
+
+.pb2_fakepopup {
+	position: fixed;
+	font-family: sans-serif;
+	font-size: 14px;
+	color: #000;
+	left: 50%;
+	top: 50%;
+	background: #fff;
+	border: 1px solid #777;
+	border-radius: 3px;
+	box-shadow: 0px 0px 15px -1px;
+}
+
+.pb2_fakepopup-exit {
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+	background-image: url(/imgs/fakepopup_exit.png);
+}
+
+.pb2_fakepopup-exit:hover {
+	background-position: 0px -16px;
+}
+
+.pb2_fakepopup-title {
+	font-size: 18px;
+	padding-left: 5px;
+	margin-bottom: -3px;
+	border-bottom: 1px solid #ccc;
+	background: linear-gradient(to right, #e8e8e8, #e8e8e8, #ddd);
+}
+
+.pb2_popup {
+	font-family: sans-serif;
+	font-size: 13px;
+	color: #000;
+	padding: 0px 2px;
+	box-sizing: border-box;
+	position: absolute;
+}
+
+.pb2.measuring {
+	visibility: hidden;
+	opacity: 0;
+	top: 0px;
+	left: 0px;
+	overflow-y: auto;
+	position: absolute;
+}
+
+.pb2.measuring.debug {
+	visibility: initial;
+	opacity: initial;
+	position: absolute;
+	z-index: 10000;
+	background: #fff;
+}
+
+.pb2-string,
+.pb2-number,
+.pb2-int,
+.pb2-color,
+.pb2-button,
+.pb2-text,
+.pb2-button,
+.pb2-dropdown,
+.pb2-boolean,
+.pb2-radio,
+.pb2-boxitem {
+	margin: 0.3em 0.2em;
+	display: block;
+}
+
+.pb2-string,
+.pb2-number,
+.pb2-int,
+.pb2-color,
+.pb2-button,
+.pb2-dropdown {
+	box-sizing: border-box;
+	border: 1px solid #aaa;
+	padding-left: 5px;
+	background: linear-gradient(#fff, #f8f8f8);
+}
+
+.pb2-range {
+}
+
+.pb2-range > input {
+	display: inline-block;
+}
+
+.pb2-string {
+}
+
+.pb2-boolean input[type="checkbox"] {
+	margin: 0px 4px 0px 0px;
+	vertical-align: middle;
+}
+
+.pb2-button {
+	cursor: pointer;
+	background: linear-gradient(#fff, #ddd);
+	padding: 1px 6px;
+	height: unset;
+	text-align: center;
+}
+
+.pb2-button:hover {
+	background: linear-gradient(#eee, #ccc);
+}
+
+.pb2-button:active {
+	background: linear-gradient(#bbb, #ccc);
+}
+
+.pb2-br {
+	clear: both;
+}
+
+.pb2-flex-h {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+}
+
+.pb2-flex-v {
+	display: flex;
+	flex-direction: column;
+}
+
+.pb2-subregion {
+	margin-left: 5px;
+	position: relative;
+	border-left: 1px solid #777;
+	border-bottom-left-radius: 6px;
+	margin-bottom: 4px;
+	padding-left: 2px;
+}
+
+.pb2-subregion.locked {
+	opacity: 0.5;
+	-webkit-filter: blur(1px);
+	filter: blur(1px);
+}
+
+.pb2-subregion.locked::before {
+	content: "";
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+}
+
+.pb2-hr{
+	border-top: 1px solid rgba(86, 126, 146, 0.41);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.pb2-header {
+	font-size: 1.5em;
+	border-top: 1px solid rgba(0, 0, 0, 0.5);
+	margin: 0.6em 5px 0.3em;
+}
+
+.pb2-header:first-child {
+	margin-top: 0px;
+}
+
+.pb2-radio {
+	display: block;
+}
+
+.pb2-radio input[type="radio"] {
+	margin: 0px 4px 0px 0px;
+	vertical-align: middle;
+}
+
+.pb2-slide {
+	margin: 3px;
+}
+
+.pb2-slide-title {
+}
+
+.pb2-slide-bar {
+	position: relative;
+	height: 4px;
+	margin: 4px 4px 8px;
+	background: #ccc;
+	width: 100px;
+}
+
+.pb2-slide-node {
+	position: absolute;
+	width: 8px;
+	height: 8px;
+	border-radius: 5px;
+	background: #eee;
+	margin: -3px -5px;
+	border: 1px solid #585b7b;
+}

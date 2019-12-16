@@ -58,7 +58,7 @@ export default class AnimalReader {
 		return t.text;
 	}
 
-	read(img: ImgRef) {
+	read(img?: ImgRef) {
 		if (!this.pos) { return null; }
 
 

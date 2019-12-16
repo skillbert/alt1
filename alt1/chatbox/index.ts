@@ -89,8 +89,9 @@ export class ChatBoxReader {
 		var imgline0y = box.line0y + box.rect.y - img.y;
 		var imgline0x = box.line0x + box.rect.x - img.x;
 
-		var readlines = [];
-		var newlines = [];
+		type ChatLine = { text: string, fragments: { text: string, color: number, index: number }[] };
+		var readlines: ChatLine[] = [];
+		var newlines: ChatLine[] = [];
 		for (var line = 0; true; line++) {
 			var liney = box.line0y - line * this.lineheight;
 			var imgliney = liney + box.rect.y - img.y;

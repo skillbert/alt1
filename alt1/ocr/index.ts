@@ -1,7 +1,21 @@
 import { ImageData, RectLike, Rect } from "@alt1/base";
 
-export type Charinfo = { width: number, chr: string, bonus: number, secondary: boolean, pixels: number[] };
-export type FontDefinition = { chars: Charinfo[], width: number, spacewidth: number, shadow: boolean, height: number, basey: number, minrating?: number };
+export type Charinfo = {
+	width: number,
+	chr: string,
+	bonus: number,
+	secondary: boolean,
+	pixels: number[]
+};
+export type FontDefinition = {
+	chars: Charinfo[],
+	width: number,
+	spacewidth: number,
+	shadow: boolean,
+	height: number,
+	basey: number,
+	minrating?: number
+};
 type ColortTriplet = number[];
 
 export var debug = {
@@ -34,6 +48,18 @@ export function debugFont(font: FontDefinition) {
 		}
 	}
 	buf.show()
+}
+
+export function unblendBlackBackground(img: ImageData, r: number, g: number, b: number) {
+	var rimg = new ImageData(img.width, img.height);
+	for (var i = 0; i < img.data.length; i += 4) {
+		var col = decomposeblack(img.data[i], img.data[i + 1], img.data[i + 2], r, g, b);
+		rimg.data[i + 0] = col[0] * 255;
+		rimg.data[i + 1] = rimg.data[i + 0];
+		rimg.data[i + 2] = rimg.data[i + 0];
+		rimg.data[i + 3] = 255;
+	}
+	return rimg;
 }
 
 /**
@@ -132,6 +158,18 @@ export function decompose2col(rp: number, gp: number, bp: number, r1: number, g1
 }
 
 /**
+ * decomposes a pixel in a given color component and black and returns what proportion of the second color it contains
+ * this is not as formal as decompose 2/3 and only give a "good enough" number
+ */
+export function decomposeblack(rp: number, gp: number, bp: number, r1: number, g1: number, b1: number) {
+	var dr = Math.abs(rp - r1);
+	var dg = Math.abs(gp - g1);
+	var db = Math.abs(bp - b1);
+	var maxdif = Math.max(dr, dg, db);
+	return [1 - maxdif / 255];
+}
+
+/**
  * decomposes a color in 3 given component colors and returns the amount of each color present
  */
 export function decompose3col(rp: number, gp: number, bp: number, r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, r3: number, g3: number, b3: number) {
@@ -210,7 +248,7 @@ export function findReadLine(buffer: ImageData, font: FontDefinition, cols: Colo
 	return readLine(buffer, font, cols, chr.x, chr.y, true, true);
 }
 
-function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortTriplet[]) {
+export function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortTriplet[]) {
 	if (rect.x < 0 || rect.y < 0 || rect.x + rect.width > buf.width || rect.y + rect.height > buf.height) { return null; }
 	var colormap = colors.map(c => ({ col: c, score: 0 }));
 	var data = buf.data;
@@ -234,6 +272,7 @@ function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortTriplet[
  * reads a line of text with exactly known position and color. y should be the y coord of the text base line, x should be the first pixel of a new character
  */
 export function readLine(buffer: ImageData, font: FontDefinition, colors: ColortTriplet | ColortTriplet[], x: number, y: number, forward: boolean, backward = false) {
+	if (typeof colors[0] != "number" && colors.length == 1) { colors = colors[0] as ColortTriplet; }
 	var multicol = typeof colors[0] != "number";
 	var allcolors: ColortTriplet[] = multicol ? colors as ColortTriplet[] : [colors as ColortTriplet];
 
@@ -297,6 +336,37 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 	};
 }
 
+/**
+ * Reads a line of text that uses a smallcaps font, these fonts can have duplicate chars that only have a different amount of 
+ * empty space after the char before the next char starts. 
+ * The coordinates should be near the end of the string, or a rectangle with high 1 containing all points where the string can end.
+ */
+export function readSmallCapsBackwards(buffer: ImageData, font: FontDefinition, cols: ColortTriplet[], x: number, y: number, w = -1, h = -1) {
+	if (w == -1) { w = font.width + font.spacewidth; x -= Math.ceil(w / 2); }
+	if (h == -1) { h = 7; y -= 1; }
+	var matchedchar: ReadCharInfo = null;
+	var sorted = (cols.length == 1 ? [{ col: cols[0], score: 1 }] : GetChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols));
+	//loop until we have a match (max 2 cols)
+	for (var a = 0; a < 2 && a < sorted.length && matchedchar == null; a++) {
+		for (var cx = x + w - 1; cx >= x; cx--) {
+			var best = 1000;//TODO finetune score constants
+			var bestchar: ReadCharInfo = null;
+			for (var cy = y; cy < y + h; cy++) {
+				var chr = readChar(buffer, font, sorted[a].col, cx, cy, true, false);
+				if (chr != null && chr.sizescore < best) {
+					best = chr.sizescore;
+					bestchar = chr;
+				}
+			}
+			if (bestchar) {
+				matchedchar = bestchar;
+				break;
+			}
+		}
+	}
+	if (matchedchar == null) { return { text: "", debugArea: { x, y, w, h } }; }
+	return readLine(buffer, font, cols, bestchar.x, bestchar.y, false, true);
+}
 /**
  * Reads a single character at the exact given location
  * @param x exact x location of the start of the character domain (includes part of the spacing between characters)
@@ -378,7 +448,7 @@ type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: number, sco
  * @param chars A string containing all the characters of the image in the same order
  * @param seconds A string with characters that are considered unlikely and should only be detected if no other character is possible.
  * For example the period (.) character matches positive inside many other characters and should be marked as secondary
- * @param bonusses An object that contains bonus scores for certain difficult characters to make the more liekly to be red.
+ * @param bonusses An object that contains bonus scores for certain difficult characters to make the more likely to be red.
  * @param basey The y position of the baseline pixel of the font
  * @param spacewidth the number of pixels a space takes
  * @param treshold minimal color match proportion (0-1) before a pixel is used for the font

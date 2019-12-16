@@ -8,6 +8,7 @@ var imgs = a1lib.ImageDetect.webpackImages({
 });
 
 var font = require("../ocr/fonts/pixel_digits_8px_shadow.fontmeta.json");
+//var font = require("../ocr/fonts/aa_8px_new.fontmeta.json");
 
 function negmod(a, b) {
 	return ((a % b) + b) % b;
@@ -29,25 +30,26 @@ export class Buff {
 		this.isdebuff = isdebuff;
 	}
 	readArg(type: BuffTextTypes) {
-		return BuffReader.readArg(this.buffer, this.bufferx + 2, this.buffery + 24, type);
+		return BuffReader.readArg(this.buffer, this.bufferx + 2, this.buffery + 23, type);
 	}
 	readTime() {
-		return BuffReader.readTime(this.buffer, this.bufferx + 2, this.buffery + 24);
+		return BuffReader.readTime(this.buffer, this.bufferx + 2, this.buffery + 23);
 	}
 	compareBuffer(img: ImageData) {
-		return BuffReader.compareBuffer(this.buffer, this.bufferx + 1, this.buffery + 1, img);
+		return BuffReader.compareBuffer(this.buffer, this.bufferx + 2, this.buffery + 1, img);
 	}
 	countMatch(img: ImageData, aggressive?: boolean) {
-		return BuffReader.countMatch(this.buffer, this.bufferx + 1, this.buffery + 1, img, aggressive);
+		return BuffReader.countMatch(this.buffer, this.bufferx + 2, this.buffery + 1, img, aggressive);
 	}
 }
 
 export default class BuffReader {
 	pos: { x: number, y: number } = null;
 	debuffs = false;
+	static buffsize = 27;
+	static gridsize = 30;
 
 	find(img?: ImgRef) {
-		var gridsize = 30;
 		if (!img) { img = a1lib.captureHoldFullRs(); }
 		if (!img) { return null; }
 		var poslist = img.findSubimage(this.debuffs ? imgs.debuff : imgs.buff);
@@ -56,7 +58,7 @@ export default class BuffReader {
 		for (var a in poslist) {
 			var ongrid = false;
 			for (var b in grids) {
-				if (negmod(grids[b].x - poslist[a].x, gridsize) == 0 && negmod(grids[b].x - poslist[a].x, gridsize) == 0) {
+				if (negmod(grids[b].x - poslist[a].x, BuffReader.gridsize) == 0 && negmod(grids[b].x - poslist[a].x, BuffReader.gridsize) == 0) {
 					grids[b].x = Math.min(grids[b].x, poslist[a].x);
 					grids[b].y = Math.min(grids[b].y, poslist[a].y);
 					grids[b].n++;
@@ -86,7 +88,8 @@ export default class BuffReader {
 		for (var i = 0; i < 18; i++) {
 			var x = i % 6 * 30;
 			var y = Math.floor(i / 6) * 30;
-			var match = buffer.pixelCompare((this.debuffs ? imgs.debuff : imgs.buff), x, y) != Infinity;
+			//Have to require exact match here as we get transparency bs otherwise
+			var match = buffer.pixelCompare((this.debuffs ? imgs.debuff : imgs.buff), x, y) == 0;
 			if (!match) { break; }
 			r.push(new Buff(buffer, x, y, this.debuffs));
 		}
@@ -164,7 +167,7 @@ export default class BuffReader {
 
 				var d = a1lib.ImageDetect.coldif(data1[i1], data1[i1 + 1], data1[i1 + 2], data2[i2], data2[i2 + 1], data2[i2 + 2], 255);
 				//debug.data[i2] = debug.data[i2 + 1] = debug.data[i2 + 2] = d * 10;
-				if (d > 0) {
+				if (d > 5) {
 					//qw(pixelschecked); debug.show();
 					data2[i2 + 0] = data2[i2 + 1] = data2[i2 + 2] = data2[i2 + 3] = 0;
 					removed++;
@@ -287,18 +290,3 @@ export class BuffInfo {
 		}
 	}
 }
-
-a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAB6UlEQVRIS72UPUsDQRRF0woi2FiIIoJgYyo/moCVoCBGEMFCsLNSJIJ/QGIVGxG1l1goaGGXSoyFKIi/QOyttLATMu4Z89bdl5fsWqzFYWbu7t6b92YmOefcv2GKWWGKWWGKmsvXz2CIa5vl/RYtCVPUHF3duO2Ds2D6sy5ubLnCzHy4TospaorlPTe1tBIGRoP/gilqCBvMTzoqIghK1xfOam8nTFEzlh93hYV1t1za9SEE9/YN+XBarN9vhylGwZgQquFQYM66u6vHh6Lv1O7dcf0peN32EExRwKxyeu6qD42wfRJMgCDPFitVP57UG+7w5cP1D4wENr9+MfMoo4VZN7e65oOoyJ/AZisxZB+ZM7KmMkLYR7h9+wps4p6xRRTCCOGIUyHIHmEcRQLg+b3hYa49YwuBiggjiBGGpydCYx1AFVG0n9Ai+NYEFXCvCGUuVREiF1yMJUz7WJgiyJ4QKi0lDF32icMjVervLUwR5BD4gxG0E2M/Dw4JIz9Ef5OEKQJhXGBGqpMTKScQ9DdJmCL7IkhFfv+a7QOe6e+SMEX2AWQtLSUYJCz6ThpMUYNpNID2ZhYGGEuABPPvot/rhClaECJQmX6eBlNsR+3u0d+pv1YkmGISaS+xxhSzwhSzwhSzweW+AbQ+QlX0mRk7AAAAAElFTkSuQmCC")
-	.then(i => BuffInfo.buffs.familiar.img = i);
-a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAIAAAACtmMCAAACCElEQVRIS7XWX0vTcRTH8QkSyFwhKSpY0YVg4Gihc6JsiUoWmVYIEsIEUW/U+edG8EKQwJtChJ5AF130PLz2CXTbg/DW9/jI2fH85lai8GF8PTvnxfntN7elStnM/FBaWZt4cLuYgJZqYO3NtjVIaCaiqqKv+pnj+Q6SSrX4UPE9xI9HUR2CjFs/LHzfzpGTo7GNpWGhShKtivZHkjtdroo/j/MEDlQidWJtAb0SA6cZE+GSIrF+j0bRugnDb5fKyrtPH8j49Pvi5Jub0CjqCWslTK6slhVDRwslL5I6oi2YFCsHe0QoHOfB7FAQiUSh18TQRxjePf2lbH79NvJ5MckRbXNNVCn0ES8u7Bzdl/hj51Fo+1fRcxK5P7ffkUndliByr/tbu3yn0lxkbPt5jsxtVOC4LYizxS8q7pd6fbPGG4ni/kxOEaFa0IrlJ6+Ysv7mYnvbQ2b+vsxfvC6ePctx5mJ55EyF+lbn4/8QeQW5RvYyQqg/h/+cOqJQE3UrQGe6eiBYSuFMBS68McXVRL+mFpTIgVsBYaI4XlDCp4ZQDdYRhdqCDXbEQrQ1TRR1owhX6B74nR4A4hHIztRLIx8RtaZfsCYG1LjzzqciuNhQ0YdQ4Ejte0ZPKLS+6EszSThwjXo/+iI91m9c/OYi1iRUkz5WtE4/fiUG1GJP+eGm/Xf9myKbuQSEJ1EoVwG7xAAAAABJRU5ErkJggg==")
-	.then(i => BuffInfo.buffs.adren.img = i);
-a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAIAAAACtmMCAAABUUlEQVRIS73WMUvDUBSG4Ti2Rh38CV0tCFYUQZEMYgehzsUOIigUFFwENwedxM3dn+p3ecPxeHMT01gK7xTOeThTkmxQ9IeTnEbTLXV6m7eMeWWCtKxqjefrk6demzTpdagg1llXrxsqy9Z8PPRj2oIGDWKdBff+sKs+Xo7UfDoyVPkVbgoiB5po06T9r7d9lRSJRTuzFJPc3ec2IpwuRdRzsknWSzF5IAtaPp/OaHx5QcfFWRVlnTODmOSUNq9vZhbi4cFJ3ZmtxPvnR+XFneGeF5UtCkmIflRpOe9t+iKOEiKPli9Gc2rJYpVT3cUkR3XoasUGjiKU9ZWIoH9y5NGE6M/sJoIkxJYcgbL4S/TvnkVFOEQ58ftRLSQqUHbl/IjdzvQcr7IgVr8zLVHPKSGq/HJxZuRqoTmbVHZgKXo0cpsDIrgg/uefQrFiwqDofwPpgNSSjcGGfQAAAABJRU5ErkJggg==")
-	.then(i => BuffInfo.buffs.overload.img = i);
-a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAC80lEQVRIS72U60uTYRiHRXQrKNLU5tw8b842D0PNch86mrY2c6OZTpunFMlzSbZVamYpHpIwTxSJkkUgiqGVGqF+SAkJqUjI/phf96tEY9xu+aE+XDzPe90n7r3bvAD8N1j5r2DlTjybtNPBx/4GVrqj8EYJHXzME6x0R5Stng4+5glW7kT8nX5EFzfSlY97gpUcurFpxDkeQW1/TI98jidYyRHfMogQw2XIs0twuKGXFJ/nDlZyxNR0QHQwmK7wiq3rhDhg+74bWOmKbmwKqvo/A5SVbTRYsnXfDazkiKlrR3znOJIGJhGQdpYUn+cOVnIk9c8ieXgeEf/jq69pG0FEyU1Eld+mRz7HE6x0JbHnFSLLmiDyPwRN61NSfJ4nWOmKumkIYXk18NnvD23vJJRVD0jzue5gpSvq5gF6V7XwCVchsWuCvpndCLtYTiE+fydYKaC63gNVw0MoajsRfcUBGf2YRXEpSLg3ilPjq0hpHYbMXEqpfD0HKwWU1e1Q1tOw6g5EltohNRZCY++DceYLMp4v4cTgNI60DEBhraR0vocrrBQINZchvNiBsKJGKCvvQmqpgH7qE7LnNmB4vY7MF8s4SQO11+5DrEmmEr6PM6wUkF0ogkRfAMm5AoTn1yA05ypMb9ZgWdyE+d1XGCc+Iv3JDFIdPfBLOEolfB9nWCkgzy6G9Pz2MJkhH5LMXGTPrCBv+SdyFr7DNL2GzJG3SGvuQ5BWRyV8H2dYKSA30TD6l5cZbbQhDcu4BBMNswrD3m/APPMZ+tE56GjYXu0xKuH7OMNKAVlWIeRZNsgEjMKGuVvDhM0sC9vDhM1Sb3VDrNZSCd/HGVb+RmqwIZi2C6GPU6q3wjS7irylTVjmv8E0uYL0oSkkVDTCd98BSud7OMNKZ4LOWGirfHp/VphpWO6HH3Suw/hyEce7RhF62khpfK0rrHRFFBgCcaAUCkspYgvroCiogiKnHH5KDYX5Gg5WusPbdw+8fcVbuMbcA69fyI/29WmtmR0AAAAASUVORK5CYII=")
-	.then(i => BuffInfo.buffs.perfectplus.img = i);
-a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAADRElEQVRIS7WV60uUURDGt/8iCPKDEBkZpGl+yMjVIjWUXJYyL2gaWl6QLpaZlqwKaWblWpurFKGoZUmmqLFlYkIraBZZeAnMlNLIwCzM0Kedcc9e311dqw/P8r5zZua3M2fOeWUAViWZbI3hxyzbdSlJGpeTAMTnqBGVq10xUNLoTCJxXF4VKrs/oujxCA4dL14RUNLoTAJ0rWscX+aAsdlFlHRNQJmR/39hBHo/s4gCQ3UxWerVwShIyNFadOYVBlIbBUjK31L2BmNQVLrKYQJhpwGJP69x6Gcr6xdjUHhyDi639MMr6KDDRMLuaF1K5gdjkDzqFE5Ud0PbOYLIwnrsCIlzKaEzLf0YkwXEZqFMN4SKnim0DM3ynpzWNMNnX+w/AZpAEWn5XBGBaMJorPWf5lHYMYZ0bRuv/y2QYTQMVw17RIe0bWQW338DC4tgaG3/V2h0g8i71Y6AvdGSMPEnhGzXhUyO/opkHL7Riuv6SfR+nmfQkw9zONf0DopcDTx890gmE7Zj+ZUIVCZJ+ghZBciVKcjStuOibpQrItDJskZs3BYsmUTYvAMV3JnU0jq4efhJ+rK/6cHosHmnEqnqZh6UiMxyePqFSAYLG4FiVHd4enPqX2B3Yi7cPeXSMVYvRgeqsPBu97KgxDOlfOtn1L5Edd8UVE1vcORmB1/MYn8tY00JTAajQ1h0mp2z5Tp1gCqqez3NR+T5+C8G3tZPoOhBDx8jn/ADVjmsQELCQTjZ2n1DExB76R7S63t5oAamFzD5c+kL8HT0B842D/NaaGoBdgWau2MFWU4UQFNX9qiX94gqoYoIREeFRGC6EGid/LLLG8xdkkrqSBRA+5lR2gDV/T6+8evfznBFAkZwaivt34WaLv46bPUxTrNUUkfiAIPozCly1Uip0XN1zwytG/y2wCA6m9RGavP2yKNYu37TEshVGEkEesoV/K+LH/Zxcrp5qKL81mEeENrXde7eJhDHWiZaqUSCoLAEnrqUqi6+6vIaX3FF1Opgw41kCeI48eCqRCI6wDR1FboBZFd3wn9/kl1FphjLF1clEm7wkvMlQF9uN/ctkiD2tzW4KpE4ObuEry5HIJKdYTUSAGcgALI/e5pKefLwVWwAAAAASUVORK5CYII=")
-	.then(i => BuffInfo.buffs.prayrenewal.img = i);
-a1lib.ImageDetect.imageDataFromBase64("iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAClklEQVRIS72W/UtTYRTHDyTZL+ElqH6QCswKAq2cL7hmL6ai4pZTCbTMDB1aips236Z3253CdvdKpauGIAT1Z347z3JxuzsbJqwfPj/s+5zzfDg8Z2ME4L8hhrVCDO3kDBfMUDf01Xb+KNecBjG08/NwAN8/9iEff4xw4OxCMbTz42AAx9lefNrrwfayA20tlzmWa6shhlZi+1meqh8FsxeZiAsbSy7MzC7wkVxfDTG0Ek98RsI8hJnMw4hlsPZBx7xvGZp2iY/lnkqIoZ105iuSqTyiRhor/i243eMcy7XVEEM7mew3pFgYNVJYWg6ipbWNY7m2GmJoJ5srQE0X28vUXqYmUzIjlmbZOu7dd3As11ZDDK2YycOiKJn6gkg0BX9gG9OvfXwk11dDDK1kWZJLsSx+gIiewNZmDIsLgdps45F5hELyCAf7eWTDOcRDJkJ+Hd1dPXws91RCDEuEG1/C7HqH45089jt8iLbPYefOLILNU5i+PsQlcl8lxLDEbsMoIpoXe9cmsaM9x5bmQZDcWKFBTJOLS+S+SoihYvOch0VjzHiRXW30j8xPQ5ihR+ijFi6V+yXEUKHzRFGWlFCyEMvWT2RvWDZOHVwq90uIocIqUugWWYBlb+kJXlAXOukml8t32BFDvcELgwVWwjxpUXZByYYxR08xSU546PS/JmKoJimXjf2WXXRjlWU+eoZX9BBeakc3NXNb+T12yoJdnsDQJspQy6I2siRbZNkM9WCCOjFIrdz69z0SYqioJNs4kb2n/uJGjtADLpfvsCOGCrUQSlBaEKtMbeM8v9nIP7yXQgxLOOtvwVl/u7j26qug3mzt/DDc5MBdauQSua8SYijRVHcVTXVXcIPO9mdHIYa1AfQLMXTLFSHSKD0AAAAASUVORK5CYII=")
-	.then(i => BuffInfo.buffs.aggression.img = i);
-
-

@@ -176,7 +176,7 @@ export default class TooltipReader {
         var name = "";
         for (var a = 0; a < 2; a++) {
             var wiggle = Math.round(Math.random() * 6 - 3);
-            line1 = OCR.findReadLine(data, font, [[255, 152, 31]], area.x + Math.floor(area.width / 2) + 20 + 20 * a + wiggle, area.y + 14);
+            line1 = OCR.findReadLine(data, font, [[248, 213, 107],[184,209,209]], area.x + Math.floor(area.width / 2) + 20 + 20 * a + wiggle, area.y + 14);
             if (line1 && line1.text) {
                 var m = line1.text.match(/\w/g);
                 if (m && m.length >= 4) {
@@ -188,7 +188,7 @@ export default class TooltipReader {
         if (area.height > 30) {
             for (var a = 0; a < 2; a++) {
                 var wiggle = Math.round(Math.random() * 6 - 3);
-                line2 = OCR.findReadLine(data, font, [[255, 152, 31]], area.x + Math.floor(area.width / 2) - 20 + 20 * a + wiggle, area.y + 14 + 15);
+                line2 = OCR.findReadLine(data, font, [[248, 213, 107],[184,209,209]], area.x + Math.floor(area.width / 2) - 20 + 20 * a + wiggle, area.y + 14 + 15);
                 if (line2 && line2.text) {
                     var m = line2.text.match(/[\)\(\w\)]/g);
                     if (m && m.length >= 3) {
