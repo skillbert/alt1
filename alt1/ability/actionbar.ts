@@ -23,10 +23,10 @@ export type LifeState = {
 	dren: number,
 	pray: number,
 	sum: number,
-	exacthp: { cur: number, max: number },
-	exactpray: { cur: number, max: number },
-	exactsum: { cur: number, max: number },
-	exactdren: { cur: number, max: number },
+	exacthp: { cur: number, max: number } | null,
+	exactpray: { cur: number, max: number } | null,
+	exactsum: { cur: number, max: number } | null,
+	exactdren: { cur: number, max: number } | null,
 }
 
 /*
@@ -49,10 +49,10 @@ type Layout = {
 	type: MainBarType
 }
 
-type MainBarType = "mainflat" | "mainhor" | "mainver" | "maintower"
+type MainBarType = "mainflat" | "mainhor" | "mainver" | "maintower";
 
 export default class ActionbarReader {
-	pos: { x: number, y: number, layout: Layout } = null;
+	pos: { x: number, y: number, layout: Layout } | null = null;
 
 	static layouts: StringMap<Layout> = {
 		mainflat: { hp: { x: 0, y: 0 }, dren: { x: 118, y: 0 }, pray: { x: 236, y: 0 }, sum: { x: 354, y: 0 }, width: 465, height: 25, hor: true, barlength: 80, type: "mainflat" },
@@ -61,7 +61,7 @@ export default class ActionbarReader {
 		maintower: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 119 }, pray: { x: 0, y: 238 }, sum: { x: 0, y: 357 }, width: 20, height: 465, hor: false, barlength: 80, type: "maintower" }
 	};
 
-	find(img: ImgRef) {
+	find(img?: ImgRef) {
 		if (!img) { img = a1lib.captureHoldFullRs(); }
 		if (!img) { return false; }
 		var sumpos = img.findSubimage(imgs.sumpoints);
@@ -70,7 +70,7 @@ export default class ActionbarReader {
 		if (hppos.length == 0) { hppos = img.findSubimage(imgs.lifepointspoison); }
 		if (hppos.length == 0) { return false; }
 
-		var layout = null;
+		var layout: Layout | null = null;
 		for (var a in ActionbarReader.layouts) {
 			var l = ActionbarReader.layouts[a];
 			if (sumpos[0].x - hppos[0].x == l.sum.x - l.hp.x && sumpos[0].y - hppos[0].y == l.sum.y - l.hp.y) {
@@ -91,13 +91,14 @@ export default class ActionbarReader {
 	read(): LifeState;
 	read(buffer: ImageData, bufx: number, bufy: number): LifeState;
 	read(buffer?: ImageData, bufx?: number, bufy?: number): LifeState {
+		if (!this.pos) { throw new Error("interface is not found yet"); }
 		if (!buffer) {
 			buffer = a1lib.capture(this.pos.x, this.pos.y, this.pos.layout.width, this.pos.layout.height);
 			bufx = this.pos.x;
 			bufy = this.pos.y;
 		}
-		var dx = this.pos.x - bufx;
-		var dy = this.pos.y - bufy;
+		var dx = this.pos.x - bufx!;
+		var dy = this.pos.y - bufy!;
 
 		var hptext = this.readBarNumber(buffer, this.pos.layout.hp.x + dx, this.pos.layout.hp.y + dy, this.pos.layout.hor);
 		var drentext = this.readBarNumber(buffer, this.pos.layout.dren.x + dx, this.pos.layout.dren.y + dy, this.pos.layout.hor);
@@ -130,12 +131,13 @@ export default class ActionbarReader {
 		return null;
 	}
 	readBar(buffer: ImageData, x: number, y: number, hor: boolean) {
+		if (!this.pos) { throw new Error("interface not found yet"); }
 		if (hor) { x += 25; y += 11; }
 		else { x += 7; y += 26; }
 		var width = this.pos.layout.barlength;
 		for (var b = 0; b < width; b++) {
 			var i = buffer.pixelOffset(x + (hor ? b : 0), y + (hor ? 0 : b));
-			if (a1lib.ImageDetect.coldif(buffer.data[i], buffer.data[i + 1], buffer.data[i + 2], 35, 41, 44, 255) < 20) {
+			if (a1lib.ImageDetect.coldif(buffer.data[i], buffer.data[i + 1], buffer.data[i + 2], 25, 31, 34, 255) < 20) {
 				break;
 			}
 		}

@@ -1,7 +1,6 @@
 import * as a1lib from "@alt1/base";
 import * as OCR from "@alt1/ocr";
 import { ImgRef, RectLike } from "@alt1/base";
-import { startCaps } from "../../util";
 
 var stdfont = require("../ocr/fonts/aa_8px_mono_pof2.fontmeta.json");
 var namefont = require("../ocr/fonts/aa_12px_mono.fontmeta.json");
@@ -12,7 +11,7 @@ var imgs = a1lib.ImageDetect.webpackImages({
 });
 
 var animalReaderInstance: InstanceType<typeof AnimalReader>;//can't find a way to do this without var
-export type AnimalData = ReturnType<typeof animalReaderInstance.read>;
+export type AnimalData = NonNullable<ReturnType<typeof animalReaderInstance.read>>;
 export var growtStages = {
 	Egg: 0,
 	Baby: 1,
@@ -25,7 +24,7 @@ export type GrowthStage = keyof typeof growtStages;
 
 
 export default class AnimalReader {
-	pos: RectLike = null;
+	pos: RectLike | null = null;
 
 	static compareAnimals(a1: AnimalData, a2: AnimalData) {
 		var fails = 0;
@@ -48,7 +47,7 @@ export default class AnimalReader {
 		return this.pos;
 	}
 
-	private readMultiline(data, col, x, y) {
+	private readMultiline(data:ImageData, col:number[], x:number, y:number) {
 		var t = OCR.findReadLine(data, stdfont, [col], x, y);
 		if (t.text == "") {
 			var t0 = OCR.findReadLine(data, stdfont, [col], x, y - 6);
@@ -69,13 +68,13 @@ export default class AnimalReader {
 		if (data.pixelCompare(imgs.happynessicon, 44, 154) > 10) { return null; }
 
 
-		var name = startCaps(OCR.findReadLine(data, namefont, [[255, 203, 5]], 250, 20).text.toLowerCase());
+		var name = OCR.findReadLine(data, namefont, [[255, 203, 5]], 250, 20).text.toLowerCase();
 
 		var stage = OCR.findReadLine(data, stdfont, [[255, 255, 255]], 104, 40).text as GrowthStage;
 		var happy = parseInt(OCR.findReadLine(data, stdfont, [[255, 255, 255]], 109, 140).text) / 100;
 		var health = parseInt(OCR.findReadLine(data, stdfont, [[255, 255, 255]], 104, 157).text) / 100;
 
-		var readTrait = x => {
+		var readTrait = (x:number) => {
 			var t = this.readMultiline(data, [117, 146, 160], x, 173);
 			if (t.match(/no trait/i)) { return ""; }
 			return t;
@@ -86,8 +85,8 @@ export default class AnimalReader {
 
 		var breedstr = OCR.readLine(data, stdfont, [255, 255, 255], 219, 49, true, false).text;
 		var breedm = breedstr.match(/Breed: ([\w ]+?) \((male|female)\)/);
-		var ismale = breedm[2] == "male";
-		var breed = breedm[1];
+		var ismale = !breedm || breedm[2] == "male";
+		var breed = (breedm ? breedm[1] : "");
 
 		var paddockType = OCR.readLine(data, stdfont, [255, 255, 255], 219, 65, true, false).text;
 		var weight = OCR.readLine(data, stdfont, [255, 255, 255], 219, 81, true, false).text;

@@ -19,11 +19,10 @@ export function listen(func: any, errorfunc?: any, dragndrop?: boolean) {
 }
 
 function pasted(img: HTMLImageElement) {
-	var a;
 	pasting = false;
 	lastimg = img.toCanvas();
 	lastref = new ImgRefCtx(lastimg);
-	for (a in listeners) { listeners[a].cb(lastimg, lastref); }
+	for (var a in listeners) { listeners[a].cb(lastimg, lastref); }
 }
 
 function error(mes: string, error: string) {
@@ -75,6 +74,7 @@ export function start() {
 
 	//turns out this one is interesting, edge is a hybrid between the paste api's
 	var apipasted = function (e: ClipboardEvent) {
+		if (!e.clipboardData) { return; }
 		for (var a = 0; a < e.clipboardData.items.length; a++) {//loop all data types
 			if (e.clipboardData.items[a].type.indexOf("image") != -1) {
 				var file = e.clipboardData.items[a].getAsFile();

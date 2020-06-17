@@ -1,6 +1,12 @@
 import { ImageDetect, transferImageData } from "./index";
 import { RectLike } from "./rect";
 
+/**
+ * Represents an image that might be in different types of memory
+ * This is mostly used to represent images still in Alt1 memory that have
+ * not been transfered to js yet. Various a1lib api's use this type and
+ * choose the most efficient approach based on the memory type
+ */
 export abstract class ImgRef {
 	public width: number;
 	public height: number;
@@ -16,7 +22,7 @@ export abstract class ImgRef {
 	}
 
 	read(x = 0, y = 0, w = this.width, h = this.height): ImageData {
-		throw ("This imgref (" + this.t + ") does not support toData");
+		throw new Error("This imgref (" + this.t + ") does not support toData");
 	}
 
 	findSubimage(needle: ImageData, sx = 0, sy = 0, w = this.width, h = this.height) {
@@ -30,6 +36,9 @@ export abstract class ImgRef {
 	}
 }
 
+/**
+ * Represents an image in js render memory (canvas/image tag)
+ */
 export class ImgRefCtx extends ImgRef {
 	ctx: CanvasRenderingContext2D;
 	constructor(img: HTMLImageElement | CanvasRenderingContext2D | HTMLCanvasElement, x = 0, y = 0) {
@@ -39,7 +48,7 @@ export class ImgRefCtx extends ImgRef {
 		} else {
 			super(x, y, img.width, img.height);
 			var cnv = (img instanceof HTMLCanvasElement ? img : img.toCanvas());
-			this.ctx = cnv.getContext("2d");
+			this.ctx = cnv.getContext("2d")!;
 		}
 		this.t = "ctx";
 	}
@@ -49,6 +58,10 @@ export class ImgRefCtx extends ImgRef {
 	}
 }
 
+/**
+ * Represents in image in Alt1 memory, This type of image can be searched for subimages 
+ * very efficiently and transfering the full image to js can be avoided this way
+ */
 export class ImgRefBind extends ImgRef {
 	handle: number;
 	constructor(handle: number, x = 0, y = 0, w = 0, h = 0) {
@@ -62,6 +75,9 @@ export class ImgRefBind extends ImgRef {
 	}
 }
 
+/**
+ * Represents an image in js memory
+ */
 export class ImgRefData extends ImgRef {
 	buf: ImageData;
 	constructor(buf: ImageData, x = 0, y = 0) {

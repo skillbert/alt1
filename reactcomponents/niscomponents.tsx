@@ -30,7 +30,7 @@ export class Tabs extends React.Component<{ initialTab?: string, tabs: { id: str
 				</div>
 				<div style={{ height: "10px" }} />
 				<div>
-					{activetab.node}
+					{activetab && activetab.node}
 				</div>
 			</React.Fragment>
 		);

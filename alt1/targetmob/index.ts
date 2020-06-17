@@ -4,14 +4,14 @@ import { ImgRef } from "@alt1/base";
 
 var chatfont = require("@alt1/ocr/fonts/aa_8px_new.fontmeta.json");
 
-var imgs =a1lib.ImageDetect.webpackImages({
+var imgs = a1lib.ImageDetect.webpackImages({
 	detectimg: require("./imgs/detectimg.data.png")
 });
 
 export default class TargetMobReader {
 
-	state = null as { hp: number, name: string };
-	lastpos = null;
+	state: { hp: number, name: string } | null = null;
+	lastpos: a1lib.PointLike | null = null;
 
 	read(img?: ImgRef) {
 		if (!img) { img = a1lib.captureHoldFullRs(); }

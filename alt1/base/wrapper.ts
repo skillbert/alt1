@@ -28,7 +28,7 @@ export class Alt1Error extends Error { }
 /**
  * The latest Alt1 version
  */
-export var newestversion = "1.5.3";
+export var newestversion = "1.5.5";
 
 /**
  * Wether the Alt1 API is available
@@ -308,7 +308,7 @@ interface Alt1EventType {
  * Used to read a set of images from a binary stream returned by the Alt1 API
  */
 export class ImageStreamReader {
-	private framebuffer: ImageData = null;
+	private framebuffer: ImageData | null = null;
 	private streamreader: ReadableStreamReader;
 	private pos = 0;
 	private reading = false;
@@ -465,7 +465,7 @@ export async function captureAsync(...args: any[]): Promise<ImageData> {
 	var url = "https://alt1api/pixel/getregion/" + encodeURIComponent(JSON.stringify({ ...rect, format, quality }));
 	if (format == "raw") {
 		var res = await fetch(url);
-		var imgreader = new ImageStreamReader(res.body.getReader(), rect.width, rect.height);
+		var imgreader = new ImageStreamReader(res.body!.getReader(), rect.width, rect.height);
 		return imgreader.nextImage();
 	} else {
 		return ImageDetect.imageDataFromUrl(url);
@@ -476,16 +476,16 @@ export async function captureAsync(...args: any[]): Promise<ImageData> {
  * Asynchronously captures multple area's. This method captures the images in the same render frame if possible
  * @param areas 
  */
-export async function captureMultiAsync<T extends { [id: string]: RectLike }>(areas: T) {
+export async function captureMultiAsync<T extends { [id: string]: RectLike|null|undefined }>(areas: T) {
 	requireAlt1();
 	var format = "raw" as asyncCaptureFormat;
 	var quality = 0.6;
 
-	var r = {} as { [K in keyof T]: ImageData };
+	var r = {} as { [K in keyof T]: ImageData | null };
 	var capts = [] as RectLike[];
 	var captids = [] as (keyof T)[];
 	for (var id in areas) {
-		if (areas[id]) { capts.push(areas[id]); captids.push(id); }
+		if (areas[id]) { capts.push(areas[id]!); captids.push(id); }
 		else { r[id] = null; }
 	}
 	if (!hasAlt1Version("1.5.1")) {
@@ -495,7 +495,7 @@ export async function captureMultiAsync<T extends { [id: string]: RectLike }>(ar
 		for (var a = 0; a < capts.length; a++) { r[captids[a]] = results[a]; }
 	} else {
 		var res = await fetch("https://alt1api/pixel/getregionmulti/" + encodeURIComponent(JSON.stringify({ areas: capts, format, quality })));
-		var imgreader = new ImageStreamReader(res.body.getReader());
+		var imgreader = new ImageStreamReader(res.body!.getReader());
 		for (var a = 0; a < capts.length; a++) {
 			var capt = capts[a];
 			imgreader.setFrameBuffer(new ImageData(capt.width, capt.height));

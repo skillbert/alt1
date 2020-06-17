@@ -27,22 +27,22 @@ type CaptAreas = Partial<{ [T in AbilBarId]: a1lib.RectLike }>;
 
 export default class AbilityReader<T extends AbilityInfoBare> {
 	bars: AbilityBar<T>[] = [];
-	mainbar: AbilityBar<T> = null;
+	mainbar: AbilityBar<T> | null = null;
 	barstates: StringMap<AbilityLoadout<T>> = {};
-	captureRect: a1lib.Rect = null;
+	captureRect: a1lib.Rect | null = null;
 	actionbarReader = new ActionbarReader();
-	abilityimgs: T[] = null;
-	lifestate: LifeState = null;
+	abilityimgs: T[] | null = null;
+	lifestate: LifeState = null!;
 
 	//event when ocluded bar is visible again, before any further reading happens
 	hooks = {
-		onbarshown: null as (bar: AbilityLoadout<T>) => any
+		onbarshown: null as ((bar: AbilityLoadout<T>) => any) | null
 	}
 
 
 	static imgs = {
-		smallbarnumber: null as ImageData,
-		settingscog: null as ImageData
+		smallbarnumber: null as ImageData | null,
+		settingscog: null as ImageData | null
 	};
 
 	constructor(abilityimgs: T[]) {
@@ -59,7 +59,7 @@ export default class AbilityReader<T extends AbilityInfoBare> {
 		for (var loc of locs) {
 			for (var key in AbilityBar.types) {
 				var t = AbilityBar.types[key];
-				if (!t.sec) { continue; }
+				if (!t.cog) { continue; }
 				var rect = new Rect(loc.x - t.detect.x + t.cog.x, loc.y - t.detect.y + t.cog.y, cog.width, cog.height);
 				if (Rect.fromArgs(img).contains(rect)) {
 					var buf = img.read(loc.x - t.detect.x + t.cog.x, loc.y - t.detect.y + t.cog.y, cog.width, cog.height);
@@ -78,7 +78,7 @@ export default class AbilityReader<T extends AbilityInfoBare> {
 			var mainpos = this.actionbarReader.pos;
 			var t = AbilityBar.types[mainpos.layout.type];
 
-			var bar = new AbilityBar(this, mainpos.x - t.action.x, mainpos.y - t.action.y, AbilityBar.types[mainpos.layout.type], this.barstates);
+			var bar = new AbilityBar(this, mainpos.x - t.action!.x, mainpos.y - t.action!.y, AbilityBar.types[mainpos.layout.type], this.barstates);
 			bar.overlay();
 			this.bars.unshift(bar);
 			this.mainbar = bar;
@@ -109,6 +109,7 @@ export default class AbilityReader<T extends AbilityInfoBare> {
 	 */
 	readAllSlots(img?: a1lib.ImgRef) {
 		var data: ImageData;
+		if (!this.captureRect) { throw new Error("no capturerect set "); }
 		if (img instanceof ImgRef) { data = img.toData(this.captureRect.x, this.captureRect.y, this.captureRect.width, this.captureRect.height); }
 		else { data = a1lib.capture(this.captureRect.x, this.captureRect.y, this.captureRect.width, this.captureRect.height); }
 		var capts = {};
@@ -120,7 +121,7 @@ export default class AbilityReader<T extends AbilityInfoBare> {
 		return this.readAllSlotsInner(capts, captareas);
 	}
 
-	readAllSlotsInner(capts: Partial<{ [T in AbilBarId]: ImageData }>, captareas: CaptAreas) {
+	readAllSlotsInner(capts: Partial<{ [T in AbilBarId]: ImageData | null }>, captareas: CaptAreas) {
 		var visiblebars: AbilityLoadout<T>[] = [];
 		for (var b in this.bars) {
 			var bar = this.bars[b];
@@ -209,7 +210,7 @@ interface AbilityBarTypeMeta {
 	detect: { x: number, y: number },
 	cog?: { x: number, y: number },
 	action?: { x: number, y: number },
-	num?: { x: number, y: number },
+	num: { x: number, y: number }
 	id: string
 };
 
@@ -252,7 +253,7 @@ class AbilityBar<T extends AbilityInfoBare> {
 	x: number;
 	y: number;
 	bounds: Rect;
-	barid: string;
+	barid: string = "";//TODO find out when and where this is assigned, currently no proper initialization
 	slots: AbilityBarSlot<T>[] = [];
 	layout: AbilityBarTypeMeta;
 	barstates: StringMap<AbilityLoadout<T>>;
@@ -277,7 +278,7 @@ class AbilityBar<T extends AbilityInfoBare> {
 				cy += layout.rowstep.y - layout.rowlen * layout.step.y;
 			}
 		}
-		if (!this.layout.sec) {
+		if (layout.action) {
 			var mainlayout = ActionbarReader.layouts[layout.id];
 			var mainrect = new a1lib.Rect(x + layout.action.x, y + layout.action.y, mainlayout.width, mainlayout.height);
 			mainrect.inflate(10, 10);
@@ -314,7 +315,7 @@ class AbilityBar<T extends AbilityInfoBare> {
 	}
 }
 
-export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
+export class AbilityState<T extends AbilityInfoBare = AbilityInfoBare> {
 	static iconwidth = 30 + 1;//the cooldown text overlays the box by one pixel
 	static iconheight = 30 + 1;//also need one extra px here to read the hotkey
 	static overlayState = false;
@@ -335,11 +336,11 @@ export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
 	cooldown = 0;//current visible cooldown (whole sec)
 	available = false;//false if the ability can't be used even when off cd (wrong weapon)
 	cdfraction = -1;//fraction of cooldown completed as read by darker pixel clock
-	ability: T = null;//the detected ability 
+	ability: T | null = null;//the detected ability 
 	hotkey = "";//hotkey text of ability
 
 
-	reader: AbilityReader<T> = null;
+	reader: AbilityReader<T> | null = null;
 
 	constructor(reader: AbilityReader<T>) {
 		this.reader = reader;
@@ -387,7 +388,7 @@ export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
 		//if (this.ability && this.ability.id == "immortality") { console.log(this.tickcooldown, this.cooldown, this.cdchange); }
 	}
 	confirmCdArea(buffer: ImageData, x: number, y: number) {
-		var icon = this.ability.icon;
+		var icon = this.ability!.icon;
 		for (var dy = 1; dy < 10; dy++) {
 			for (var dx = 24; dx < 30; dx++) {
 				var i1 = (x + dx) * 4 + (y + dy) * 4 * buffer.width;
@@ -404,11 +405,11 @@ export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
 		return true;
 	}
 
-	debug: ImageData = null;
+	debug: ImageData | null = null;
 	readClock(buf: ImageData, abilx: number, abily: number) {
 		var alpha = 0.20;
 		var size = 30;
-		var template = this.ability.icon;
+		var template = this.ability!.icon;
 		var dirs = [
 			{ n: size / 2, ox: size / 2, oy: 0, sx: 1, sy: 0 },
 			{ n: size, ox: size - 1, oy: 1, sx: 0, sy: 1 },
@@ -456,7 +457,7 @@ export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
 					nwhite++;
 				}
 				//this.debug.setPixel(x, y, [d1, d2, 0, 255]);
-				if (AbilityState.overlayState) { this.debug.setPixel(x, y, (d1 < 5 || d2 < 5 ? (d1 < d2 ? [255, 255, 255, 255] : [128, 128, 128, 255]) : [255, 0, 0, 255])); }
+				if (AbilityState.overlayState) { this.debug!.setPixel(x, y, (d1 < 5 || d2 < 5 ? (d1 < d2 ? [255, 255, 255, 255] : [128, 128, 128, 255]) : [255, 0, 0, 255])); }
 				pixels++;
 			}
 		}
@@ -469,7 +470,7 @@ export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
 			else {
 				var x = dir.ox + dir.sx * lastbright - size / 2;
 				var y = dir.oy + dir.sy * lastbright - size / 2;
-				if (AbilityState.overlayState) { this.debug.setPixel(x + size / 2, y + size / 2, [0, 255, 255, 255]); }
+				if (AbilityState.overlayState) { this.debug!.setPixel(x + size / 2, y + size / 2, [0, 255, 255, 255]); }
 				var angle = Math.atan2(y, x);
 				this.cdfraction = (1.25 + angle / Math.PI / 2) % 1;
 				break outer;
@@ -481,7 +482,7 @@ export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
 			if (this.cooldown == 2 && this.cdchange != 0) { avail = true; }
 			else if (this.cdfraction > 0.2) { avail = true; }
 			else if (this.gcd && this.cooldown > 2) { avail = true; }
-			else if (!this.gcd && this.cooldown > this.ability.cooldown * 0.6) { avail = true; }
+			else if (!this.gcd && this.cooldown > this.ability!.cooldown * 0.6) { avail = true; }
 		}
 		if (avail) { this.available = true; }
 		else if (nwhite / pixels < 0.7) { this.available = false; }//keep old value if the icon is flashed white
@@ -513,10 +514,10 @@ export class AbilityState<T extends AbilityInfoBare=AbilityInfoBare> {
 
 	getAbility(buf: ImageData, abilx: number, abily: number) {
 		var a = 0.20;
-		var best: T = null;
+		var best: T | null = null;
 		var bestscore = 30 * 30 * 10;
 
-		for (var abil of this.reader.abilityimgs) {
+		for (var abil of this.reader!.abilityimgs!) {
 			var icon = abil.icon;
 			var score = 0;
 			for (var x = 0; x < 30; x++) {

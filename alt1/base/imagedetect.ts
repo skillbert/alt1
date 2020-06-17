@@ -2,7 +2,7 @@ import { ImgRef, ImgRefBind } from "./imgref";
 import * as wapper from "./wrapper";
 import { ImageData as ImageDataFill } from "./imagedata-extensions";
 
-
+declare var __non_webpack_require__;
 /**
 * Downloads an image and returns the ImageData
 * Make sure the png image does not have a sRGB chunk or the resulting pixels will differ for different users!!!
@@ -29,15 +29,10 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 			var buffer = new Uint8Array(res);
 		}
 		clearPngColorspace(buffer);
-		var PNG = require("pngjs").PNG;
-		var png = new PNG();
-		await new Promise((done, err) => {
-			png.on("parsed", (e: any) => done(e));
-			png.on("error", (e: any) => err(e));
-			png.parse(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
-		});
-
-		return new ImageDataFill(new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength), png.width, png.height);
+		var sharp = __non_webpack_require__("sharp");
+		var file = sharp(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
+		var pixelobj = await file.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+		return new ImageDataFill(new Uint8ClampedArray(pixelobj.data), pixelobj.info.width, pixelobj.info.height);
 	}
 }
 
@@ -149,7 +144,7 @@ export function findSubbuffer(haystack: ImageData, needle: ImageData, sx = 0, sy
 	var heystackstride = haystack.width * 4;
 
 	//built list of non trans pixel to check
-	var checkList = [];
+	var checkList: { x: number, y: number }[] = [];
 	for (var x = 0; x < needle.width; x++) {
 		for (var y = 0; y < needle.height; y++) {
 			var i = x * 4 + y * needlestride;
@@ -232,11 +227,11 @@ export function asyncMap<T extends { [name: string]: Promise<any> }>(input: T) {
 	//recusive types what xd
 	type subt = { [K in keyof T]: T[K] extends Promise<infer U> ? U : any };
 	var raw = {} as subt;
-	var promises = [];
+	var promises: Promise<any>[] = [];
 
 	for (var a in input) {
 		if (input.hasOwnProperty(a)) {
-			raw[a] = null;
+			raw[a] = null!;
 			promises.push(input[a].then(function (a: keyof T, i: any) { raw[a] = i; r[a] = i; }.bind(null, a)));
 		}
 	}

@@ -17,7 +17,7 @@ const imgs = a1lib.ImageDetect.webpackImages({
 });
 
 const timestampOffset = 56;
-const defaultcolors = [
+export const defaultcolors = [
 	[0, 255, 0],
 	[0, 255, 255],
 	[0, 175, 255],
@@ -46,21 +46,26 @@ const defaultcolors = [
 	[215, 195, 119] //interface preset color
 ];
 
-type Chatbox = {
+type BoxCorner = a1lib.PointLike & { type: "hidden" | "full" | "legacy" }
+export type Chatbox = {
 	rect: a1lib.Rect,
 	timestamp: boolean,
-	type: string,
+	type: "main" | "cc" | "fc" | "gc" | "gcc",
 	leftfound: boolean,
-	topright: a1lib.PointLike & { type: string },
-	botleft: a1lib.PointLike & { type: string },
+	topright: BoxCorner,
+	botleft: a1lib.PointLike,
 	line0x: number,
 	line0y: number
 };
+export type ChatLine = {
+	text: string,
+	fragments: { text: string, color: number, index: number }[]
+};
 
-export class ChatBoxReader {
-	pos = null;
+export default class ChatBoxReader {
+	pos: { mainbox: Chatbox, boxes: Chatbox[] } | null = null;
 	debug = null;
-	overlaplines = [];
+	overlaplines: ChatLine[] = [];
 	readargs = {
 		backwards: true,
 		colors: defaultcolors.map(c => a1lib.mixColor(c[0], c[1], c[2]))
@@ -70,7 +75,7 @@ export class ChatBoxReader {
 	minoverlap = 2;
 	diffRead = true;
 
-	read(img: ImgRefBind) {
+	read(img?: ImgRefBind) {
 		var t = Date.now();
 		if (!this.pos) { return null; }
 		var box = this.pos.mainbox;
@@ -89,7 +94,6 @@ export class ChatBoxReader {
 		var imgline0y = box.line0y + box.rect.y - img.y;
 		var imgline0x = box.line0x + box.rect.x - img.x;
 
-		type ChatLine = { text: string, fragments: { text: string, color: number, index: number }[] };
 		var readlines: ChatLine[] = [];
 		var newlines: ChatLine[] = [];
 		for (var line = 0; true; line++) {
@@ -143,16 +147,17 @@ export class ChatBoxReader {
 		return buf.getColorDifference(x, y, 155, 140, 107) < 20;
 	}
 
-	find(img: ImgRefBind) {
-		if (!img) { img = a1lib.captureHoldFullRs(); }
-		if (!img) { return null; }
-		var toprights = [];
+	find(imgornull?: ImgRefBind) {
+		if (!imgornull) { imgornull = a1lib.captureHoldFullRs(); }
+		if (!imgornull) { return null; }
+		var img = imgornull;
+		var toprights: BoxCorner[] = [];
 
 		img.findSubimage(imgs.plusbutton).forEach(loc => toprights.push({ x: loc.x + 2, y: loc.y - 1, type: "hidden" }));
 		img.findSubimage(imgs.minusbutton).forEach(loc => toprights.push({ x: loc.x + 2, y: loc.y + 21, type: "full" }));
 		console.log(toprights);
 
-		var botlefts = [];
+		var botlefts: a1lib.PointLike[] = [];
 		img.findSubimage(imgs.chatbubble).forEach(loc => {
 			//107,2 press enter to chat
 			//102,2 click here to chat
@@ -219,7 +224,7 @@ export class ChatBoxReader {
 		if (!groupcorners()) { return null; }
 		console.log(recurs);
 		console.log(groups);
-		var mainbox: Chatbox = null;
+		var mainbox: Chatbox | null = null;
 		var readargs = JSON.stringify({ colors: [a1lib.mixColor(255, 255, 255)], backwards: true });
 		groups.forEach(group => {
 			var nameread = JSON.parse(alt1.bindReadStringEx(img.handle, group.rect.x - 10, group.rect.y + group.rect.height + 9, readargs));
@@ -237,7 +242,7 @@ export class ChatBoxReader {
 			}
 
 			if (!group.leftfound && group.topright.type == "full") {
-				var pos = [];
+				var pos: a1lib.PointLike[] = [];
 				if (pos.length == 0) { pos = img.findSubimage(imgs.gameall, group.rect.x - 300, group.rect.y - 22, 310, 16); }
 				if (pos.length == 0) { pos = img.findSubimage(imgs.gamefilter, group.rect.x - 300, group.rect.y - 22, 310, 16); }
 				if (pos.length == 0) { pos = img.findSubimage(imgs.gameoff, group.rect.x - 300, group.rect.y - 22, 310, 16); }
@@ -259,7 +264,7 @@ export class ChatBoxReader {
 			if (mainbox == null || group.type == "main") { mainbox = group; }
 		});
 
-		if (groups.length == 0) { return null; }
+		if (groups.length == 0 || !mainbox) { return null; }
 
 		var res = {
 			mainbox: mainbox,

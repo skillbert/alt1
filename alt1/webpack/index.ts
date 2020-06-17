@@ -5,17 +5,18 @@ import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpac
 import * as fs from "fs";
 import * as webpackNodeExternals from "webpack-node-externals";
 import * as WebpackChain from "webpack-chain";
+//import Config = require("webpack-chain");
 
 //daslkjdsalkdjqlkewjqwlkejqewwqe
 //webpack-chain is so fucking dumb 
 
-var nodeCompatExternals = ["pngjs", "node-fetch"];
+var nodeCompatExternals = ["node-fetch", "sharp"];
 
 
 //no types so import like this
-var UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+//var UglifyJSPlugin: any = require("uglifyjs-webpack-plugin");
 
-function constructApply(fn, args) {
+function constructApply(fn: Function, args: any) {
 	return new (Function.prototype.bind.apply(fn, args));
 }
 
@@ -30,8 +31,8 @@ declare module "webpack-chain" {
 export default class Alt1Chain {
 	rootdir: string;
 	private externalMap: webpack.ExternalsObjectElement = {};
-	tsconfigfile: string = null;
-	tsOptions;
+	tsconfigfile: string | undefined = undefined;
+	tsOptions: any;
 	chain: WebpackChain;
 	constructor(rootdir: string, opts?: Partial<Alt1WebpackOpts>) {
 		this.chain = new WebpackChain();
@@ -51,11 +52,11 @@ export default class Alt1Chain {
 			if (path.resolve(dir, "..") == dir) { break; }
 			dir = path.resolve(dir, "..");
 		}
-		this.defaultModule();
-		this.configureOpts(opts);
-
 		this.chain.target("web");
 		this.chain.node.clear().set("false", true);
+		
+		this.defaultModule();
+		this.configureOpts(opts);
 	}
 
 	entry(name: string, filename: string, append?: boolean) {
@@ -75,7 +76,7 @@ export default class Alt1Chain {
 	toConfig() {
 		var conf = this.chain.toConfig();
 		//webpack-chain doesn't allow turning off .node completely otherwise
-		if (conf.node["false"]) { conf.node = false; }
+		if ((conf as any).node["false"]) { conf.node = false; }
 		return conf;
 	}
 	addExternal(id: string, packname: string, windowExport: string) {
@@ -128,7 +129,7 @@ export default class Alt1Chain {
 	}
 	nodejs(node: boolean) {
 		this.chain.target(node ? "node" : "web");
-		var ext = [];
+		var ext: webpack.ExternalsElement[] = [];
 		if (node) { ext.push(webpackNodeExternals({ modulesFromFile: true, modulesDir: this.rootdir }) as any); }
 		ext.push(this.externalMap);
 		this.chain.externals(ext);
@@ -141,7 +142,7 @@ export default class Alt1Chain {
 		this.dropconsole(opts.dropConsole);
 		this.nodejs(opts.nodejs);
 
-		if (opts.esnext) { this.tsOptions.compilerOptions.target = "esnext"; }
+		if (opts.esnext) { this.tsOptions.compilerOptions.target = "es2018"; }
 	}
 
 	defaultModule() {

@@ -2,7 +2,7 @@ import * as a1lib from "@alt1/base";
 import { ImgRef } from "@alt1/base";
 import * as OCR from "@alt1/ocr";
 
-var imgs =a1lib.ImageDetect.webpackImages({
+var imgs = a1lib.ImageDetect.webpackImages({
 	loot: require("./imgs/lootbutton.data.png"),
 	reset: require("./imgs/reset.data.png"),
 	droptext: require("./imgs/droptext.data.png"),
@@ -20,11 +20,11 @@ var fontcolors = [
 ];
 
 export default class DropsMenuReader {
-	pos = null as a1lib.RectLike;
+	pos = null as a1lib.RectLike | null;
 	items = [];
-	onincrease = null as (name: string, increase: number, newtotal: number) => any
+	onincrease = null as ((name: string, increase: number, newtotal: number) => any) | null
 
-	find(img: ImgRef) {
+	find(img?: ImgRef) {
 		if (!img) { img = a1lib.captureHoldFullRs(); }
 		if (!img) { return null; }
 		var pos = img.findSubimage(imgs.loot);
@@ -46,7 +46,7 @@ export default class DropsMenuReader {
 		return p;
 	}
 
-	read(img: ImgRef) {
+	read(img?: ImgRef) {
 		if (!this.pos) { return null; }
 		var buf: ImageData;
 		if (img) { buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }

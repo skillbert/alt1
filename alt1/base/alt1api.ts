@@ -175,7 +175,7 @@ declare namespace alt1 {
 	 * Changes the Runescape window in the task bar to show a progress bar. Type is the type of bar - 0: reset/normal, 1: in progress, 2: error (red bar), 3: unknown (animated bar), 4: paused (orange bar). Progress is the size of the bar. (0-100)
 	 * [Overlay] permission required.
 	 */
-	function SetTaskbarProgress(type: number, progress: number): any;
+	function setTaskbarProgress(type: number, progress: number): any;
 	/**
 	 * Adds a string to the title bar of the rs client. There can only be one per app and you can clear it by calling this function again with an empty string.
 	 * [Overlay] permission required.

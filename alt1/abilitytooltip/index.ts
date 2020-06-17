@@ -27,7 +27,7 @@ export type WeaponReq = "mage" | "melee" | "ranged" | "twohand" | "dual" | "shie
 export type WeaponState = { [key in WeaponReq]: boolean };
 
 export default class AbilityTooltipReader {
-	read(img?: a1lib.ImgRef, rect?: a1lib.Rect): AbilityReadInfo {
+	read(img?: a1lib.ImgRef, rect?: a1lib.Rect): AbilityReadInfo|null {
 		if (!img) { img = a1lib.captureHoldFullRs(); }
 		if (!rect) { rect = a1lib.Rect.fromArgs(img); }
 

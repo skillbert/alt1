@@ -9,6 +9,8 @@
 		"jsx": "react",
 		"allowJs": false,
 		"baseUrl": ".",
+		"strictNullChecks": false,
+		"strictPropertyInitialization": false,
 		"experimentalDecorators": true,
 		"paths": {
 			"@alt1/*": [ "alt1/*" ]

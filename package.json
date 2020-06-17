@@ -22,7 +22,8 @@
 		"@alt1/targetmob": "file:alt1\\targetmob",
 		"autobind-decorator": "^2.4.0",
 		"react": "^16.9.0",
-		"react-dom": "^16.9.0"
+		"react-dom": "^16.9.0",
+		"sharp": "^0.24.0"
 	},
 	"peerDependencies": {
 		"react": "^16.8.6",
@@ -32,9 +33,9 @@
 		"@types/glob": "^5.0.35",
 		"@types/html-webpack-plugin": "^3.2.0",
 		"@types/node": "^8.0.19",
-		"@types/pngjs": "^3.3.2",
 		"@types/react": "^16.9.2",
 		"@types/react-dom": "^16.9.0",
+		"@types/sharp": "^0.24.0",
 		"@types/webpack": "^4.4.24",
 		"@types/webpack-chain": "^5.2.0",
 		"@types/webpack-env": "^1.13.6",

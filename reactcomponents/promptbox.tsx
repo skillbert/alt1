@@ -19,26 +19,42 @@ export function show<T extends { [id: string]: any }>(initialValue: T, renderorj
 		render = renderorjsx;
 	}
 
+	var rerender = () => {
+		var jsx = render(r.value);
+		var lastrender = jsx;
+		jsx = React.cloneElement(jsx, {
+			onChange: function (v) {
+				r.value = v;
+				if (lastrender.props.onChange) { lastrender.props.onChange(v); }
+				if (r.onChange) { r.onChange(v); }
+			},
+			onClose: function () {
+				if (lastrender.props.onClose) { lastrender.props.onClose(); }
+				r.close();
+			},
+			initialValue: initialValue
+		}, ...recurChildren(jsx.props.children));
+
+		ReactDOM.render(jsx, el);
+	}
 
 	var r = {
 		el,
-		close,
 		value: initialValue,
-		onChange: null as (value: T) => any,
-		onClose: null as () => any,
-		rerender: null as () => any,
-		setValue: null as <N extends keyof T>(n: N, v: T[N]) => any
+		rerender: rerender,
+		close: () => {
+			ReactDOM.unmountComponentAtNode(el);
+			document.body.removeChild(el);
+			if (r.onClose) { r.onClose(); }
+		},
+		setValue: <N extends keyof T>(n: N, v: T[N]) => {
+			r.value[n] = v;
+			if (r.onChange) { r.onChange(r.value); }
+			r.rerender();
+		},
+		onChange: null as ((value: T) => any) | null,
+		onClose: null as (() => any) | null
 	};
-	r.close = function () {
-		ReactDOM.unmountComponentAtNode(el);
-		document.body.removeChild(el);
-		if (r.onClose) { r.onClose(); }
-	}
-	r.setValue = function (n, v) {
-		r.value[n] = v;
-		if (r.onChange) { r.onChange(r.value); }
-		r.rerender();
-	}
 
 	var recurChildren = (children: React.Component[]) => {
 		return React.Children.map(children, (ch: any) => {
@@ -64,35 +80,17 @@ export function show<T extends { [id: string]: any }>(initialValue: T, renderorj
 		});
 	}
 
-	r.rerender = () => {
-		var jsx = render(r.value);
-		var lastrender = jsx;
-		jsx = React.cloneElement(jsx, {
-			onChange: function (v) {
-				r.value = v;
-				if (lastrender.props.onChange) { lastrender.props.onChange(v); }
-				if (r.onChange) { r.onChange(v); }
-			},
-			onClose: function () {
-				if (lastrender.props.onClose) { lastrender.props.onClose(); }
-				r.close();
-			},
-			initialValue: initialValue
-		}, ...recurChildren(jsx.props.children));
-
-		ReactDOM.render(jsx, el);
-	}
 	r.rerender();
 	return r;
 }
 
 type ContainerProps<T> = { width?: string, type?: "nis" | "fakepopup", title: string, initialValue?: T, onChange?: (v: T) => any, onClose?: () => any, key?: string, children: any[] };
 
-export class Container<T extends { [key: string]: any }=any> extends React.Component<ContainerProps<T>, T> {
+export class Container<T extends { [key: string]: any } = any> extends React.Component<ContainerProps<T>, T> {
 	constructor(props) {
 		super(props);
 		this.state = Object.assign({}, this.props.initialValue);
-		this.props.onChange(this.state);
+		this.props.onChange && this.props.onChange(this.state);
 		this.subChanged = this.subChanged.bind(this);
 	}
 
@@ -102,7 +100,7 @@ export class Container<T extends { [key: string]: any }=any> extends React.Compo
 
 	componentDidUpdate(_oldprops, oldstate) {
 		if (this.state != oldstate) {
-			this.props.onChange(this.state);
+			this.props.onChange && this.props.onChange(this.state);
 		}
 	}
 
@@ -138,12 +136,12 @@ export class Container<T extends { [key: string]: any }=any> extends React.Compo
 export interface ItemProps {
 	flexgrow?: number | string
 };
-export interface InputProps<T=any> {
+export interface InputProps<T = any> {
 	name?: string,
 	value?: T,
 	onChange?: (newvalue: T, name: string) => any
 };
-abstract class Item<P={}, S={}, SS=any> extends React.Component<P & ItemProps, S, SS>{
+abstract class Item<P = {}, S = {}, SS = any> extends React.Component<P & ItemProps, S, SS>{
 	static type = "passive";
 	getStyle() {
 		var r = {} as React.CSSProperties;
@@ -156,13 +154,13 @@ abstract class Item<P={}, S={}, SS=any> extends React.Component<P & ItemProps, S
 	}
 }
 
-abstract class Sub<P={}, S={}, SS=any> extends Item<P, S, SS> {
+abstract class Sub<P = {}, S = {}, SS = any> extends Item<P, S, SS> {
 	static type = "container";
 }
 
-export abstract class Input<T=any, P={}, S={}, SS=any> extends Item<P & InputProps<T>, S, SS>{
+export abstract class Input<T = any, P = {}, S = {}, SS = any> extends Item<P & InputProps<T>, S, SS>{
 	triggerChange(newvalue: T) {
-		this.props.onChange(newvalue, this.props.name);
+		this.props.onChange && typeof this.props.name == "string" && this.props.onChange(newvalue, this.props.name);
 	}
 	static type = "input";
 	constructor(props) {
@@ -171,8 +169,8 @@ export abstract class Input<T=any, P={}, S={}, SS=any> extends Item<P & InputPro
 	}
 }
 
-export class Hr extends Item{
-	render(){
+export class Hr extends Item {
+	render() {
 		return <div className="pb2-hr"></div>
 	}
 }
@@ -206,7 +204,7 @@ export class Range extends Input<number, { min?: number, max?: number, step?: nu
 	render() {
 		return (
 			<label style={this.getStyle()} >
-				<input min={this.props.min} max={this.props.max} step={this.props.step} className="pb2-range" type="range" value={this.props.value} onChange={e => this.triggerChange(+e.target.value)}/>
+				<input min={this.props.min} max={this.props.max} step={this.props.step} className="pb2-range" type="range" value={this.props.value} onChange={e => this.triggerChange(+e.target.value)} />
 				{this.props.value}
 			</label>
 		);
@@ -238,7 +236,7 @@ export class Boolean extends Input<boolean>{
 
 export class DropDown extends Input<string, { options: { [id: string]: string } }>{
 	render() {
-		var options = [];
+		var options: React.ReactChild[] = [];
 		for (var id in this.props.options) {
 			options.push(<option value={id} key={id}>{this.props.options[id]}</option>);
 		}

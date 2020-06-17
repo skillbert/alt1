@@ -25,7 +25,8 @@ declare global {
 
 		setPixelInt(x: number, y: number, color: number): void;
 
-		toJSON(rect?: a1lib.RectLike): string;
+		toFileBytes(format: "image/png" | "image/webp", quality?: any): Promise<ArrayBuffer>;
+		toPngBase64(): string;
 
 		pixelCompare(buf: ImageData, x?: number, y?: number, max?: number): number;
 
@@ -70,7 +71,7 @@ export var ImageData: ImageDataConstr;
 			var canvas = document.createElement('canvas');
 			canvas.width = width;
 			canvas.height = height;
-			var ctx = canvas.getContext("2d");
+			var ctx = canvas.getContext("2d")!;
 			var imageData = ctx.createImageData(width, height);
 			if (data) { imageData.data.set(data); }
 			return imageData;
@@ -118,7 +119,7 @@ ImageData.prototype.getPixelHash = function (rect) {
 }
 
 ImageData.prototype.clone = function (rect) {
-	return this.toImage(rect).getContext("2d").getImageData(0, 0, rect.width, rect.height);
+	return this.toImage(rect).getContext("2d")!.getImageData(0, 0, rect.width, rect.height);
 }
 
 ImageData.prototype.show = function (this: ImageData, x = 5, y = 5, zoom = 1) {
@@ -152,7 +153,7 @@ ImageData.prototype.toImage = function (rect?) {
 	var el = document.createElement("canvas");
 	el.width = rect.width;
 	el.height = rect.height;
-	var ctx = el.getContext("2d");
+	var ctx = el.getContext("2d")!;
 	ctx.putImageData(this, -rect.x, -rect.y);
 	return el;
 }
@@ -190,17 +191,35 @@ ImageData.prototype.setPixelInt = function (x, y, color) {
 	this.data[i + 3] = (color >> 0) & 0xff;
 }
 
-ImageData.prototype.toJSON = function (this: ImageData, rect?) {
+ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png" | "image/webp", quality?: any) {
 	if (typeof HTMLCanvasElement != "undefined") {
-		var str = this.toImage(rect).toDataURL("image/png");
+		return new Promise<ArrayBuffer>(d => this.toImage().toBlob(b => {
+			var r = new FileReader();
+			r.readAsArrayBuffer(b!);
+			r.onload = () => d(r.result as ArrayBuffer);
+		}, format, quality));
+	} else {
+		var sharp = __non_webpack_require__("sharp");
+		return new Promise<ArrayBuffer>(d => {
+			var img = sharp(Buffer.from(this.data.buffer), { raw: { width: this.width, height: this.height, channels: 4 } });
+			if (format == "image/png") { img.png(); }
+			else if (format == "image/webp") {
+				var opts = { quality: 80 };
+				if (typeof quality == "number") { opts.quality = quality * 100; }
+				img.webp(opts)
+			}
+			else { throw new Error("unknown image format: " + format); }
+			img.toBuffer({ resolveWithObject: false }).then(r => d(r.buffer));
+		})
+	}
+}
+
+ImageData.prototype.toPngBase64 = function (this: ImageData) {
+	if (typeof HTMLCanvasElement != "undefined") {
+		var str = this.toImage().toDataURL("image/png");
 		return str.slice(str.indexOf(",") + 1);
 	} else {
-		var PNG = __non_webpack_require__("pngjs").PNG;
-		var png = new PNG({ width: this.width, height: this.height });
-		var bytes = new Uint8ClampedArray(png.data.buffer, png.data.byteOffset, png.data.byteLength);
-		bytes.set(this.data, 0);
-		var buf = PNG.sync.write(png);
-		return buf.toString("base64");
+		throw new Error("synchronous image conversion no supported in nodejs, try using ImageData.prototype.toFileBytes");
 	}
 }
 
@@ -226,7 +245,7 @@ if (typeof HTMLImageElement != "undefined") {
 		var cnv = document.createElement("canvas");
 		cnv.width = w;
 		cnv.height = h;
-		var ctx = cnv.getContext("2d");
+		var ctx = cnv.getContext("2d")!;
 		ctx.drawImage(this, -x, -y);
 		return ctx.getImageData(0, 0, w, h);
 	}
@@ -235,7 +254,7 @@ if (typeof HTMLImageElement != "undefined") {
 		var cnv = document.createElement("canvas");
 		cnv.width = w;
 		cnv.height = h;
-		var ctx = cnv.getContext("2d");
+		var ctx = cnv.getContext("2d")!;
 		ctx.drawImage(this, -x, -y);
 		return cnv;
 	}

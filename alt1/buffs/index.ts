@@ -10,10 +10,9 @@ var imgs = a1lib.ImageDetect.webpackImages({
 var font = require("../ocr/fonts/pixel_digits_8px_shadow.fontmeta.json");
 //var font = require("../ocr/fonts/aa_8px_new.fontmeta.json");
 
-function negmod(a, b) {
+function negmod(a:number, b:number) {
 	return ((a % b) + b) % b;
 }
-
 
 export type BuffTextTypes = "time" | "timearg" | "arg";
 
@@ -44,7 +43,7 @@ export class Buff {
 }
 
 export default class BuffReader {
-	pos: { x: number, y: number } = null;
+	pos: { x: number, y: number } | null = null;
 	debuffs = false;
 	static buffsize = 27;
 	static gridsize = 30;
@@ -54,7 +53,8 @@ export default class BuffReader {
 		if (!img) { return null; }
 		var poslist = img.findSubimage(this.debuffs ? imgs.debuff : imgs.buff);
 		if (poslist.length == 0) { return null; }
-		var grids = [];
+		type BuffPos = { n: number, x: number, y: number }
+		var grids: BuffPos[] = [];
 		for (var a in poslist) {
 			var ongrid = false;
 			for (var b in grids) {
@@ -68,22 +68,27 @@ export default class BuffReader {
 			}
 			if (!ongrid) { grids.push({ x: poslist[a].x, y: poslist[a].y, n: 1 }); }
 		}
-		var max = 0, above2 = 0, best = null;
+		var max = 0;
+		var above2 = 0;
+		var best: BuffPos | null = null;
 		for (var a in grids) {
 			console.log("buff grid [" + grids[a].x + "," + grids[a].y + "], n:" + grids[a].n);
 			if (grids[a].n > max) { max = grids[a].n; best = grids[a]; }
 			if (grids[a].n >= 2) { above2++; }
 		}
 		if (above2 > 1) { console.log("Warning, more than one possible buff bar location"); }
+		if (!best) { return null; }
 		this.pos = { x: best.x, y: best.y };
 		return true;
 	}
 	getCaptRect() {
+		if (!this.pos) { return null; }
 		return new a1lib.Rect(this.pos.x, this.pos.y, 180, 90);
 	}
 	read(buffer?: ImageData) {
 		var r: Buff[] = [];
 		var rect = this.getCaptRect();
+		if (!rect) { return null; }
 		if (!buffer) { buffer = a1lib.capture(rect.x, rect.y, rect.width, rect.height); }
 		for (var i = 0; i < 18; i++) {
 			var x = i % 6 * 30;
@@ -185,7 +190,7 @@ export default class BuffReader {
 			if (result.text) { lines.push(result.text); }
 		}
 		var r = { time: 0, arg: "" };
-		if (type == "timearg" && lines.length > 1) { r.arg = lines.pop(); }
+		if (type == "timearg" && lines.length > 1) { r.arg = lines.pop()!; }
 		var str = lines.join("");
 		if (type == "arg") {
 			r.arg = str;
@@ -251,7 +256,7 @@ export class BuffInfo {
 		aggression: { n: "Aggression potion", img: null, isdebuff: false }
 	};
 
-	constructor(imgdata, name, id, final, debuff) {
+	constructor(imgdata:ImageData, name:string, id:string, final:boolean, debuff:boolean) {
 		this.imgdata = imgdata;
 		this.name = name;
 		this.buffid = id;
@@ -261,10 +266,10 @@ export class BuffInfo {
 
 	toJSON() {
 		if (this.buffid != "") { return { buffid: this.buffid }; }
-		else { return { name: this.name, final: this.final, buffid: "", imgstr: this.imgdata.toJSON(), isdebuff: this.isdebuff }; }
+		else { return { name: this.name, final: this.final, buffid: "", imgstr: this.imgdata.toPngBase64(), isdebuff: this.isdebuff }; }
 	}
 
-	static fromPreset(buffid) {
+	static fromPreset(buffid:string) {
 		var buffmeta = BuffInfo.buffs[buffid];
 		return new BuffInfo(buffmeta.img, buffmeta.n, buffid, true, buffmeta.isdebuff);
 	}
@@ -280,7 +285,7 @@ export class BuffInfo {
 			var name = (typeof obj.name == "string" ? obj.name : "Unknown buff");
 			var isdebuff = !!obj.isdebuff;
 			var final = !!obj.final;
-			var r = new BuffInfo(null, name, "", final, isdebuff);
+			var r = new BuffInfo(null!, name, "", final, isdebuff);
 
 			var imgdata;
 			if (obj.imgdata instanceof ImageData) { r.imgdata = obj.imgdata; }

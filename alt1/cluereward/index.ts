@@ -11,7 +11,7 @@ var imgs = ImageDetect.webpackImages({
 
 
 export default class ClueRewardReader {
-	pos: Rect = null;
+	pos: Rect | null = null;
 
 	find(img: ImgRef) {
 		if (!img) { img = a1lib.captureHoldFullRs(); }
@@ -40,6 +40,7 @@ export default class ClueRewardReader {
 	}
 
 	read(img: ImgRef) {
+		if (!this.pos) { return null; }
 		var buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height);
 		var legacy = buf.getPixel(10, 2)[0] > 30;
 

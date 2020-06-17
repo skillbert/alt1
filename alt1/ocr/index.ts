@@ -14,7 +14,8 @@ export type FontDefinition = {
 	shadow: boolean,
 	height: number,
 	basey: number,
-	minrating?: number
+	minrating?: number,
+	maxspaces?: number
 };
 type ColortTriplet = number[];
 
@@ -213,7 +214,7 @@ export function findChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 	if (y + h - font.basey + font.height > buffer.height) { return null; }
 
 	var best = 1000;//TODO finetune score constants
-	var bestchar: ReadCharInfo = null;
+	var bestchar: ReadCharInfo | null = null;
 	for (var cx = x; cx < x + w; cx++) {
 		for (var cy = y; cy < y + h; cy++) {
 			var chr = readChar(buffer, font, col, cx, cy, false, false);
@@ -249,8 +250,8 @@ export function findReadLine(buffer: ImageData, font: FontDefinition, cols: Colo
 }
 
 export function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortTriplet[]) {
-	if (rect.x < 0 || rect.y < 0 || rect.x + rect.width > buf.width || rect.y + rect.height > buf.height) { return null; }
 	var colormap = colors.map(c => ({ col: c, score: 0 }));
+	if (rect.x < 0 || rect.y < 0 || rect.x + rect.width > buf.width || rect.y + rect.height > buf.height) { return colormap; }
 	var data = buf.data;
 	var maxd = 50;
 	for (var colobj of colormap) {
@@ -277,7 +278,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 	var allcolors: ColortTriplet[] = multicol ? colors as ColortTriplet[] : [colors as ColortTriplet];
 
 	var detectcolor = function (x: number, y: number, backward: boolean) {
-		var best = null as ColortTriplet;
+		var best = null as ColortTriplet | null;
 		var bestscore = Infinity;
 		for (var a = 0; a < allcolors.length; a++) {
 			var chr = readChar(buffer, font, allcolors[a], x, y, backward, false);
@@ -292,6 +293,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 	var r = "";
 	var x1 = x;
 	var x2 = x;
+	var maxspaces = (typeof font.maxspaces == "number" ? font.maxspaces : 1);
 
 	for (var dirforward of [true, false]) {
 		//init vars
@@ -299,7 +301,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 		if (!dirforward && !backward) { continue; }
 
 		var dx = 0;
-		var triedspace = false;
+		var triedspaces = 0;
 		var triedrecol = false;
 		var col = multicol ? null : colors as ColortTriplet;
 
@@ -312,19 +314,21 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 					triedrecol = true;
 					continue;
 				}
-				if (!triedspace) {
+				if (triedspaces < maxspaces) {
 					dx += (dirforward ? 1 : -1) * font.spacewidth;
 					triedrecol = false;
-					triedspace = true;
+					triedspaces++;
 					continue;
 				}
 				if (dirforward) { x2 = x + dx - font.spacewidth; }
 				else { x1 = x + dx + font.spacewidth; }
 				break;
 			} else {
-				if (dirforward) { r += (triedspace ? " " : "") + chr.chr; }
-				else { r = chr.chr + (triedspace ? " " : "") + r; }
-				triedspace = false;
+				var spaces = "";
+				for (var a = 0; a < triedspaces; a++) { spaces += " "; }
+				if (dirforward) { r += spaces + chr.chr; }
+				else { r = chr.chr + spaces + r; }
+				triedspaces = 0;
 				triedrecol = false;
 				dx += (dirforward ? 1 : -1) * chr.basechar.width;
 			}
@@ -344,13 +348,13 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 export function readSmallCapsBackwards(buffer: ImageData, font: FontDefinition, cols: ColortTriplet[], x: number, y: number, w = -1, h = -1) {
 	if (w == -1) { w = font.width + font.spacewidth; x -= Math.ceil(w / 2); }
 	if (h == -1) { h = 7; y -= 1; }
-	var matchedchar: ReadCharInfo = null;
+	var matchedchar: ReadCharInfo | null = null;
 	var sorted = (cols.length == 1 ? [{ col: cols[0], score: 1 }] : GetChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols));
 	//loop until we have a match (max 2 cols)
 	for (var a = 0; a < 2 && a < sorted.length && matchedchar == null; a++) {
 		for (var cx = x + w - 1; cx >= x; cx--) {
 			var best = 1000;//TODO finetune score constants
-			var bestchar: ReadCharInfo = null;
+			var bestchar: ReadCharInfo | null = null;
 			for (var cy = y; cy < y + h; cy++) {
 				var chr = readChar(buffer, font, sorted[a].col, cx, cy, true, false);
 				if (chr != null && chr.sizescore < best) {
@@ -365,7 +369,7 @@ export function readSmallCapsBackwards(buffer: ImageData, font: FontDefinition, 
 		}
 	}
 	if (matchedchar == null) { return { text: "", debugArea: { x, y, w, h } }; }
-	return readLine(buffer, font, cols, bestchar.x, bestchar.y, false, true);
+	return readLine(buffer, font, cols, matchedchar.x, matchedchar.y, false, true);
 }
 /**
  * Reads a single character at the exact given location
@@ -373,13 +377,13 @@ export function readSmallCapsBackwards(buffer: ImageData, font: FontDefinition, 
  * @param y exact y location of the baseline pixel of the character
  * @param backwards read in backwards direction, the x location should be the first pixel after the character domain in that case
  */
-export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTriplet, x: number, y: number, backwards: boolean, allowSecondary?: boolean): ReadCharInfo {
+export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTriplet, x: number, y: number, backwards: boolean, allowSecondary?: boolean): ReadCharInfo | null {
 	y -= font.basey;
 	var shiftx = 0;
 	var shifty = font.basey;
 	var shadow = font.shadow;
-	var debugobj: Chardebug[] = null;
-	var debugimg: ImageData = null;
+	var debugobj: Chardebug[] | null = null;
+	var debugimg: ImageData | null = null;
 	if (debug.trackread) {
 		var name = x + ";" + y + " " + JSON.stringify(col);
 		if (!debugout[name]) { debugout[name] = []; }
@@ -425,7 +429,7 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 			if (debugimg) { debugimg.setPixel(chrobj.pixels[a], chrobj.pixels[a + 1], [penalty, penalty, penalty, 255]); }
 		}
 		scores[chr].sizescore = scores[chr].score - chrobj.bonus;
-		if (debugobj) { debugobj.push({ chr: chrobj.chr, score: scores[chr].sizescore, rawscore: scores[chr].score, img: debugimg }); }
+		if (debugobj) { debugobj.push({ chr: chrobj.chr, score: scores[chr].sizescore, rawscore: scores[chr].score, img: debugimg! }); }
 	}
 
 	scores.sort((a, b) => a.sizescore - b.sizescore);
