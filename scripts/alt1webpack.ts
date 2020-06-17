@@ -15,6 +15,16 @@ export function addAlt1Externals(config: Alt1Chain) {
 
 export function chainAlt1Lib(rootdir: string) {
 	var pack = getPackageInfo(path.resolve(rootdir, "package.json"));
+	var rootpack = null as ReturnType<typeof getPackageInfo> | null;
+	for (let parentdir = rootdir; true;) {
+		if (fs.existsSync(path.resolve(parentdir, "lerna.json"))) {
+			rootpack = getPackageInfo(path.resolve(parentdir, "package.json"));
+			break;
+		}
+		let newparent = path.resolve(parentdir, "..");
+		if (newparent == parentdir) { break; }
+		parentdir = newparent;
+	}
 	var filenamematch = pack.name.match(/^@alt1\/([\w-]+)$/);
 	if (!filenamematch) { throw new Error("Can't get file name for " + pack.name); }
 	var config = new Alt1Chain(rootdir);
@@ -24,10 +34,9 @@ export function chainAlt1Lib(rootdir: string) {
 
 	var alldeps = { ...pack.optionalDependencies, ...pack.dependencies };
 	for (var dep in alldeps) {
-		var str = alldeps[dep];
-		var m = str.match(/^file:(.*)$/);
-		if (m) {
-			var subpack = getPackageInfo(path.resolve(pack.dir, m[1], "package.json"));
+		var localdep = rootpack?.dependencies[dep]?.match(/^file:(.*)$/);
+		if (localdep) {
+			var subpack = getPackageInfo(path.resolve(rootpack.dir, localdep[1], "package.json"));
 			config.addExternal(dep, subpack.name, subpack.umdName);
 		} else {
 			config.addExternal(dep, dep, "unkown");

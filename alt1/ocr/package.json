@@ -11,9 +11,6 @@
 	"dependencies": {
 		"@alt1/base": "^0.0.5"
 	},
-	"devDependencies": {
-		"@alt1/ocr": "^0.0.5"
-	},
 	"scripts": {
 		"build": "node ../../buildutil.js --custom-webpack -p"
 	},

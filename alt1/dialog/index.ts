@@ -6,11 +6,11 @@ import { ImgRef } from "@alt1/base";
 var imgs = webpackImages({
 	chatimg: require("./imgs/chatimg.data.png"),
 	chatimghover: require("./imgs/chatimghover.data.png"),
-	chatimgactive: require("/imgs/chatimgactive.data.png"),
-	continueimg: require("/imgs/continueimg.data.png"),
-	continueimgdown: require("/imgs/continueimgdown.data.png"),
-	boxtl: require("/imgs/boxtl.data.png"),
-	boxtr: require("/imgs/boxtr.data.png")
+	chatimgactive: require("./imgs/chatimgactive.data.png"),
+	continueimg: require("./imgs/continueimg.data.png"),
+	continueimgdown: require("./imgs/continueimgdown.data.png"),
+	boxtl: require("./imgs/boxtl.data.png"),
+	boxtr: require("./imgs/boxtr.data.png")
 });
 
 var fontmono = require("@alt1/ocr/fonts/aa_8px_mono_new.fontmeta.json");

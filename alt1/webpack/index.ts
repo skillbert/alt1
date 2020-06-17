@@ -54,7 +54,7 @@ export default class Alt1Chain {
 		}
 		this.chain.target("web");
 		this.chain.node.clear().set("false", true);
-		
+
 		this.defaultModule();
 		this.configureOpts(opts);
 	}
@@ -202,6 +202,7 @@ export type Alt1WebpackOpts = {
 export type NpmConfig = {
 	name?: string,
 	umdGlobal?: string,
+	runeappsRootPackage?: boolean,
 	types?: string,
 	runeappsLibNameRoot?: string,
 	dependencies: { [name: string]: string },
@@ -244,7 +245,7 @@ export function getCmdConfig() {
 export function getPackageInfo(fileabs: string) {
 	var cnf = JSON.parse(fs.readFileSync(fileabs, { encoding: "utf-8" })) as Partial<NpmConfig>
 	if (!cnf.name) { throw "no package name on " + fileabs; }
-	if (!cnf.umdGlobal && !cnf.runeappsLibNameRoot) { throw "no umdGlobal on " + fileabs; }
+	if (!cnf.runeappsRootPackage && !cnf.umdGlobal && !cnf.runeappsLibNameRoot) { throw "no umdGlobal on " + fileabs; }
 
 	return {
 		dir: path.dirname(fileabs),

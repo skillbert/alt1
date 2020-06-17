@@ -21,7 +21,7 @@ for (var g in globs) {
 
 //some sanity checks
 if(files.length>200){
-	throw new Error("More files listed for deletion than expected "+files.length+"/200. Might haveto adjust this limit.");
+	throw new Error("More files listed for deletion than expected "+files.length+"/200. Might have to adjust this limit.");
 }
 for(var file of files){
 	if(path.relative(rootdir,file).startsWith("..")){
