@@ -39,6 +39,7 @@ export default class Alt1Chain {
 		this.chain.context(rootdir);
 		this.rootdir = rootdir;
 		var dir = path.resolve(rootdir);
+		this.chain.resolve.mainFields.prepend("runeappsLibEntry").add("module").add("main");
 		while (true) {
 			var file = path.resolve(dir, "tsconfig.json");
 			if (fs.existsSync(file)) {
@@ -87,7 +88,6 @@ export default class Alt1Chain {
 			//typings of webpack-chain are wrong (again)
 			//use some hardcore casting
 			var mainFields = this.chain.resolve.mainFields.values();
-			if (mainFields.length == 0) { mainFields = ['module', 'main']; }
 			return new (cl as any as typeof TsconfigPathsPlugin)({
 				configFile: this.tsconfigfile,
 				extensions: this.chain.resolve.extensions.values(),

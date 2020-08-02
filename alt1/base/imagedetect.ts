@@ -1,8 +1,9 @@
 import { ImgRef, ImgRefBind } from "./imgref";
 import * as wapper from "./wrapper";
 import { ImageData as ImageDataFill } from "./imagedata-extensions";
+import { requireSharp, requireNodeFetch } from "./nodeimports";
+import { RectLike, Rect } from ".";
 
-declare var __non_webpack_require__;
 /**
 * Downloads an image and returns the ImageData
 * Make sure the png image does not have a sRGB chunk or the resulting pixels will differ for different users!!!
@@ -20,20 +21,20 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 	} else {
 		var hdr = "data:image/png;base64,";
 		if (url.startsWith(hdr)) {
-			var raw = Buffer.from(url.slice(hdr.length), "base64");
-			var buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+			return imageDataFromBase64(url.slice(hdr.length));
 		}
-		else {
-			var nodefetch = require("node-fetch");
-			var res = await nodefetch(url).then(r => r.arrayBuffer());
-			var buffer = new Uint8Array(res);
-		}
-		clearPngColorspace(buffer);
-		var sharp = __non_webpack_require__("sharp");
-		var file = sharp(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
-		var pixelobj = await file.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-		return new ImageDataFill(new Uint8ClampedArray(pixelobj.data), pixelobj.info.width, pixelobj.info.height);
+		var nodefetch = requireNodeFetch();
+		var res = await nodefetch(url).then(r => r.arrayBuffer());
+		return imageDataFromNodeBuffer(new Uint8Array(res));
 	}
+}
+
+async function imageDataFromNodeBuffer(buffer: Uint8Array) {
+	clearPngColorspace(buffer);
+	var sharp = requireSharp();
+	var file = sharp(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
+	var pixelobj = await file.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+	return new ImageDataFill(new Uint8ClampedArray(pixelobj.data), pixelobj.info.width, pixelobj.info.height);
 }
 
 /**
@@ -42,7 +43,13 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 * @param data a base64 encoded png image
 */
 export async function imageDataFromBase64(data: string) {
-	return imageDataFromUrl("data:image/png;base64," + data);
+	if (typeof Image != "undefined") {
+		return imageDataFromUrl("data:image/png;base64," + data);
+	} else {
+		var raw = Buffer.from(data, "base64");
+		var buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+		return imageDataFromNodeBuffer(buffer);
+	}
 }
 
 /**
@@ -251,3 +258,32 @@ export function webpackImages<T extends { [name: string]: Promise<ImageData> }>(
 	return asyncMap<{ [K in keyof T]: Promise<ImageData> }>(input) as any as { promise: Promise<subt>, loaded: boolean, raw: subt } & subt;
 }
 
+export class ImageDataSet {
+	buffers: ImageData[] = [];
+
+	//TODO
+	/*
+	static fromFilmStrip(baseimg: ImageData, width: number) {
+		if (baseimg.width % width != 0) { throw new Error("slice size does not fit in base img"); }
+	}*/
+
+	static fromFilmStripUneven(baseimg: ImageData, widths: number[]) {
+		let r = new ImageDataSet()
+		let x = 0;
+		for (let w of widths) {
+			r.buffers.push(baseimg.clone(new Rect(x, 0, w, baseimg.height)));
+			x += w;
+			if (x > baseimg.width) { throw new Error("sampling filmstrip outside bounds"); }
+		}
+		if (x != baseimg.width) { throw new Error("unconsumed pixels left in film strip imagedata"); }
+		return r;
+	}
+
+	static fromAtlas(baseimg: ImageData, slices: RectLike[]) {
+		let r = new ImageDataSet();
+		for (let slice of slices) {
+			r.buffers.push(baseimg.clone(slice));
+		}
+		return r;
+	}
+}

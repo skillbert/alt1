@@ -10,12 +10,11 @@ var imgs = a1lib.ImageDetect.webpackImages({
 var font = require("../ocr/fonts/pixel_digits_8px_shadow.fontmeta.json");
 //var font = require("../ocr/fonts/aa_8px_new.fontmeta.json");
 
-function negmod(a:number, b:number) {
+function negmod(a: number, b: number) {
 	return ((a % b) + b) % b;
 }
 
 export type BuffTextTypes = "time" | "timearg" | "arg";
-
 
 export class Buff {
 	isdebuff: boolean;
@@ -43,8 +42,9 @@ export class Buff {
 }
 
 export default class BuffReader {
-	pos: { x: number, y: number } | null = null;
+	pos: { x: number, y: number, maxhor: number, maxver: number } | null = null;
 	debuffs = false;
+
 	static buffsize = 27;
 	static gridsize = 30;
 
@@ -78,26 +78,36 @@ export default class BuffReader {
 		}
 		if (above2 > 1) { console.log("Warning, more than one possible buff bar location"); }
 		if (!best) { return null; }
-		this.pos = { x: best.x, y: best.y };
+		this.pos = { x: best.x, y: best.y, maxhor: 5, maxver: 1 };
 		return true;
 	}
 	getCaptRect() {
 		if (!this.pos) { return null; }
-		return new a1lib.Rect(this.pos.x, this.pos.y, 180, 90);
+		return new a1lib.Rect(this.pos.x, this.pos.y, (this.pos.maxhor + 1) * BuffReader.gridsize, (this.pos.maxver + 1) * BuffReader.gridsize);
 	}
 	read(buffer?: ImageData) {
+		if (!this.pos) { throw new Error("no pos"); }
 		var r: Buff[] = [];
 		var rect = this.getCaptRect();
 		if (!rect) { return null; }
 		if (!buffer) { buffer = a1lib.capture(rect.x, rect.y, rect.width, rect.height); }
-		for (var i = 0; i < 18; i++) {
-			var x = i % 6 * 30;
-			var y = Math.floor(i / 6) * 30;
-			//Have to require exact match here as we get transparency bs otherwise
-			var match = buffer.pixelCompare((this.debuffs ? imgs.debuff : imgs.buff), x, y) == 0;
-			if (!match) { break; }
-			r.push(new Buff(buffer, x, y, this.debuffs));
+		var maxhor = 0;
+		var maxver = 0;
+		for (var ix = 0; ix <= this.pos.maxhor; ix++) {
+			for (var iy = 0; iy <= this.pos.maxver; iy++) {
+				var x = ix * BuffReader.gridsize;
+				var y = iy * BuffReader.gridsize;
+
+				//Have to require exact match here as we get transparency bs otherwise
+				var match = buffer.pixelCompare((this.debuffs ? imgs.debuff : imgs.buff), x, y) == 0;
+				if (!match) { break; }
+				r.push(new Buff(buffer, x, y, this.debuffs));
+				maxhor = Math.max(maxhor, ix);
+				maxver = Math.max(maxver, iy);
+			}
 		}
+		this.pos.maxhor = Math.max(5, maxhor + 2);
+		this.pos.maxver = Math.max(1, maxver + 1);
 		return r;
 	}
 
@@ -207,14 +217,14 @@ export default class BuffReader {
 		return this.readArg(buffer, ox, oy, "time").time;
 	}
 
-	static matchBuff(state, buffimg: ImageData) {
+	static matchBuff(state: Buff[], buffimg: ImageData) {
 		for (var a in state) {
 			if (state[a].compareBuffer(buffimg)) { return state[a]; }
 		}
 		return null;
 	}
 
-	static matchBuffMulti(state, buffinfo) {
+	static matchBuffMulti(state: Buff[], buffinfo: BuffInfo) {
 		if (buffinfo.final) {//cheap way if we known exactly what we're searching for
 			return BuffReader.matchBuff(state, buffinfo.imgdata);
 		}
@@ -256,7 +266,7 @@ export class BuffInfo {
 		aggression: { n: "Aggression potion", img: null, isdebuff: false }
 	};
 
-	constructor(imgdata:ImageData, name:string, id:string, final:boolean, debuff:boolean) {
+	constructor(imgdata: ImageData, name: string, id: string, final: boolean, debuff: boolean) {
 		this.imgdata = imgdata;
 		this.name = name;
 		this.buffid = id;
@@ -269,7 +279,7 @@ export class BuffInfo {
 		else { return { name: this.name, final: this.final, buffid: "", imgstr: this.imgdata.toPngBase64(), isdebuff: this.isdebuff }; }
 	}
 
-	static fromPreset(buffid:string) {
+	static fromPreset(buffid: string) {
 		var buffmeta = BuffInfo.buffs[buffid];
 		return new BuffInfo(buffmeta.img, buffmeta.n, buffid, true, buffmeta.isdebuff);
 	}

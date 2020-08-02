@@ -1,6 +1,7 @@
 {
 	"name": "@alt1/ability-reader",
 	"umdGlobal": "AbilityReader",
+	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.min.js",
 	"types": "./types/",
 	"author": "Skillbert",

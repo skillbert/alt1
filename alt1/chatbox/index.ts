@@ -1,6 +1,8 @@
 import * as a1lib from "@alt1/base";
-import { ImgRef, ImgRefBind } from "@alt1/base";
+import { ImgRef, ImgRefBind, unmixColor } from "@alt1/base";
+import * as OCR from "@alt1/ocr";
 
+let chatfont = require("@alt1/ocr/fonts/aa_8px_new.fontmeta.json");
 
 const imgs = a1lib.ImageDetect.webpackImages({
 	plusbutton: require("./imgs/plusbutton.data.png"),
@@ -103,10 +105,17 @@ export default class ChatBoxReader {
 				newlines = readlines;
 				break;
 			}
+			var str = null;
+			try {
+				str = JSON.parse(alt1.bindReadStringEx(img.handle, imgline0x, imgliney, JSON.stringify(this.readargs)));
+			} catch (e) { }
 
-			var str = JSON.parse(alt1.bindReadStringEx(img.handle, imgline0x, imgliney, JSON.stringify(this.readargs)));
 			//retry with offset if timestamps are enabled
-			if (!str && box.timestamp) { str = JSON.parse(alt1.bindReadStringEx(img.handle, imgline0x + timestampOffset, imgliney, JSON.stringify(this.readargs))); }
+			if (!str && box.timestamp) {
+				try {
+					str = JSON.parse(alt1.bindReadStringEx(img.handle, imgline0x + timestampOffset, imgliney, JSON.stringify(this.readargs)));
+				} catch (e) { }
+			}
 			readlines.unshift(str ? str : { text: "", fragments: [] });
 			//console.log(str);
 
@@ -227,7 +236,10 @@ export default class ChatBoxReader {
 		var mainbox: Chatbox | null = null;
 		var readargs = JSON.stringify({ colors: [a1lib.mixColor(255, 255, 255)], backwards: true });
 		groups.forEach(group => {
-			var nameread = JSON.parse(alt1.bindReadStringEx(img.handle, group.rect.x - 10, group.rect.y + group.rect.height + 9, readargs));
+			var nameread: any = null;
+			try {
+				nameread = JSON.parse(alt1.bindReadStringEx(img.handle, group.rect.x - 10, group.rect.y + group.rect.height + 9, readargs));
+			} catch (e) { }
 			if (nameread) {
 				var d = 0;
 				if (nameread.text == "Clan Chat") { group.type = "cc"; d = 62; }
@@ -281,8 +293,10 @@ export default class ChatBoxReader {
 			var y = pos.rect.y + pos.line0y - line * this.lineheight;
 			var x = pos.rect.x + pos.line0x;
 			x += 3;//the leading '[' can't be the positioning char
-			var str = JSON.parse(alt1.bindReadStringEx(img.handle, x, y, JSON.stringify(readargs)));
-
+			var str: any = null;
+			try {
+				str = JSON.parse(alt1.bindReadStringEx(img.handle, x, y, JSON.stringify(readargs)));
+			} catch (e) { }
 			if (str && str.text.match(/^\d\d:\d\d:\d\d/)) { return true; }
 		}
 		return false;

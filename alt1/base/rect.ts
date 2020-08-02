@@ -34,8 +34,8 @@ export default class Rect implements RectLike {
 	static fromArgs(obj: RectLike): Rect;
 	static fromArgs(xywh: number[]): Rect;
 	static fromArgs(x: number, y: number, w: number, h: number): Rect;
-	static fromArgs(...args:any[]): Rect
-	static fromArgs(...args:any[]): Rect {
+	static fromArgs(...args: any[]): Rect;
+	static fromArgs(...args: any[]): Rect {
 		if (typeof args[0] == "object") {
 			if (typeof args[0][0] == "number") {
 				return new Rect(args[0], args[1], args[2], args[3]);

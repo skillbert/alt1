@@ -1,4 +1,5 @@
 import * as a1lib from "./index";
+import { requireSharp } from "./nodeimports";
 
 declare global {
 	interface ImageData {
@@ -199,7 +200,7 @@ ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png"
 			r.onload = () => d(r.result as ArrayBuffer);
 		}, format, quality));
 	} else {
-		var sharp = __non_webpack_require__("sharp");
+		var sharp = requireSharp();
 		return new Promise<ArrayBuffer>(d => {
 			var img = sharp(Buffer.from(this.data.buffer), { raw: { width: this.width, height: this.height, channels: 4 } });
 			if (format == "image/png") { img.png(); }

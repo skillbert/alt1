@@ -9,7 +9,7 @@
 		"jsx": "react",
 		"allowJs": false,
 		"baseUrl": ".",
-		"strictNullChecks": false,
+		"strictNullChecks": true,
 		"strictPropertyInitialization": false,
 		"experimentalDecorators": true,
 		"paths": {

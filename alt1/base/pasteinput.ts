@@ -1,34 +1,48 @@
 import { ImgRefCtx } from "./index";
 import * as ImageDetect from "./imagedetect";
+import { ImgRef } from "./imgref";
 
 
-type ImgCallback = (img: HTMLCanvasElement, imgref: ImgRefCtx) => any;
+type ImgCallback = (imgref: ImgRef) => any;
 type ErrorCallback = (text: string, id: string) => any;
-var listeners: { cb: ImgCallback, error: ErrorCallback }[] = [];
+var listeners: { cb: ImgCallback, error: ErrorCallback | undefined }[] = [];
 var started = false;
 var dndStarted = false;
 var pasting = false;
-export var lastref: ImgRefCtx | null = null;
-export var lastimg: HTMLCanvasElement | null = null;
+export var lastref: ImgRef | null = null;
 
-export function listen(func: any, errorfunc?: any, dragndrop?: boolean) {
+export function listen(func: ImgCallback, errorfunc?: ErrorCallback, dragndrop?: boolean) {
 	listeners.push({ cb: func, error: errorfunc });
 
 	if (!started) { start(); }
 	if (dragndrop && !dndStarted) { startDragNDrop(); }
 }
 
-function pasted(img: HTMLImageElement) {
+export function unlisten(func: ImgCallback) {
+	let i = listeners.findIndex(c => c.cb == func);
+	if (i != -1) {
+		listeners.splice(i, 1);
+	}
+}
+
+/**
+ * currently used in multiple document situations (iframe), might be removed in the future
+ */
+export function triggerPaste(img: ImgRef) {
+	lastref = img;
+	for (var a in listeners) { listeners[a].cb(lastref); }
+}
+
+function pasted(img: HTMLImageElement | HTMLCanvasElement) {
 	pasting = false;
-	lastimg = img.toCanvas();
-	lastref = new ImgRefCtx(lastimg);
-	for (var a in listeners) { listeners[a].cb(lastimg, lastref); }
+	let cnv = img instanceof HTMLCanvasElement ? img : img.toCanvas();
+	triggerPaste(new ImgRefCtx(cnv));
 }
 
 function error(mes: string, error: string) {
 	pasting = false;
 	for (var a in listeners) {
-		if (listeners[a].error) { listeners[a].error(mes, error); }
+		listeners[a].error?.(mes, error);
 	}
 }
 
@@ -115,7 +129,7 @@ export function start() {
 		if (e.keyCode != "V".charCodeAt(0) || !e.ctrlKey) { return; }
 		pasting = true;
 		setTimeout(function () {
-			if (pasting) { error("You pressed Ctrl+V, but no image was pasted by your browser, make sure your clipboard contains an image, and not a link to an image.\n This may also happen if your browser is (very) outdated.", "noimg"); }
+			if (pasting) { error("You pressed Ctrl+V, but no image was pasted by your browser, make sure your clipboard contains an image, and not a link to an image.", "noimg"); }
 		}, 1000);
 		if (catcher) { catcher.focus(); }
 	});

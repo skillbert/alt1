@@ -39,7 +39,7 @@ export function chainAlt1Lib(rootdir: string) {
 			var subpack = getPackageInfo(path.resolve(rootpack.dir, localdep[1], "package.json"));
 			config.addExternal(dep, subpack.name, subpack.umdName);
 		} else {
-			config.addExternal(dep, dep, "unkown");
+			config.addExternal(dep, dep, "unknown");
 		}
 	}
 

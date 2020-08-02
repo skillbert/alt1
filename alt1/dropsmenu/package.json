@@ -1,6 +1,7 @@
 {
 	"name": "@alt1/dropsmenu",
 	"umdGlobal": "DropsMenuReader",
+	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.min.js",
 	"types": "./types/",
 	"author": "Skillbert",

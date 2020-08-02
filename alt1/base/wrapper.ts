@@ -31,7 +31,7 @@ export class Alt1Error extends Error { }
 export var newestversion = "1.5.5";
 
 /**
- * Wether the Alt1 API is available
+ * Whether the Alt1 API is available
  */
 export var hasAlt1 = (typeof alt1 != "undefined");
 
@@ -209,6 +209,13 @@ export function encodeImageString(buf: ImageData, sx = 0, sy = 0, sw = buf.width
  */
 export function mixColor(r: number, g: number, b: number, a = 255) {
 	return (b << 0) + (g << 8) + (r << 16) + (a << 24);
+}
+
+export function unmixColor(col: number): [number, number, number] {
+	var r = (col >> 16) & 0xff;
+	var g = (col >> 8) & 0xff;
+	var b = (col >> 0) & 0xff;
+	return [r, g, b];
 }
 
 
@@ -476,9 +483,9 @@ export async function captureAsync(...args: any[]): Promise<ImageData> {
  * Asynchronously captures multple area's. This method captures the images in the same render frame if possible
  * @param areas 
  */
-export async function captureMultiAsync<T extends { [id: string]: RectLike|null|undefined }>(areas: T) {
+export async function captureMultiAsync<T extends { [id: string]: RectLike | null | undefined }>(areas: T) {
 	requireAlt1();
-	var format = "raw" as asyncCaptureFormat;
+	var format: asyncCaptureFormat = "raw";
 	var quality = 0.6;
 
 	var r = {} as { [K in keyof T]: ImageData | null };

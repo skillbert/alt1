@@ -205,9 +205,6 @@ export function decompose3col(rp: number, gp: number, bp: number, r1: number, g1
  * brute force to the exact position of the text
  */
 export function findChar(buffer: ImageData, font: FontDefinition, col: ColortTriplet, x: number, y: number, w: number, h: number) {
-	var shiftx = 0;
-	var shifty = 0;
-
 	if (x < 0) { return null; }
 	if (y - font.basey < 0) { return null; }
 	if (x + w + font.width > buffer.width) { return null; }
@@ -290,10 +287,21 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 		return best;
 	}
 
-	var r = "";
+	type TextFragment = { text: string, color: ColortTriplet, index: number };
+	var fragments: TextFragment[] = [];
 	var x1 = x;
 	var x2 = x;
 	var maxspaces = (typeof font.maxspaces == "number" ? font.maxspaces : 1);
+
+	let fragtext = "";
+	var lastcol: ColortTriplet | null = null;
+	let addfrag = (forward: boolean) => {
+		if (!fragtext) { return; }
+		let frag: TextFragment = { text: fragtext, color: lastcol!, index: 0 };
+		if (forward) { fragments.push(frag); }
+		else { fragments.unshift(frag); }
+		fragtext = "";
+	}
 
 	for (var dirforward of [true, false]) {
 		//init vars
@@ -308,7 +316,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 		while (true) {
 			col = col || detectcolor(x + dx, y, !dirforward);
 			var chr = (col ? readChar(buffer, font, col, x + dx, y, !dirforward, true) : null);
-			if (chr == null) {
+			if (col == null || chr == null) {
 				if (multicol && !triedrecol) {
 					col = null;
 					triedrecol = true;
@@ -324,19 +332,28 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 				else { x1 = x + dx + font.spacewidth; }
 				break;
 			} else {
+				if (lastcol && (col[0] != lastcol[0] || col[1] != lastcol[1] || col[2] != lastcol[2])) {
+					addfrag(dirforward);
+				}
 				var spaces = "";
 				for (var a = 0; a < triedspaces; a++) { spaces += " "; }
-				if (dirforward) { r += spaces + chr.chr; }
-				else { r = chr.chr + spaces + r; }
+				if (dirforward) { fragtext += spaces + chr.chr; }
+				else { fragtext = chr.chr + spaces + fragtext; }
 				triedspaces = 0;
 				triedrecol = false;
 				dx += (dirforward ? 1 : -1) * chr.basechar.width;
+				lastcol = col;
 			}
 		}
+		if (lastcol) { addfrag(dirforward); }
 	}
+
+	fragments.forEach((f, i) => f.index = i);
+
 	return {
 		debugArea: { x: x1, y: y - 9, w: x2 - x1, h: 10 },
-		text: r
+		text: fragments.map(f => f.text).join(""),
+		fragments
 	};
 }
 
@@ -443,7 +460,7 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 
 	return { chr: winchr.chr.chr, basechar: winchr.chr, x: x + shiftx, y: y + shifty, score: winchr.score, sizescore: winchr.sizescore };
 }
-type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: number, score: number, sizescore: number };
+export type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: number, score: number, sizescore: number };
 
 /**
  * Generates a font json description to use in reader functions
