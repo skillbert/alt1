@@ -1,10 +1,14 @@
 //keep the nastyness in one file
-declare var __non_webpack_require__: any;
+//TODO this used to be nastier, can probly inline it again
 
 export function requireNodeFetch() {
-	return __non_webpack_require__("node-fetch");
+	return require("node-fetch") as typeof fetch;
+}
+
+export function requireNodeCanvas() {
+	return require("canvas") as typeof import("canvas");
 }
 
 export function requireSharp() {
-	return __non_webpack_require__("sharp");
+	return require("sharp") as typeof import("sharp");
 }

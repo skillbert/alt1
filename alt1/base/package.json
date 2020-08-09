@@ -3,19 +3,21 @@
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "A1lib",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.min.js",
+	"main": "./dist/index.bundle.js",
 	"types": "./types/",
 	"author": "Skillbert",
 	"version": "0.0.5",
 	"publishConfig": {
 		"access": "public"
 	},
-	"optionalDependencies": {
+	"peerDependencies": {
 		"node-fetch": "^2.5.0",
-		"sharp": "^0.24.0"
+		"sharp": "^0.24.0",
+		"canvas": "^2.6.1"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
 	},
-	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
+	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd",
+	"dependencies": {}
 }

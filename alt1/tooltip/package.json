@@ -3,7 +3,7 @@
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "TooltipReader",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.min.js",
+	"main": "./dist/index.bundle.js",
 	"types": "./types/",
 	"author": "Skillbert",
 	"version": "0.0.5",

@@ -1,5 +1,5 @@
 import * as a1lib from "./index";
-import { requireSharp } from "./nodeimports";
+import { requireNodeCanvas, requireSharp } from "./nodeimports";
 
 declare global {
 	interface ImageData {
@@ -40,8 +40,6 @@ declare global {
 	}
 }
 
-declare var __non_webpack_require__;
-
 type ImageDataConstr = {
 	prototype: ImageData;
 	new(width: number, height: number): ImageData;
@@ -52,10 +50,17 @@ type ImageDataConstr = {
 //export this so node.js can also use it
 export var ImageData: ImageDataConstr;
 
+//TODO revamp this madness a bit?
 (function () {
 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
-	var fill = typeof globalvar.ImageData == "undefined" || typeof globalvar.document == "undefined";
+	//use the node-canvas version when on node
+	if (typeof globalvar.ImageData == "undefined") {
+		let nodecnv = requireNodeCanvas();
+		globalvar.ImageData = nodecnv.ImageData;
+	}
+	var fill = typeof globalvar.ImageData == "undefined";
 
+	//should never be reach anymore
 	var constr = function (this: any) {
 		var i = 0;
 		var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
@@ -68,7 +73,9 @@ export var ImageData: ImageDataConstr;
 			this.height = height;
 			this.data = data;
 		}
-		else {
+		else if (oldconstr) {
+			return (data ? new oldconstr(data, width, height) : new oldconstr(width, height));
+		} else {
 			var canvas = document.createElement('canvas');
 			canvas.width = width;
 			canvas.height = height;
@@ -78,6 +85,17 @@ export var ImageData: ImageDataConstr;
 			return imageData;
 		}
 	}
+
+	var oldconstr = globalvar.ImageData;
+	if (typeof document != "undefined") {
+		try {
+			new oldconstr(1, 1);
+		} catch (e) {
+			//direct constructor call not allowed in ie
+			oldconstr = null;
+		}
+	}
+
 	if (!fill) { constr.prototype = globalvar.ImageData.prototype; }
 	globalvar.ImageData = constr;
 	ImageData = constr as any;
@@ -150,10 +168,14 @@ ImageData.prototype.show.maxImages = 10;
 
 ImageData.prototype.toImage = function (rect?) {
 	if (!rect) { rect = new a1lib.Rect(0, 0, this.width, this.height); }
-
-	var el = document.createElement("canvas");
-	el.width = rect.width;
-	el.height = rect.height;
+	if (typeof document != "undefined") {
+		var el = document.createElement("canvas");
+		el.width = rect.width;
+		el.height = rect.height;
+	} else {
+		var nodecnv = requireNodeCanvas();
+		var el = nodecnv.createCanvas(rect.width, rect.height) as any as HTMLCanvasElement;
+	}
 	var ctx = el.getContext("2d")!;
 	ctx.putImageData(this, -rect.x, -rect.y);
 	return el;
@@ -214,6 +236,33 @@ ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png"
 		})
 	}
 }
+
+//use the implementation using the sharp package in order to support webp
+/*
+ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png" | "image/webp", quality?: any) {
+	return new Promise<ArrayBuffer>((done, error) => {
+		var cnv = this.toImage();
+		if (typeof cnv.toBlob != "undefined") {
+			cnv.toBlob(b => {
+				var r = new FileReader();
+				r.readAsArrayBuffer(b!);
+				r.onload = () => done(r.result as ArrayBuffer);
+				r.onerror = error;
+			}, format, quality);
+		} else {
+			var nodecnv = requireNodeCanvas();
+			var ncnv = cnv as any as InstanceType<typeof nodecnv.Canvas>;
+			//TODO webp not supported right now
+			if (format != "image/png") { throw new Error("only png compression available on node right now"); }
+			let stream = ncnv.createPNGStream();
+			var chunks: Buffer[] = [];
+			stream.once("error", error);
+			stream.once("end", () => done(Buffer.concat(chunks)))
+			stream.on("data", c => chunks.push(c as Buffer));
+		}
+	});
+}
+*/
 
 ImageData.prototype.toPngBase64 = function (this: ImageData) {
 	if (typeof HTMLCanvasElement != "undefined") {

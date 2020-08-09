@@ -1,7 +1,6 @@
 import { ImgRef, ImgRefBind } from "./imgref";
 import * as wapper from "./wrapper";
-import { ImageData as ImageDataFill } from "./imagedata-extensions";
-import { requireSharp, requireNodeFetch } from "./nodeimports";
+import { requireNodeFetch, requireNodeCanvas } from "./nodeimports";
 import { RectLike, Rect } from ".";
 
 /**
@@ -29,12 +28,25 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 	}
 }
 
-async function imageDataFromNodeBuffer(buffer: Uint8Array) {
-	clearPngColorspace(buffer);
-	var sharp = requireSharp();
-	var file = sharp(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength));
-	var pixelobj = await file.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-	return new ImageDataFill(new Uint8ClampedArray(pixelobj.data), pixelobj.info.width, pixelobj.info.height);
+/**
+ * Only use in modules that you know for sure that browsers will never call this
+ */
+export function imageDataFromNodeBuffer(buffer: Uint8Array) {
+	return new Promise<ImageData>((done, error) => {
+		clearPngColorspace(buffer);
+		var nodecnv = requireNodeCanvas();
+		let img = new nodecnv.Image();
+		img.onerror = error;
+		img.onload = () => {
+			var cnv = nodecnv.createCanvas(img.naturalWidth, img.naturalHeight);
+			var ctx = cnv.getContext("2d")!;
+			ctx.drawImage(img, 0, 0);
+			var data = ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
+			//use our own class
+			done(new ImageData(data.data, data.width, data.height));
+		}
+		img.src = Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+	});
 }
 
 /**
@@ -51,26 +63,6 @@ export async function imageDataFromBase64(data: string) {
 		return imageDataFromNodeBuffer(buffer);
 	}
 }
-
-/**
-* Used to visualise data as a grayscale image. The imput array must contain one (float) value per pixel.
-* The values are automatically scaled so the lowest value is black and the highest is white
-* @param array The pixels, one values per pixel
-*/
-function imagedataFromArray(array: number[], w: number, h: number) {
-	if (array.length != w * h) { throw new Error("Invalid array size"); }
-	var min = Math.min.apply(null, array);
-	var max = Math.max.apply(null, array);
-	var range = max - min;
-	var buf = new ImageData(w, h);
-	for (var i = 0; i < w * h; i++) {
-		var ibuf = i * 4;
-		buf.data[ibuf] = buf.data[ibuf + 1] = buf.data[ibuf + 2] = (array[i] - min) / range * 255;
-		buf.data[ibuf + 3] = 255;
-	}
-	return buf;
-}
-
 
 /**
 * Checks if a given byte array is a png file (by checking for ?PNG as first 4 bytes)

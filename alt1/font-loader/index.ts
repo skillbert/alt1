@@ -41,6 +41,7 @@ export default async function (this: loader.LoaderContext, source: string) {
 	}) as Buffer;
 	var byteview = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 	a1lib.ImageDetect.clearPngColorspace(byteview);
+	//currently still need the sharp package instead of node-canvas for this to prevent losing precision due to premultiplied alphas
 	var imgfile = sharp(bytes);
 	var imgdata = await imgfile.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 	var img = new a1lib.ImageData(new Uint8ClampedArray(imgdata.data.buffer), imgdata.info.width, imgdata.info.height);

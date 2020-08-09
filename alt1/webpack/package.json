@@ -1,8 +1,7 @@
 {
-	"name": "@alt1/datapng-loader",
+	"name": "@alt1/webpack",
 	"runeappsType": "lib",
-	"runeappsTarget": "node",
-	"runeappsLibNameRoot": "Alt1DataPngLoader",
+	"runeappsLibNameRoot": "Alt1Webpack",
 	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.bundle.js",
 	"types": "./types/",
@@ -11,11 +10,8 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"dependencies": {
-		"@alt1/base": "^0.0.5"
-	},
+	"dependencies": {},
 	"scripts": {
 		"build": "node ../../buildutil.js"
-	},
-	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
+	}
 }

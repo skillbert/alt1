@@ -3,32 +3,12 @@
 	"runeappsRootPackage": true,
 	"scripts": {
 		"build": "lerna run build -- -- -p --types",
-		"pretty-build": "lerna run build -- -- -p --nougly",
+		"pretty-build": "lerna run build -- -- --nougly",
 		"start": "lerna run build -- -- --watch",
 		"types": "tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes",
 		"clean": "node -r ./scripts/ts ./scripts/clean",
+		"link": "lerna exec -- npm link",
 		"build-release": "npm run clean & npm run build & npm run types"
-	},
-	"dependencies": {
-		"@alt1/ability-reader": "file:alt1\\ability",
-		"@alt1/abilitytooltip-reader": "file:alt1\\abilitytooltip",
-		"@alt1/animal-reader": "file:alt1\\animal",
-		"@alt1/base": "file:alt1\\base",
-		"@alt1/buffs-reader": "file:alt1\\buffs",
-		"@alt1/chatbox": "file:alt1\\chatbox",
-		"@alt1/datapng-loader": "file:alt1\\datapng-loader",
-		"@alt1/font-loader": "file:alt1\\font-loader",
-		"@alt1/imagedata-loader": "file:alt1\\imagedata-loader",
-		"@alt1/ocr": "file:alt1\\ocr",
-		"@alt1/targetmob": "file:alt1\\targetmob",
-		"autobind-decorator": "^2.4.0",
-		"react": "^16.9.0",
-		"react-dom": "^16.9.0",
-		"sharp": "^0.24.0"
-	},
-	"peerDependencies": {
-		"react": "^16.8.6",
-		"react-dom": "^16.8.6"
 	},
 	"devDependencies": {
 		"@types/glob": "^5.0.35",
@@ -47,7 +27,7 @@
 		"glob": "^7.1.2",
 		"html-webpack-plugin": "^3.2.0",
 		"json-loader": "^0.5.7",
-		"lerna": "^3.13.4",
+		"lerna": "^3.22.1",
 		"source-map-loader": "^0.2.3",
 		"style-loader": "^0.21.0",
 		"ts-loader": "^4.4.2",

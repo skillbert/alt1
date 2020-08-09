@@ -10,11 +10,21 @@ import * as WebpackChain from "webpack-chain";
 //daslkjdsalkdjqlkewjqwlkejqewwqe
 //webpack-chain is so fucking dumb 
 
-var nodeCompatExternals = ["node-fetch", "sharp"];
+//sharp will crash if loaded after canvas because of a weird common dependency, so make sure they are always loaded in the correct order
+var cnvcode = `(()=>{
+	/*sharp crashes if loaded after canvas because of weird common dependency*/
+	if(typeof require!="undefined"){
+		try{require("sharp");}catch(e){}
+		return require("canvas");
+	}
+	return null;
+})()`;
 
-
-//no types so import like this
-//var UglifyJSPlugin: any = require("uglifyjs-webpack-plugin");
+var nodeCompatExternals = {
+	"node-fetch": { commonjs: "node-fetch", code: "null" },
+	"sharp": { commonjs: "sharp", code: "null" },
+	"canvas": { commonjs: undefined, code: cnvcode }
+};
 
 function constructApply(fn: Function, args: any) {
 	return new (Function.prototype.bind.apply(fn, args));
@@ -25,15 +35,14 @@ declare module "webpack-chain" {
 	export interface Rule {
 		oneOf(name: string): WebpackChain.Rule;
 	}
-
 }
 
 export default class Alt1Chain {
 	rootdir: string;
-	private externalMap: webpack.ExternalsObjectElement = {};
 	tsconfigfile: string | undefined = undefined;
 	tsOptions: any;
 	chain: WebpackChain;
+	opts: Alt1WebpackOpts;
 	constructor(rootdir: string, opts?: Partial<Alt1WebpackOpts>) {
 		this.chain = new WebpackChain();
 		this.chain.context(rootdir);
@@ -80,8 +89,12 @@ export default class Alt1Chain {
 		if ((conf as any).node["false"]) { conf.node = false; }
 		return conf;
 	}
-	addExternal(id: string, packname: string, windowExport: string) {
-		this.externalMap[id] = { root: windowExport, commonjs: packname, commonjs2: packname, amd: packname } as any;
+	addExternal(id: string, packname: string | null, windowExportCode: string) {
+		let arr = this.chain.get("externals");
+		let str = (packname ? `(typeof require!="undefined"?require("${packname}"):${windowExportCode})` : windowExportCode);
+		arr.push({ [id]: str });
+
+		//	arr.push({ [id]: { root: windowExport, commonjs: packname, commonjs2: packname, amd: packname } });
 	}
 	useTsconfigPaths() {
 		this.chain.resolve.plugin("tsconfigpaths").use(TsconfigPathsPlugin as any).init((cl) => {
@@ -96,20 +109,21 @@ export default class Alt1Chain {
 		});
 	}
 
-	production(prod: boolean, hotproxy?: string) {
+	production(prod: boolean, sourcemaps: boolean, enablehot: boolean, hotproxy?: string) {
 		this.chain.mode(prod ? "production" : "development");
-		this.chain.devtool(prod ? "source-map" : 'eval-source-map');
-		if (!prod && webpack.HotModuleReplacementPlugin) { this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin).init(constructApply); }
+		this.chain.devtool(sourcemaps ? (prod ? "source-map" : 'eval-source-map') : "" as any);
+
+		if (!prod && enablehot && webpack.HotModuleReplacementPlugin) { this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin).init(constructApply); }
 		else { this.chain.plugins.delete("hotmodule"); }
 		this.chain.devServer.clear();
-		if (!prod) {
+		if (!prod && enablehot) {
 			this.chain.devServer
 				.hot(true)
 				.proxy({ "*": (hotproxy || "http://localhost/") })
 				.port(8088);
 		}
-		this.chain.output.filename(prod ? "[name].min.js" : "[name].js");
-		this.chain.output.chunkFilename(prod ? "[name]_[id].min.js" : "[name]_[id].min.js");
+		this.chain.output.filename("[name].bundle.js");
+		this.chain.output.chunkFilename("[name]_[id].bundle.js");
 	}
 
 	ugly(ugly: boolean) {
@@ -118,7 +132,7 @@ export default class Alt1Chain {
 		this.chain.optimization.minimize(ugly);
 	}
 
-	dropconsole(drop: boolean) {
+	dropconsole() {
 		//TODO this causes errors as webpack now uses terser plugin for minification
 		/*
 		this.chain.optimization.minimizer("uglifyjs-webpack-plugin")
@@ -127,20 +141,19 @@ export default class Alt1Chain {
 			.init(constructApply)
 			*/
 	}
-	nodejs(node: boolean) {
-		this.chain.target(node ? "node" : "web");
-		var ext: webpack.ExternalsElement[] = [];
-		if (node) { ext.push(webpackNodeExternals({ modulesFromFile: true, modulesDir: this.rootdir }) as any); }
-		ext.push(this.externalMap);
-		this.chain.externals(ext);
+	nodejs() {
+		this.chain.target("node");
+		let arr = this.chain.get("externals");
+		arr.push(webpackNodeExternals({ modulesFromFile: true, modulesDir: this.rootdir }));
 	}
 
 	configureOpts(override?: Partial<Alt1WebpackOpts>) {
 		var opts = { ...getCmdConfig(), ...override };
-		this.production(opts.production);
+		this.opts = opts;
+		this.production(opts.production, opts.sourcemaps, opts.hotEnable, opts.hotProxy);;
 		this.ugly(opts.ugly);
-		this.dropconsole(opts.dropConsole);
-		this.nodejs(opts.nodejs);
+		if (opts.dropConsole) { this.dropconsole(); }
+		if (opts.nodejs) { this.nodejs(); }
 
 		if (opts.esnext) { this.tsOptions.compilerOptions.target = "es2018"; }
 	}
@@ -151,8 +164,9 @@ export default class Alt1Chain {
 		this.chain.resolve.extensions.clear().merge([".wasm", ".tsx", ".ts", ".mjs", ".jsx", ".js", ".json"]);
 
 		this.chain.output.globalObject("(typeof self!='undefined'?self:this)");
-		for (var ext of nodeCompatExternals) {
-			this.addExternal(ext, ext, ext);
+		this.chain.externals([]);
+		for (var ext in nodeCompatExternals) {
+			this.addExternal(ext, nodeCompatExternals[ext].commonjs, nodeCompatExternals[ext].code);
 		}
 
 		this.chain.module.rule("typescript")
@@ -170,7 +184,7 @@ export default class Alt1Chain {
 		this.chain.module.rule("imagefiles")
 			.oneOf("datapng")
 			.test(/\.data\.png$/i)
-			.use("datapng").loader("imagedata-loader");
+			.use("datapng").loader("@alt1/imagedata-loader");
 		this.chain.module.rule("imagefiles")
 			.oneOf("image")
 			.test(/\.(png|jpg|gif)$/i)
@@ -182,7 +196,7 @@ export default class Alt1Chain {
 		this.chain.module.rule("jsonfile")
 			.test(/\.fontmeta\.json$/)
 			.oneOf("fontmeta")
-			.use("font-loader").loader("font-loader");
+			.use("font-loader").loader("@alt1/font-loader");
 		this.chain.module.rule("html")
 			.test(/\.html$/)
 			.use("file").loader("file-loader").options({ name: "[path][name].[ext]" });
@@ -195,8 +209,10 @@ export type Alt1WebpackOpts = {
 	production: boolean,
 	esnext: boolean,
 	ugly: boolean,
+	hotEnable: boolean,
 	hotProxy: string,
-	nodejs: boolean
+	nodejs: boolean,
+	sourcemaps: boolean
 };
 
 export type NpmConfig = {
@@ -211,10 +227,12 @@ export type NpmConfig = {
 
 export function getCmdConfig() {
 	var baseopts: Alt1WebpackOpts = {
+		sourcemaps: true,
 		production: false,
 		dropConsole: false,
 		esnext: false,
 		ugly: false,
+		hotEnable: false,
 		hotProxy: "",
 		nodejs: false
 	};

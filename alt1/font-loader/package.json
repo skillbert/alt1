@@ -4,7 +4,7 @@
 	"runeappsTarget": "node",
 	"runeappsLibNameRoot": "Alt1FontLoader",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.min.js",
+	"main": "./dist/index.bundle.js",
 	"types": "./types/",
 	"author": "Skillbert",
 	"version": "0.0.5",

@@ -14,10 +14,6 @@ var imgs = a1lib.ImageDetect.webpackImages({
 	sumpoints: require("./actionbarimgs/sumpoints.data.png"),
 });
 
-export function shakemepls() {
-	console.log("I'm not shaken");
-}
-
 export type LifeState = {
 	hp: number,
 	dren: number,
