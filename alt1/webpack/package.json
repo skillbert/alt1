@@ -7,14 +7,14 @@
 	"main": "./dist/index.bundle.js",
 	"types": "./types/",
 	"author": "Skillbert",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
 		"tsconfig-paths-webpack-plugin": "^3.3.0",
-		"webpack-node-externals": "^2.5.1",
-		"webpack-chain": "^6.5.1"
+		"webpack-chain": "^6.5.1",
+		"webpack-node-externals": "^2.5.1"
 	},
 	"bin": {
 		"symlinkalt1": "./bin/linkutil.js"
