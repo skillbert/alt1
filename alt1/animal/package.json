@@ -1,5 +1,5 @@
 {
-	"name": "@alt1/animal-reader",
+	"name": "@alt1/animal",
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "AnimalReader",
 	"runeappsLibEntry": "./index.ts",

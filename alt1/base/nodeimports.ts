@@ -1,14 +1,27 @@
 //keep the nastyness in one file
 //TODO this used to be nastier, can probly inline it again
+//commented out type info as that breaks webpack with optional dependencies
+
+declare var __non_webpack_require__: any;
 
 export function requireNodeFetch() {
-	return require("node-fetch") as typeof fetch;
+	if (typeof __non_webpack_require__ != "undefined") {
+		return __non_webpack_require__("node-fetch") as typeof fetch;
+	}
+	throw new Error("couldn't find built-in 'fetch' or the module 'node-fetch'");
 }
 
 export function requireNodeCanvas() {
-	return require("canvas") as typeof import("canvas");
+	if (typeof __non_webpack_require__ != "undefined") {
+		try { requireSharp(); } catch (e) { }
+		return __non_webpack_require__("canvas") as typeof import("canvas");
+	}
+	throw new Error("couldn't find built-in canvas or the module 'canvas'");
 }
 
 export function requireSharp() {
-	return require("sharp") as typeof import("sharp");
+	if (typeof __non_webpack_require__ != "undefined") {
+		return __non_webpack_require__("sharp") as typeof import("sharp");
+	}
+	throw new Error("coulnd't find build-in image compression methods or the module 'sharp'");
 }

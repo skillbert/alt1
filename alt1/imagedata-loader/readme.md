@@ -1,5 +1,5 @@
 # Alt1 ImageData Loader
-This loader loads png images as ImageBuffer objects to use their raw pixels. Using this loader will fix several pitfalls with the png specification. In particular it removes the aRGB header to prevent discoloration of the rwa pixels.
+This loader loads png images as ImageBuffer objects to use their raw pixels. Using this loader will fix several pitfalls with the png specification. In particular it removes the sRGB header to prevent discoloration of the raw pixels.
 This loader returns a `Promise` which resolves to an `ImageData` object.
 
 ## Installation

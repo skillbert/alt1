@@ -1,8 +1,8 @@
 import * as webpack from "webpack";
 import * as path from "path";
 import * as glob from "glob";
-import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import * as fs from "fs";
+import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import * as webpackNodeExternals from "webpack-node-externals";
 import * as WebpackChain from "webpack-chain";
 //import Config = require("webpack-chain");
@@ -10,21 +10,20 @@ import * as WebpackChain from "webpack-chain";
 //daslkjdsalkdjqlkewjqwlkejqewwqe
 //webpack-chain is so fucking dumb 
 
-//sharp will crash if loaded after canvas because of a weird common dependency, so make sure they are always loaded in the correct order
-var cnvcode = `(()=>{
-	/*sharp crashes if loaded after canvas because of weird common dependency*/
-	if(typeof require!="undefined"){
-		try{require("sharp");}catch(e){}
-		return require("canvas");
-	}
-	return null;
-})()`;
-
-var nodeCompatExternals = {
-	"node-fetch": { commonjs: "node-fetch", code: "null" },
-	"sharp": { commonjs: "sharp", code: "null" },
-	"canvas": { commonjs: undefined, code: cnvcode }
-};
+// //sharp will crash if loaded after canvas because of a weird common dependency, so make sure they are always loaded in the correct order
+// var cnvcode = `(()=>{
+// 	/* sharp crashes if loaded after canvas because of weird common dependency */
+// 	if(typeof require!="undefined"){
+// 		try{require("sharp");}catch(e){}
+// 		return require("canvas");
+// 	}
+// 	return null;
+// })()`;
+// var nodeCompatExternals = {
+// 	"node-fetch": { commonjs: "node-fetch", code: "null" },
+// 	"sharp": { commonjs: "sharp", code: "null" },
+// 	"canvas": { commonjs: undefined, code: cnvcode }
+// };
 
 function constructApply(fn: Function, args: any) {
 	return new (Function.prototype.bind.apply(fn, args));
@@ -42,7 +41,7 @@ export default class Alt1Chain {
 	tsconfigfile: string | undefined = undefined;
 	tsOptions: any;
 	chain: WebpackChain;
-	opts: Alt1WebpackOpts;
+	opts!: Alt1WebpackOpts;
 	constructor(rootdir: string, opts?: Partial<Alt1WebpackOpts>) {
 		this.chain = new WebpackChain();
 		this.chain.context(rootdir);
@@ -89,12 +88,9 @@ export default class Alt1Chain {
 		if ((conf as any).node["false"]) { conf.node = false; }
 		return conf;
 	}
-	addExternal(id: string, packname: string | null, windowExportCode: string) {
+	addExternal(id: string, packname: string | null, windowExport = "null") {
 		let arr = this.chain.get("externals");
-		let str = (packname ? `(typeof require!="undefined"?require("${packname}"):${windowExportCode})` : windowExportCode);
-		arr.push({ [id]: str });
-
-		//	arr.push({ [id]: { root: windowExport, commonjs: packname, commonjs2: packname, amd: packname } });
+		arr.push({ [id]: { root: windowExport, commonjs: packname, commonjs2: packname, amd: packname } });
 	}
 	useTsconfigPaths() {
 		this.chain.resolve.plugin("tsconfigpaths").use(TsconfigPathsPlugin as any).init((cl) => {
@@ -165,9 +161,9 @@ export default class Alt1Chain {
 
 		this.chain.output.globalObject("(typeof self!='undefined'?self:this)");
 		this.chain.externals([]);
-		for (var ext in nodeCompatExternals) {
-			this.addExternal(ext, nodeCompatExternals[ext].commonjs, nodeCompatExternals[ext].code);
-		}
+		// for (var ext in nodeCompatExternals) {
+		// 	this.addExternal(ext, nodeCompatExternals[ext].commonjs, nodeCompatExternals[ext].code);
+		// }
 
 		this.chain.module.rule("typescript")
 			.test(/\.(ts|tsx)$/)
@@ -221,6 +217,7 @@ export type NpmConfig = {
 	runeappsRootPackage?: boolean,
 	types?: string,
 	runeappsLibNameRoot?: string,
+	runeappsTarget?: "combined" | "node",
 	dependencies: { [name: string]: string },
 	optionalDependencies: { [name: string]: string }
 };
@@ -263,13 +260,14 @@ export function getCmdConfig() {
 export function getPackageInfo(fileabs: string) {
 	var cnf = JSON.parse(fs.readFileSync(fileabs, { encoding: "utf-8" })) as Partial<NpmConfig>
 	if (!cnf.name) { throw "no package name on " + fileabs; }
-	if (!cnf.runeappsRootPackage && !cnf.umdGlobal && !cnf.runeappsLibNameRoot) { throw "no umdGlobal on " + fileabs; }
+	if (!cnf.runeappsRootPackage && !cnf.umdGlobal && !cnf.runeappsLibNameRoot) { throw new Error("no umdGlobal on " + fileabs); }
 
 	return {
 		dir: path.dirname(fileabs),
 		name: cnf.name,
 		types: cnf.types,
-		umdName: cnf.umdGlobal || cnf.runeappsLibNameRoot,
+		target: cnf.runeappsTarget || "combined",
+		umdName: cnf.umdGlobal || cnf.runeappsLibNameRoot || cnf.name || "",
 		dependencies: cnf.dependencies || {},
 		optionalDependencies: cnf.optionalDependencies || {}
 	};

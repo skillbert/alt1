@@ -8,7 +8,7 @@ var cnf = chainAlt1Lib(__dirname);
 var configs = [cnf];
 
 var fontdir = path.resolve(__dirname, "fonts");
-var files = fs.readdirSync(fontdir);debugger;
+var files = fs.readdirSync(fontdir);
 for (var file of files) {
 	var m = file.match(/([\w-]+)\.fontmeta\.json$/i);
 	if (m) {
@@ -17,7 +17,7 @@ for (var file of files) {
 		fontcnf.chain.output.path(path.resolve(__dirname, "./dist"));
 		fontcnf.makeUmd(m[1], m[1]);
 		fontcnf.entry(name,path.resolve(fontdir,file));
-		addAlt1Externals(fontcnf);
+		//addAlt1Externals(fontcnf);
 		configs.push(fontcnf);
 	}
 }

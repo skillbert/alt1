@@ -14,6 +14,7 @@ declare global {
 			maxImages: number;
 		}
 
+		toDrawableData(): ImageData;
 		toImage(rect?: a1lib.RectLike): HTMLCanvasElement;
 
 		getPixel(x: number, y: number): [number, number, number, number];
@@ -50,17 +51,62 @@ type ImageDataConstr = {
 //export this so node.js can also use it
 export var ImageData: ImageDataConstr;
 
-//TODO revamp this madness a bit?
+// //TODO revamp this madness a bit?
+// (function () {
+// 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
+// 	//use the node-canvas version when on node
+// 	if (typeof globalvar.ImageData == "undefined") {
+// 		let nodecnv = requireNodeCanvas();
+// 		globalvar.ImageData = nodecnv.ImageData;
+// 	}
+// 	var fill = typeof globalvar.ImageData == "undefined";
+
+// 	//should never be reach anymore
+// 	var constr = function (this: any) {
+// 		var i = 0;
+// 		var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
+// 		var width = arguments[i++];
+// 		var height = arguments[i++];
+
+// 		if (fill) {
+// 			if (!data) { data = new Uint8ClampedArray(width * height * 4); }
+// 			this.width = width;
+// 			this.height = height;
+// 			this.data = data;
+// 		}
+// 		else if (oldconstr) {
+// 			return (data ? new oldconstr(data, width, height) : new oldconstr(width, height));
+// 		} else {
+// 			var canvas = document.createElement('canvas');
+// 			canvas.width = width;
+// 			canvas.height = height;
+// 			var ctx = canvas.getContext("2d")!;
+// 			var imageData = ctx.createImageData(width, height);
+// 			if (data) { imageData.data.set(data); }
+// 			return imageData;
+// 		}
+// 	}
+
+// 	var oldconstr = globalvar.ImageData;
+// 	if (typeof document != "undefined") {
+// 		try {
+// 			new oldconstr(1, 1);
+// 		} catch (e) {
+// 			//direct constructor call not allowed in ie
+// 			oldconstr = null;
+// 		}
+// 	}
+
+// 	if (!fill) { constr.prototype = globalvar.ImageData.prototype; }
+// 	globalvar.ImageData = constr;
+// 	ImageData = constr as any;
+// })();
+
+
 (function () {
 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
-	//use the node-canvas version when on node
-	if (typeof globalvar.ImageData == "undefined") {
-		let nodecnv = requireNodeCanvas();
-		globalvar.ImageData = nodecnv.ImageData;
-	}
-	var fill = typeof globalvar.ImageData == "undefined";
+	var fill = typeof globalvar.ImageData == "undefined" || typeof globalvar.document == "undefined";
 
-	//should never be reach anymore
 	var constr = function (this: any) {
 		var i = 0;
 		var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
@@ -73,9 +119,7 @@ export var ImageData: ImageDataConstr;
 			this.height = height;
 			this.data = data;
 		}
-		else if (oldconstr) {
-			return (data ? new oldconstr(data, width, height) : new oldconstr(width, height));
-		} else {
+		else {
 			var canvas = document.createElement('canvas');
 			canvas.width = width;
 			canvas.height = height;
@@ -85,23 +129,20 @@ export var ImageData: ImageDataConstr;
 			return imageData;
 		}
 	}
-
-	var oldconstr = globalvar.ImageData;
-	if (typeof document != "undefined") {
-		try {
-			new oldconstr(1, 1);
-		} catch (e) {
-			//direct constructor call not allowed in ie
-			oldconstr = null;
-		}
-	}
-
 	if (!fill) { constr.prototype = globalvar.ImageData.prototype; }
 	globalvar.ImageData = constr;
 	ImageData = constr as any;
 })();
 
-
+//Recast into a drawable imagedata class on all platforms, into a normal browser ImageData on browsers or a node-canvas imagedata on nodejs
+ImageData.prototype.toDrawableData = function () {
+	if (typeof document == "undefined") {
+		let nodecnv = requireNodeCanvas();
+		return new nodecnv.ImageData(this.data, this.width, this.height);
+	} else {
+		return this;
+	}
+}
 
 ImageData.prototype.putImageData = function (buf, cx, cy) {
 	for (var dx = 0; dx < buf.width; dx++) {

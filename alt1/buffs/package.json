@@ -1,5 +1,5 @@
 {
-	"name": "@alt1/buffs-reader",
+	"name": "@alt1/buffs",
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "BuffsReader",
 	"runeappsLibEntry": "./index.ts",

@@ -18,6 +18,5 @@
 	"scripts": {
 		"build": "node ../../buildutil.js"
 	},
-	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd",
-	"dependencies": {}
+	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
 }
