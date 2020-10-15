@@ -73,7 +73,7 @@ export default class ChatBoxReader {
 		colors: defaultcolors.map(c => a1lib.mixColor(c[0], c[1], c[2]))
 	};
 
-	lineheight = 14;
+	lineheight = 15;
 	minoverlap = 2;
 	diffRead = true;
 
@@ -181,7 +181,13 @@ export default class ChatBoxReader {
 			}
 			else {
 				var pixel = img.toData(loc.x, loc.y - 2, 1, 1);
+				var pixel2 = img.toData(loc.x, loc.y - 1, 1, 1);
 				if (pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255) {
+					botlefts.push(loc);
+				}
+				//the weird offset again
+				else if (pixel2.data[0] == 255 && pixel2.data[1] == 255 && pixel2.data[2] == 255) {
+					loc.y -= 1;
 					botlefts.push(loc);
 				}
 				else {
@@ -255,9 +261,9 @@ export default class ChatBoxReader {
 
 			if (!group.leftfound && group.topright.type == "full") {
 				var pos: a1lib.PointLike[] = [];
-				if (pos.length == 0) { pos = img.findSubimage(imgs.gameall, group.rect.x - 300, group.rect.y - 22, 310, 16); }
-				if (pos.length == 0) { pos = img.findSubimage(imgs.gamefilter, group.rect.x - 300, group.rect.y - 22, 310, 16); }
-				if (pos.length == 0) { pos = img.findSubimage(imgs.gameoff, group.rect.x - 300, group.rect.y - 22, 310, 16); }
+				if (pos.length == 0) { pos = img.findSubimage(imgs.gameall, Math.max(0, group.rect.x - 300), group.rect.y - 22, 310, 16); }
+				if (pos.length == 0) { pos = img.findSubimage(imgs.gamefilter, Math.max(0, group.rect.x - 300), group.rect.y - 22, 310, 16); }
+				if (pos.length == 0) { pos = img.findSubimage(imgs.gameoff, Math.max(0, group.rect.x - 300), group.rect.y - 22, 310, 16); }
 				if (pos.length != 0) {
 					group.leftfound = true;
 					var d = group.rect.x - pos[0].x;
@@ -270,7 +276,7 @@ export default class ChatBoxReader {
 
 
 			group.line0x = 0;
-			group.line0y = group.rect.height - 10;//- 9;//-10 before mobile interface update
+			group.line0y = group.rect.height - 11;//- 9;//-10 before mobile interface update
 
 			if (group.leftfound) { group.timestamp = this.checkTimestamp(img, group); }
 			if (mainbox == null || group.type == "main") { mainbox = group; }
@@ -293,11 +299,22 @@ export default class ChatBoxReader {
 			var y = pos.rect.y + pos.line0y - line * this.lineheight;
 			var x = pos.rect.x + pos.line0x;
 			x += 3;//the leading '[' can't be the positioning char
-			var str: any = null;
-			try {
-				str = JSON.parse(alt1.bindReadStringEx(img.handle, x, y, JSON.stringify(readargs)));
-			} catch (e) { }
-			if (str && str.text.match(/^\d\d:\d\d:\d\d/)) { return true; }
+			for (var offset = 0; offset >= (pos.leftfound ? 0 : -200); offset -= 10) {
+				var str: any = null;
+				try { str = JSON.parse(alt1.bindReadStringEx(img.handle, x + offset, y, JSON.stringify(readargs))); }
+				catch (e) { }
+
+				if (str && str.text.match(/^\d\d:\d\d:\d\d/)) {
+					if (!pos.leftfound) {
+						var d = offset + 10;
+						pos.rect.x += d;
+						pos.rect.width -= d;
+						//not an exact pos but better guess
+					}
+
+					return true;
+				}
+			}
 		}
 		return false;
 	}
