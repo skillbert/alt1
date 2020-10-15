@@ -90,9 +90,6 @@ export function unblendKnownBg(img: ImageData, bgimg: ImageData, shadow: boolean
 		}
 		rimg.data[i + 3] = 255;
 	}
-	if (shadow) {
-		console.log("avg unblend px error:" + (totalerror / img.width / img.height * 100).toFixed(1) + "%");
-	}
 	return rimg;
 }
 

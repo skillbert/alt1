@@ -12,5 +12,15 @@ export * from "./imgref";
 export * from "./wrapper";
 
 
-//export type StringMap<T> = { [key: string]: T; }
-//export type NumberMap<T> = { [key: number]: T; }
+// // syntax not yet supported in webpack
+// // this should improve tree shaking
+// import "./declarations";
+
+// export * as ImageDetect from "./imagedetect";
+// export * as PasteInput from "./pasteinput";
+// export { default as Rect, RectLike, PointLike } from "./rect";
+// export { ImageData } from "./imagedata-extensions";
+
+// export * from "./imgref";
+// export * from "./wrapper";
+

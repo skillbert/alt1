@@ -3,6 +3,8 @@ import * as OCR from "@alt1/ocr";
 import ActionbarReader, { LifeState } from "./actionbar";
 import { Rect, ImgRef, captureAsync } from "@alt1/base";
 
+export { default as ActionbarReader } from "./actionbar";
+
 export interface AbilityInfoBare { id: string, icon: ImageData, cooldown: number };
 
 var cdfont = require("@alt1/ocr/fonts/pixel_digits_8px_shadow.fontmeta.json");

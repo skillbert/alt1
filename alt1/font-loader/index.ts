@@ -23,7 +23,7 @@ function cloneImage(img: ImageData, x, y, w, h) {
 	return clone;
 }
 
-export default async function (this: loader.LoaderContext, source: string) {
+export default function (this: loader.LoaderContext, source: string) {
 	this.cacheable(true);
 	var me = this;
 	var meta = JSON.parse(source) as FontMeta;
@@ -31,44 +31,45 @@ export default async function (this: loader.LoaderContext, source: string) {
 
 	this.addDependency(meta.img);
 	this.async();
-	//TODO make sure the image doesn't contain the srgb header
 
-	var bytes = await new Promise((done, err) => {
-		this.fs.readFile(meta.img, (e, buf) => {
-			if (e) { err(e); }
-			done(buf);
-		})
-	}) as Buffer;
-	var byteview = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-	a1lib.ImageDetect.clearPngColorspace(byteview);
-	//currently still need the sharp package instead of node-canvas for this to prevent losing precision due to premultiplied alphas
-	var imgfile = sharp(bytes);
-	var imgdata = await imgfile.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-	var img = new a1lib.ImageData(new Uint8ClampedArray(imgdata.data.buffer), imgdata.info.width, imgdata.info.height);
-	if (imgdata.info.premultiplied) { console.warn("png unpacking used premultiplied alpha, pixels with low alpha values have suffered loss of presicion in rgb channels"); }
+	(async () => {
+		var bytes = await new Promise((done, err) => {
+			this.fs.readFile(meta.img, (e, buf) => {
+				if (e) { err(e); }
+				done(buf);
+			})
+		}) as Buffer;
+		var byteview = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+		a1lib.ImageDetect.clearPngColorspace(byteview);
+		//currently still need the sharp package instead of node-canvas for this to prevent losing precision due to premultiplied alphas
+		var imgfile = sharp(bytes);
+		var imgdata = await imgfile.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+		var img = new a1lib.ImageData(new Uint8ClampedArray(imgdata.data.buffer), imgdata.info.width, imgdata.info.height);
+		if (imgdata.info.premultiplied) { console.warn("png unpacking used premultiplied alpha, pixels with low alpha values have suffered loss of presicion in rgb channels"); }
 
-	var bg: ImageData | null = null;
-	var pxheight = img.height - 1;
-	if (meta.unblendmode == "removebg") { pxheight /= 2; }
-	var inimg = cloneImage(img, 0, 0, img.width, pxheight);
-	var outimg: ImageData;
-	if (meta.unblendmode == "removebg") {
-		bg = cloneImage(img, 0, pxheight + 1, img.width, pxheight);
-		outimg = OCR.unblendKnownBg(inimg, bg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
-	} else if (meta.unblendmode == "raw") {
-		outimg = OCR.unblendTrans(inimg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
-	} else if (meta.unblendmode == "blackbg") {
-		outimg = OCR.unblendBlackBackground(inimg, meta.color[0], meta.color[1], meta.color[2])
-	} else {
-		throw "no unblend mode";
-	}
-	var unblended = new a1lib.ImageData(img.width, pxheight + 1);
-	outimg.copyTo(unblended, 0, 0, outimg.width, outimg.height, 0, 0);
-	img.copyTo(unblended, 0, pxheight, img.width, 1, 0, pxheight);
+		var bg: ImageData | null = null;
+		var pxheight = img.height - 1;
+		if (meta.unblendmode == "removebg") { pxheight /= 2; }
+		var inimg = cloneImage(img, 0, 0, img.width, pxheight);
+		var outimg: ImageData;
+		if (meta.unblendmode == "removebg") {
+			bg = cloneImage(img, 0, pxheight + 1, img.width, pxheight);
+			outimg = OCR.unblendKnownBg(inimg, bg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
+		} else if (meta.unblendmode == "raw") {
+			outimg = OCR.unblendTrans(inimg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
+		} else if (meta.unblendmode == "blackbg") {
+			outimg = OCR.unblendBlackBackground(inimg, meta.color[0], meta.color[1], meta.color[2])
+		} else {
+			throw "no unblend mode";
+		}
+		var unblended = new a1lib.ImageData(img.width, pxheight + 1);
+		outimg.copyTo(unblended, 0, 0, outimg.width, outimg.height, 0, 0);
+		img.copyTo(unblended, 0, pxheight, img.width, 1, 0, pxheight);
 
-	var font = OCR.generatefont(unblended, meta.chars, meta.seconds, meta.bonus || {}, meta.basey, meta.spacewidth, meta.treshold, meta.shadow);
+		var font = OCR.generatefont(unblended, meta.chars, meta.seconds, meta.bonus || {}, meta.basey, meta.spacewidth, meta.treshold, meta.shadow);
 
-	me.callback(null, JSON.stringify(font));
+		me.callback(null, JSON.stringify(font));
+	})()
 };
 
 

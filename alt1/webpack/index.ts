@@ -54,7 +54,11 @@ export default class Alt1Chain {
 				this.tsconfigfile = file;
 				var tsconfig = JSON.parse(fs.readFileSync(file, "utf8").replace(/^[^{}]+/, ""));
 				tsconfig.compilerOptions.module = "esnext";//enables tree shaking
-				this.tsOptions = { compilerOptions: tsconfig.compilerOptions, appendTsSuffixTo: [/\.vue$/] };
+				this.tsOptions = {
+					compilerOptions: tsconfig.compilerOptions,
+					appendTsSuffixTo: [/\.vue$/],
+					allowTsInNodeModules: !!tsconfig.allowTsInNodeModules
+				};
 				break;
 			}
 
@@ -80,6 +84,7 @@ export default class Alt1Chain {
 	makeUmd(name: string, windowExport: string) {
 		this.chain.output.libraryTarget("umd");
 		this.chain.output.set("library", { root: windowExport, commonjs: name, amd: name });
+		this.chain.output.jsonpFunction(name);
 	}
 
 	toConfig() {
@@ -109,7 +114,9 @@ export default class Alt1Chain {
 		this.chain.mode(prod ? "production" : "development");
 		this.chain.devtool(sourcemaps ? (prod ? "source-map" : 'eval-source-map') : "" as any);
 
-		if (!prod && enablehot && webpack.HotModuleReplacementPlugin) { this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin).init(constructApply); }
+		if (!prod && enablehot && webpack.HotModuleReplacementPlugin) {
+			this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin).init(constructApply);
+		}
 		else { this.chain.plugins.delete("hotmodule"); }
 		this.chain.devServer.clear();
 		if (!prod && enablehot) {
@@ -119,7 +126,7 @@ export default class Alt1Chain {
 				.port(8088);
 		}
 		this.chain.output.filename("[name].bundle.js");
-		this.chain.output.chunkFilename("[name]_[id].bundle.js");
+		this.chain.output.chunkFilename(prod ? "[name]_[chunkhash].bundle.js" : "[name].bundle.js");
 	}
 
 	ugly(ugly: boolean) {
@@ -227,7 +234,7 @@ export function getCmdConfig() {
 		sourcemaps: true,
 		production: false,
 		dropConsole: false,
-		esnext: false,
+		esnext: true,
 		ugly: false,
 		hotEnable: false,
 		hotProxy: "",
