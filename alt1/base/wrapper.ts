@@ -495,6 +495,7 @@ export async function captureMultiAsync<T extends { [id: string]: RectLike | nul
 		if (areas[id]) { capts.push(areas[id]!); captids.push(id); }
 		else { r[id] = null; }
 	}
+	if (capts.length == 0) { return r; }
 	if (!hasAlt1Version("1.5.1")) {
 		var proms = [] as Promise<ImageData>[];
 		for (var a = 0; a < capts.length; a++) { proms.push(captureAsync(capts[a], format, quality)); }
