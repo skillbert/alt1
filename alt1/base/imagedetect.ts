@@ -83,24 +83,44 @@ export function clearPngColorspace(data: Uint8Array) {
 	var i = 8;
 	while (i < data.length) {
 		var length = data[i++] * 0x1000000 + data[i++] * 0x10000 + data[i++] * 0x100 + data[i++];
-		var chunkname = String.fromCharCode(data[i++], data[i++], data[i++], data[i++]);
-		//qw(chunkname, length);
-		if (chunkname == "sRGB") {
-			//Set render intent to absole colormetric, this forces browsers to not mess with the image
-			console.log("- Changed sRGB, old value:", data[i]);
-			//new chunk data
-			data[i] = 3;
+		var ancillary = !!((data[i] >> 5) & 1);
+		var chunkname = String.fromCharCode(data[i], data[i + 1], data[i + 2], data[i + 3]);
+		var chunkid = chunkname.toLowerCase();
+		if (chunkid != "trns" && ancillary) {
+			data[i + 0] = "n".charCodeAt(0);
+			data[i + 1] = "o".charCodeAt(0);
+			data[i + 2] = "P".charCodeAt(0);
+			data[i + 3] = "E".charCodeAt(0);
+
+			//calculate new chunk checksum
+			//http://www.libpng.org/pub/png/spec/1.2/PNG-CRCAppendix.html
+			var end = i + 4 + length;
+			var crc = 0xffffffff;
+
+			//should be fast enough like this
+			var bitcrc = function (bit: number) {
+				for (var k = 0; k < 8; k++) {
+					if (bit & 1) { bit = 0xedb88320 ^ (bit >>> 1); }
+					else { bit = bit >>> 1; }
+				}
+				return bit;
+			}
+			for (var a = i; a < end; a++) {
+				if (a >= i + 4) { data[a] = 0; }
+				var bit = data[a];
+				crc = bitcrc((crc ^ bit) & 0xff) ^ (crc >>> 8);
+			}
+			crc = crc ^ 0xffffffff;
 			//new chunk checksum
-			data[i + length + 0] = 0x37;
-			data[i + length + 1] = 0xc7;
-			data[i + length + 2] = 0x4d;
-			data[i + length + 3] = 0x53;
+			data[i + 4 + length + 0] = (crc >> 24) & 0xff;
+			data[i + 4 + length + 1] = (crc >> 16) & 0xff;
+			data[i + 4 + length + 2] = (crc >> 8) & 0xff;
+			data[i + 4 + length + 3] = (crc >> 0) & 0xff;
 		}
-		if (chunkname == "IEND") {
-			break;
-		}
-		i += length;
-		i += 4;
+		if (chunkname == "IEND") { break; }
+		i += 4;//type
+		i += length;//data
+		i += 4;//crc
 	}
 }
 
