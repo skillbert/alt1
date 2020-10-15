@@ -8,8 +8,9 @@
 		"start": "lerna run build -- -- --watch",
 		"types": "tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes",
 		"clean": "node -r ./scripts/ts ./scripts/clean",
-		"link": "lerna exec -- npm link",
-		"build-release": "npm run clean & npm run build & npm run types"
+		"link": "lerna exec -- npm link & lerna link",
+		"build-release": "npm run clean & npm run build & npm run types",
+		"publish": "lerna publish"
 	},
 	"devDependencies": {
 		"@alt1/imagedata-loader": "file:./alt1/imagedata-loader",
@@ -26,7 +27,6 @@
 		"@types/webpack-node-externals": "^1.6.3",
 		"awesome-typescript-loader": "^5.2.1",
 		"css-loader": "^1.0.0",
-		"dts-bundle": "^0.7.3",
 		"glob": "^7.1.2",
 		"html-webpack-plugin": "^3.2.0",
 		"json-loader": "^0.5.7",
