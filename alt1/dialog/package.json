@@ -5,13 +5,13 @@
 	"main": "./dist/index.bundle.js",
 	"types": "./types/",
 	"author": "Skillbert",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
-		"@alt1/base": "^0.0.6",
-		"@alt1/ocr": "^0.0.6"
+		"@alt1/base": "^0.0.7",
+		"@alt1/ocr": "^0.0.7"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
