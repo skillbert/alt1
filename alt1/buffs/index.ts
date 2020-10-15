@@ -8,7 +8,6 @@ var imgs = a1lib.ImageDetect.webpackImages({
 });
 
 var font = require("../ocr/fonts/pixel_digits_8px_shadow.fontmeta.json");
-//var font = require("../ocr/fonts/aa_8px_new.fontmeta.json");
 
 function negmod(a: number, b: number) {
 	return ((a % b) + b) % b;
@@ -34,7 +33,7 @@ export class Buff {
 		return BuffReader.readTime(this.buffer, this.bufferx + 2, this.buffery + 23);
 	}
 	compareBuffer(img: ImageData) {
-		return BuffReader.compareBuffer(this.buffer, this.bufferx + 2, this.buffery + 1, img);
+		return BuffReader.compareBuffer(this.buffer, this.bufferx + 1, this.buffery + 1, img);
 	}
 	countMatch(img: ImageData, aggressive?: boolean) {
 		return BuffReader.countMatch(this.buffer, this.bufferx + 2, this.buffery + 1, img, aggressive);
@@ -243,8 +242,9 @@ export default class BuffReader {
 			if (bestscore < 50) { return null; }
 
 			//update the isolated buff
-			BuffReader.isolateBuffer(state[bestindex].buffer, state[bestindex].bufferx + 1, state[bestindex].buffery + 1, buffinfo.imgdata);
-
+			if (buffinfo.canimprove) {
+				BuffReader.isolateBuffer(state[bestindex].buffer, state[bestindex].bufferx + 1, state[bestindex].buffery + 1, buffinfo.imgdata);
+			}
 			return state[bestindex];
 		}
 	}
@@ -252,56 +252,18 @@ export default class BuffReader {
 
 export class BuffInfo {
 	imgdata: ImageData;
-	name: string;
-	buffid: string;
-	final: boolean;
 	isdebuff: boolean;
 
-	static buffs = {
-		familiar: { n: "Familiar", img: null, isdebuff: false },
-		adren: { n: "Adrenaline potion", img: null, isdebuff: true },
-		overload: { n: "Overload", img: null, isdebuff: false },
-		perfectplus: { n: "Perfect plus", img: null, isdebuff: false },
-		prayrenewal: { n: "Prayer renewal", img: null, isdebuff: false },
-		aggression: { n: "Aggression potion", img: null, isdebuff: false }
-	};
+	buffid: string;
+	final: boolean;
+	canimprove: boolean;
 
-	constructor(imgdata: ImageData, name: string, id: string, final: boolean, debuff: boolean) {
+	constructor(imgdata: ImageData, debuff: boolean, id: string, canimprove: boolean) {
 		this.imgdata = imgdata;
-		this.name = name;
-		this.buffid = id;
-		this.final = final;
 		this.isdebuff = debuff;
-	}
 
-	toJSON() {
-		if (this.buffid != "") { return { buffid: this.buffid }; }
-		else { return { name: this.name, final: this.final, buffid: "", imgstr: this.imgdata.toPngBase64(), isdebuff: this.isdebuff }; }
-	}
-
-	static fromPreset(buffid: string) {
-		var buffmeta = BuffInfo.buffs[buffid];
-		return new BuffInfo(buffmeta.img, buffmeta.n, buffid, true, buffmeta.isdebuff);
-	}
-
-	static fromObject(obj) {
-		if (typeof obj != "object" || obj == null) { return null; }
-		if (typeof obj.buffid == "string" && obj.buffid != "") {
-			if (!(obj.buffid in BuffInfo.buffs)) { return null; }
-			return BuffInfo.fromPreset(obj.buffid);
-		}
-		else {
-			//fix the image
-			var name = (typeof obj.name == "string" ? obj.name : "Unknown buff");
-			var isdebuff = !!obj.isdebuff;
-			var final = !!obj.final;
-			var r = new BuffInfo(null!, name, "", final, isdebuff);
-
-			var imgdata;
-			if (obj.imgdata instanceof ImageData) { r.imgdata = obj.imgdata; }
-			else if (typeof obj.imgstr == "string") { a1lib.ImageDetect.imageDataFromBase64(obj.imgstr).then(i => r.imgdata = i); }
-			else { return null; }
-			return r;
-		}
+		this.buffid = id;
+		this.final = !!id && !canimprove;
+		this.canimprove = canimprove;
 	}
 }
