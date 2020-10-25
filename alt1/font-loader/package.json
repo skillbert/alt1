@@ -7,13 +7,13 @@
 	"main": "./dist/index.bundle.js",
 	"types": "./types/",
 	"author": "Skillbert",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
-		"@alt1/base": "^0.0.7",
-		"@alt1/ocr": "^0.0.7",
+		"@alt1/base": "^0.0.8",
+		"@alt1/ocr": "^0.0.8",
 		"sharp": "^0.24.0"
 	},
 	"scripts": {
