@@ -2,6 +2,7 @@ import * as a1lib from "@alt1/base";
 import * as OCR from "@alt1/ocr";
 import ActionbarReader, { LifeState } from "./actionbar";
 import { Rect, ImgRef, captureAsync } from "@alt1/base";
+import { ImageDataSet } from "@alt1/base/imagedetect";
 
 export { default as ActionbarReader } from "./actionbar";
 
@@ -16,12 +17,14 @@ var imgs = a1lib.ImageDetect.webpackImages({
 	actionbarnumbers: require("./imgs/actionbarnumbers.data.png")
 });
 
-var actionbarNumbers: StringMap<ImageData> = {};
+var barnumimgs: ImageDataSet = null!;
+var barnummap: NumberMap<string> = {};
 
 imgs.promise.then(() => {
-	for (var a = 0; a * 10 < imgs.actionbarnumbers.width; a++) {
-		actionbarNumbers[a + 1] = imgs.actionbarnumbers.clone(new Rect(a * 10, 0, 10, 10));
-	}
+	barnumimgs = ImageDataSet.fromFilmStrip(imgs.actionbarnumbers, 10);
+	for (let a = 0; a < 13; a++) { barnummap[a] = (a + 1) + ""; }
+	//barnummap[13] = "6";
+	//barnummap[14] = "9";
 });
 
 type AbilBarId = "bar0" | "bar1" | "bar2" | "bar3" | "bar4";
@@ -290,16 +293,11 @@ class AbilityBar<T extends AbilityInfoBare> {
 	}
 
 	readBarNr(buffer: ImageData, bufx: number, bufy: number) {
-		var match = "";
-		for (var a in actionbarNumbers) {
-			var m = buffer.pixelCompare(actionbarNumbers[a], this.x + this.layout.num.x - bufx, this.y + this.layout.num.y - bufy);
-			if (m != Infinity) {
-				match = a;
-				break;
-			}
-		}
+		let match = barnumimgs.matchBest(buffer, this.x + this.layout.num.x - bufx, this.y + this.layout.num.y - bufy);
+		//1st secondary ability bar has one pixel offset!!@#!@#
+		match = match || barnumimgs.matchBest(buffer, this.x + this.layout.num.x - bufx, this.y + this.layout.num.y - bufy - 1);
 		if (!match) { return ""; }
-		this.barid = match;
+		this.barid = barnummap[match.index];
 		if (!this.barstates[this.barid]) {
 			this.barstates[this.barid] = { barid: this.barid, slots: [], visible: false };
 			for (var b = 0; b < this.layout.length; b++) {

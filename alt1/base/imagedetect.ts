@@ -210,7 +210,6 @@ export function simpleCompare(bigbuf: ImageData, checkbuf: ImageData, x: number,
 	if (x + checkbuf.width > bigbuf.width || y + checkbuf.height > bigbuf.height) { throw new RangeError(); }
 
 	if (max == -1) { max = 255 * 4; }
-	var go = true;
 
 	var dif = 0;
 	for (var step = 8; step >= 1; step /= 2) {
@@ -273,11 +272,31 @@ export function webpackImages<T extends { [name: string]: Promise<ImageData> }>(
 export class ImageDataSet {
 	buffers: ImageData[] = [];
 
-	//TODO
-	/*
+	matchBest(img: ImageData, x: number, y: number, max?: number) {
+		let best: number | null = null;
+		let bestscore: number | undefined = max;
+		for (let a = 0; a < this.buffers.length; a++) {
+			let score = img.pixelCompare(this.buffers[a], x, y, bestscore)
+			if (isFinite(score) && (bestscore == undefined || score < bestscore)) {
+				bestscore = score;
+				best = a;
+			}
+		}
+		if (best == null) {
+			return null;
+		}
+		return { index: best, score: bestscore };
+	}
+
+
 	static fromFilmStrip(baseimg: ImageData, width: number) {
-		if (baseimg.width % width != 0) { throw new Error("slice size does not fit in base img"); }
-	}*/
+		if ((baseimg.width % width) != 0) { throw new Error("slice size does not fit in base img"); }
+		let r = new ImageDataSet();
+		for (let x = 0; x < baseimg.width; x += width) {
+			r.buffers.push(baseimg.clone(new Rect(x, 0, width, baseimg.height)));
+		}
+		return r;
+	}
 
 	static fromFilmStripUneven(baseimg: ImageData, widths: number[]) {
 		let r = new ImageDataSet()

@@ -96,6 +96,7 @@ export default class ChatBoxReader {
 		var imgline0y = box.line0y + box.rect.y - img.y;
 		var imgline0x = box.line0x + box.rect.x - img.x;
 
+		//var imgdata = img.toData();
 		var readlines: ChatLine[] = [];
 		var newlines: ChatLine[] = [];
 		for (var line = 0; true; line++) {
@@ -105,6 +106,10 @@ export default class ChatBoxReader {
 				newlines = readlines;
 				break;
 			}
+			/*
+			var str = OCR.readLine(imgdata, chatfont, this.readargs.colors.map(c => a1lib.unmixColor(c)), imgline0x, imgliney, true, true);
+			readlines.unshift({ ...str, fragments: str.fragments.map(f => ({ ...f, color: (f.color[0] << 16) | (f.color[1] << 8) | f.color[2] })) });
+			/*/
 			var str = null;
 			try {
 				str = JSON.parse(alt1.bindReadStringEx(img.handle, imgline0x, imgliney, JSON.stringify(this.readargs)));
@@ -117,6 +122,7 @@ export default class ChatBoxReader {
 				} catch (e) { }
 			}
 			readlines.unshift(str ? str : { text: "", fragments: [] });
+			//*/
 			//console.log(str);
 
 			//combine with previous reads
@@ -142,14 +148,14 @@ export default class ChatBoxReader {
 	}
 
 	//convert some similar characters to prevent problems when a character is slightly misread
-	simplefyLine(str: string) {
+	simplifyLine(str: string) {
 		str = str.replace(/[\[\]\.\':;,_ ]/g, "");
 		str = str.replace(/[|!lIji]/g, "l");
 		return str;
 	}
 
 	matchLines(line1: string, line2: string) {
-		return this.simplefyLine(line1) == this.simplefyLine(line2);
+		return this.simplifyLine(line1) == this.simplifyLine(line2);
 	}
 
 	checkLegacyBG(buf: ImageData, x: number, y: number) {
