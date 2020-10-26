@@ -5,12 +5,12 @@
 	"main": "./dist/index.bundle.js",
 	"types": "./types/",
 	"author": "Skillbert",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
-		"@alt1/base": "^0.0.8"
+		"@alt1/base": "^0.0.9"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js --custom-webpack -p"
