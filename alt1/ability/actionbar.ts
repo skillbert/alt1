@@ -89,9 +89,11 @@ export default class ActionbarReader {
 	read(buffer?: ImageData, bufx?: number, bufy?: number): LifeState {
 		if (!this.pos) { throw new Error("interface is not found yet"); }
 		if (!buffer) {
-			buffer = a1lib.capture(this.pos.x, this.pos.y, this.pos.layout.width, this.pos.layout.height);
+			//TODO fix the capture dimensions!!!
+			let fixoffset = 10;
+			buffer = a1lib.capture(this.pos.x, this.pos.y - fixoffset, this.pos.layout.width, this.pos.layout.height + fixoffset);
 			bufx = this.pos.x;
-			bufy = this.pos.y;
+			bufy = this.pos.y - fixoffset;
 		}
 		var dx = this.pos.x - bufx!;
 		var dy = this.pos.y - bufy!;
