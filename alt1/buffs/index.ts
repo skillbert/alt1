@@ -36,7 +36,7 @@ export class Buff {
 		return BuffReader.compareBuffer(this.buffer, this.bufferx + 1, this.buffery + 1, img);
 	}
 	countMatch(img: ImageData, aggressive?: boolean) {
-		return BuffReader.countMatch(this.buffer, this.bufferx + 2, this.buffery + 1, img, aggressive);
+		return BuffReader.countMatch(this.buffer, this.bufferx + 1, this.buffery + 1, img, aggressive);
 	}
 }
 
