@@ -167,7 +167,7 @@ export default class DialogReader {
 		if (!locs) { locs = this.findOptions(imgref); }
 
 		var bgcol = [150, 135, 105];
-		var fontcol = this.pos.legacy ? [255, 255, 255] : [174, 208, 224];
+		var fontcol: OCR.ColortTriplet = this.pos.legacy ? [255, 255, 255] : [174, 208, 224];
 
 		var r: DialogButton[] = [];
 		for (var a = 0; a < locs.length; a++) {

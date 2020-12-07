@@ -18,13 +18,11 @@ var imgs = a1lib.ImageDetect.webpackImages({
 });
 
 var barnumimgs: ImageDataSet = null!;
-var barnummap: NumberMap<string> = {};
+var barnummap: { [id: number]: string } = {};
 
 imgs.promise.then(() => {
 	barnumimgs = ImageDataSet.fromFilmStrip(imgs.actionbarnumbers, 10);
 	for (let a = 0; a < 13; a++) { barnummap[a] = (a + 1) + ""; }
-	//barnummap[13] = "6";
-	//barnummap[14] = "9";
 });
 
 type AbilBarId = "bar0" | "bar1" | "bar2" | "bar3" | "bar4";
@@ -33,7 +31,7 @@ type CaptAreas = Partial<{ [T in AbilBarId]: a1lib.RectLike }>;
 export default class AbilityReader<T extends AbilityInfoBare> {
 	bars: AbilityBar<T>[] = [];
 	mainbar: AbilityBar<T> | null = null;
-	barstates: StringMap<AbilityLoadout<T>> = {};
+	barstates: { [name: string]: AbilityLoadout<T> } = {};
 	captureRect: a1lib.Rect | null = null;
 	actionbarReader = new ActionbarReader();
 	abilityimgs: T[] | null = null;
@@ -261,10 +259,10 @@ class AbilityBar<T extends AbilityInfoBare> {
 	barid: string = "";//TODO find out when and where this is assigned, currently no proper initialization
 	slots: AbilityBarSlot<T>[] = [];
 	layout: AbilityBarTypeMeta;
-	barstates: StringMap<AbilityLoadout<T>>;
+	barstates: { [id: string]: AbilityLoadout<T> };
 	reader: AbilityReader<T>;
 
-	constructor(reader: AbilityReader<T>, x: number, y: number, layout: AbilityBarTypeMeta, barstates: StringMap<AbilityLoadout<T>>) {
+	constructor(reader: AbilityReader<T>, x: number, y: number, layout: AbilityBarTypeMeta, barstates: { [id: string]: AbilityLoadout<T> }) {
 		this.reader = reader;
 		this.layout = layout;
 		this.barstates = barstates;
@@ -489,7 +487,7 @@ export class AbilityState<T extends AbilityInfoBare = AbilityInfoBare> {
 	}
 
 	readhotkey(buf: ImageData, abilx: number, abily: number) {
-		var col = [255, 255, 255];
+		var col: OCR.ColortTriplet = [255, 255, 255];
 		var line1 = OCR.readLine(buf, hotkeyfont, col, abilx + 2, abily + 26, true, false);
 		if (line1.text) {
 			var line2 = OCR.readLine(buf, hotkeyfont, col, abilx + 2, abily + 15, true, false);

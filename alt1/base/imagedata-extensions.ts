@@ -105,33 +105,57 @@ export var ImageData: ImageDataConstr;
 
 (function () {
 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
-	var fill = typeof globalvar.ImageData == "undefined" || typeof globalvar.document == "undefined";
-
-	var constr = function (this: any) {
-		var i = 0;
-		var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
-		var width = arguments[i++];
-		var height = arguments[i++];
-
-		if (fill) {
-			if (!data) { data = new Uint8ClampedArray(width * height * 4); }
-			this.width = width;
-			this.height = height;
-			this.data = data;
-		}
-		else {
-			var canvas = document.createElement('canvas');
-			canvas.width = width;
-			canvas.height = height;
-			var ctx = canvas.getContext("2d")!;
-			var imageData = ctx.createImageData(width, height);
-			if (data) { imageData.data.set(data); }
-			return imageData;
+	var filltype = typeof globalvar.ImageData == "undefined" || typeof globalvar.document == "undefined";
+	var fillconstr = filltype;
+	if (!filltype) {
+		var oldconstr = globalvar.ImageData;
+		try {
+			let data = new Uint8ClampedArray(4);
+			data[0] = 1;
+			let a = new globalvar.ImageData(data, 1, 1);
+			fillconstr = a.data[0] != 1;
+		} catch (e) {
+			fillconstr = true;
 		}
 	}
-	if (!fill) { constr.prototype = globalvar.ImageData.prototype; }
-	globalvar.ImageData = constr;
-	ImageData = constr as any;
+
+	if (fillconstr) {
+		var constr = function (this: any) {
+			var i = 0;
+			var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
+			var width = arguments[i++];
+			var height = arguments[i++];
+
+			if (filltype) {
+				if (!data) { data = new Uint8ClampedArray(width * height * 4); }
+				this.width = width;
+				this.height = height;
+				this.data = data;
+			}
+			else if (fillconstr) {
+				//WARNING This branch of code does not use the same pixel data backing store
+				//(problem with wasm, however all wasm browser have a native constructor (unless asm.js is used))
+				var canvas = document.createElement('canvas');
+				canvas.width = width;
+				canvas.height = height;
+				var ctx = canvas.getContext("2d")!;
+				var imageData = ctx.createImageData(width, height);
+				if (data) { imageData.data.set(data); }
+				return imageData;
+			}
+			// else {
+			// 	//oh no...
+			// 	//we need this monstrocity in order to call the native constructor with variable number of args
+			// 	//when es5 transpile is enable (that strips the spread operator)
+			// 	return new (Function.prototype.bind.apply(oldconstr, [null,...arguments]));
+			// }
+		}
+		if (!filltype) { constr.prototype = globalvar.ImageData.prototype; }
+		globalvar.ImageData = constr;
+		ImageData = constr as any;
+	} else {
+		ImageData = globalvar.ImageData;
+	}
 })();
 
 //Recast into a drawable imagedata class on all platforms, into a normal browser ImageData on browsers or a node-canvas imagedata on nodejs
@@ -197,10 +221,11 @@ ImageData.prototype.show = function (this: ImageData, x = 5, y = 5, zoom = 1) {
 	el.style.top = y / zoom + "px";
 	el.style.background = "purple";
 	el.style.cursor = "pointer";
-	(el.style as any).imageRendering = "pixelated";
+	el.style.imageRendering = "pixelated";
 	el.style.outline = "1px solid #0f0";
 	el.style.width = (this.width == 1 ? 100 : this.width) + "px";
 	el.style.height = (this.height == 1 ? 100 : this.height) + "px";
+	el.style.zoom = "" + zoom;
 	el.onclick = function () { el.remove(); }
 	document.body.appendChild(el);
 	return el;
@@ -319,14 +344,31 @@ ImageData.prototype.pixelCompare = function (buf: ImageData, x = 0, y = 0, max?:
 }
 
 ImageData.prototype.copyTo = function (target: ImageData, sourcex: number, sourcey: number, width: number, height: number, targetx: number, targety: number) {
-	for (var cx = 0; cx < width; cx++) {
-		for (var cy = 0; cy < height; cy++) {
-			var it = (cx + targetx) * 4 + (cy + targety) * target.width * 4;
-			var is = (cx + sourcex) * 4 + (cy + sourcey) * this.width * 4;
-			target.data[it + 0] = this.data[is + 0];
-			target.data[it + 1] = this.data[is + 1];
-			target.data[it + 2] = this.data[is + 2];
-			target.data[it + 3] = this.data[is + 3];
+	//convince v8 that these are 31bit uints
+	const targetwidth = width | 0;
+	const thiswidth = this.width | 0;
+
+	const fastwidth = Math.floor(width / 4) * 4;
+	const thisdata = new Int32Array(this.data.buffer, this.data.byteOffset, this.data.byteLength / 4);
+	const targetdata = new Int32Array(target.data.buffer, target.data.byteOffset, target.data.byteLength / 4);
+	for (let cy = 0; cy < height; cy++) {
+		let cx = 0;
+		let it = (cx + targetx) + (cy + targety) * targetwidth;
+		let is = (cx + sourcex) + (cy + sourcey) * thiswidth;
+		//copy 4 pixels per iter (xmm)
+		for (; cx < fastwidth; cx += 4) {
+			targetdata[it] = thisdata[is];
+			targetdata[it + 1] = thisdata[is + 1];
+			targetdata[it + 2] = thisdata[is + 2];
+			targetdata[it + 3] = thisdata[is + 3];
+			it += 4;
+			is += 4;
+		}
+		//copy remainder per pixel
+		for (; cx < targetwidth; cx++) {
+			targetdata[it] = thisdata[is];
+			it += 1;
+			is += 1;
 		}
 	}
 }

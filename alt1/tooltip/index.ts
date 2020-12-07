@@ -214,7 +214,7 @@ export default class TooltipReader {
      */
 	static readInteraction(img: ImgRef, area: a1lib.RectLike) {
 		var data = img.toData();
-		var colors = [
+		var colors: OCR.ColortTriplet[] = [
 			[235, 224, 188],//~white
 			[0, 255, 255],//interactive scenery
 			[248, 213, 107],//memb item

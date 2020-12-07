@@ -18,7 +18,7 @@ if (!buildTypesOnly) {
 	if (customWebpackConfig) {
 		var config = require(path.resolve(projectdir, "webpack.config")) as webpack.Configuration;
 	} else {
-		var config = alt1webpack.chainAlt1Lib(projectdir).toConfig();
+		var config = alt1webpack.chainAlt1Lib(projectdir).toConfig() as webpack.Configuration;//extra cast here because of weird type conflict
 	}
 
 	var compilation = webpack(config);

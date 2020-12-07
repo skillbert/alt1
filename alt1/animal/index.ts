@@ -47,7 +47,7 @@ export default class AnimalReader {
 		return this.pos;
 	}
 
-	private readMultiline(data:ImageData, col:number[], x:number, y:number) {
+	private readMultiline(data: ImageData, col: OCR.ColortTriplet, x: number, y: number) {
 		var t = OCR.findReadLine(data, stdfont, [col], x, y);
 		if (t.text == "") {
 			var t0 = OCR.findReadLine(data, stdfont, [col], x, y - 6);
@@ -74,7 +74,7 @@ export default class AnimalReader {
 		var happy = parseInt(OCR.findReadLine(data, stdfont, [[255, 255, 255]], 109, 140).text) / 100;
 		var health = parseInt(OCR.findReadLine(data, stdfont, [[255, 255, 255]], 104, 157).text) / 100;
 
-		var readTrait = (x:number) => {
+		var readTrait = (x: number) => {
 			var t = this.readMultiline(data, [117, 146, 160], x, 173);
 			if (t.match(/no trait/i)) { return ""; }
 			return t;

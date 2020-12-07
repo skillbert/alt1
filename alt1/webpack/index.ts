@@ -5,6 +5,8 @@ import * as fs from "fs";
 import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import * as webpackNodeExternals from "webpack-node-externals";
 import * as WebpackChain from "webpack-chain";
+import * as TerserPlugin from "terser-webpack-plugin";
+
 //import Config = require("webpack-chain");
 
 //daslkjdsalkdjqlkewjqwlkejqewwqe
@@ -130,9 +132,17 @@ export default class Alt1Chain {
 	}
 
 	ugly(ugly: boolean) {
-		if (!ugly) { this.chain.plugin("namedmodules").use(webpack.NamedModulesPlugin).init(constructApply); }
+		if (!ugly) { this.chain.plugin("namedmodules").use((webpack as any).NamedModulesPlugin).init(constructApply); }
 		else { this.chain.plugins.delete("namedmodules"); }
 		this.chain.optimization.minimize(ugly);
+		this.chain.optimization.minimizer("terser").use(TerserPlugin, [{
+			terserOptions: {
+				output: {
+					ascii_only: true,//need to properly fix headers everywhere otherwise and doesn't really matter size wise
+					max_line_len: 250//makes dev tools not crash when viewing
+				}
+			}
+		} as TerserPlugin.TerserPluginOptions]);
 	}
 
 	dropconsole() {

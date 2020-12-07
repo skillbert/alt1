@@ -205,8 +205,8 @@ export default class BuffReader {
 			r.arg = str;
 		} else {
 			var m;
-			if (m = str.match(/^(\d+)h$/)) { r.time = +m[1] * 60 * 60; }
-			else if (m = str.match(/^(\d+)m$/)) { r.time = +m[1] * 60; }
+			if (m = str.match(/^(\d+)h$/i)) { r.time = +m[1] * 60 * 60; }
+			else if (m = str.match(/^(\d+)m$/i)) { r.time = +m[1] * 60; }
 			else if (m = str.match(/^(\d+)$/)) { r.time = +m[1]; }
 		}
 		return r;

@@ -11,7 +11,7 @@ var imgs = a1lib.ImageDetect.webpackImages({
 var font = require("@alt1/ocr/fonts/aa_8px_new.fontmeta.json");
 
 
-var fontcolors = [
+var fontcolors:OCR.ColortTriplet[] = [
 	[255, 255, 255],//white
 	[30, 255, 0],//green
 	[102, 152, 255],//blue

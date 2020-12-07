@@ -1,5 +1,12 @@
 import { ImageData, RectLike, Rect } from "@alt1/base";
 
+export type TextFragment = {
+	text: string,
+	color: ColortTriplet,
+	index: number,
+	xstart: number,
+	xend: number
+};
 export type Charinfo = {
 	width: number,
 	chr: string,
@@ -17,7 +24,7 @@ export type FontDefinition = {
 	minrating?: number,
 	maxspaces?: number
 };
-type ColortTriplet = number[];
+export type ColortTriplet = [number, number, number];
 
 export var debug = {
 	printcharscores: false,
@@ -123,9 +130,9 @@ export function unblendTrans(img: ImageData, shadow: boolean, r: number, g: numb
 /**
  * Determised wether color [rgb]m can be a result of a blend with color [rgb]1 that is p (0-1) of the mix
  * It returns the number that the second color has to lie outside of the possible color ranges
- * @param mr resulting color
+ * @param rm resulting color
  * @param r1 first color of the mix (the other color is unknown)
- * @param p the pertion of the [rgb]1 in the mix (0-1)
+ * @param p the portion of the [rgb]1 in the mix (0-1)
  */
 export function canblend(rm: number, gm: number, bm: number, r1: number, g1: number, b1: number, p: number) {
 	var m = Math.min(50, p / (1 - p));
@@ -263,6 +270,55 @@ export function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortT
 	return colormap;
 }
 
+
+function unblend(r: number, g: number, b: number, R: number, G: number, B: number) {
+	var m = Math.sqrt(r * r + g * g + b * b);
+	var n = Math.sqrt(R * R + G * G + B * B);
+
+	var x = (r * R + g * G + b * B) / n;
+	var y = Math.sqrt(Math.max(0, m * m - x * x));
+
+	var r1 = Math.max(0, (63.75 - y) * 4);
+	var r2 = x / n * 255;
+
+	if (r2 > 255)//brighter than refcol
+	{
+		r1 = Math.max(0, r1 - r2 + 255);
+		r2 = 255;
+	}
+
+	return [r1, r2];
+}
+
+
+export function getChatColor(buf: ImageData, rect: RectLike, colors: ColortTriplet[]) {
+	var bestscore = -1.0;
+	var best: null | ColortTriplet = null;
+	var b2 = 0.0;
+	var data = buf.data;
+	for (let col of colors) {
+		var score = 0.0;
+		for (var y = rect.y; y < rect.y + rect.height; y++) {
+			for (var x = rect.x; x < rect.x + rect.width; x++) {
+				if (x < 0 || x + 1 >= buf.width) { continue; }
+				if (y < 0 || y + 1 >= buf.width) { continue; }
+				let i1 = buf.pixelOffset(x, y);
+				let i2 = buf.pixelOffset(x + 1, y + 1);
+				var pixel1 = unblend(data[i1 + 0], data[i1 + 1], data[i1 + 2], col[0], col[1], col[2]);
+				var pixel2 = unblend(data[i2 + 0], data[i2 + 1], data[i2 + 2], col[0], col[1], col[2]);
+				//TODO this is from c# can simplify a bit
+				var s = (pixel1[0] / 255 * pixel1[1] / 255) * (pixel2[0] / 255 * (255.0 - pixel2[1]) / 255);
+				score += s;
+			}
+		}
+		if (score > bestscore) { b2 = bestscore; bestscore = score; best = col; }
+		else if (score > b2) { b2 = score; }
+	}
+	//Console.WriteLine("color: " + bestcol + " - " + (bestscore - b2));
+	//bestscore /= rect.width * rect.height;
+	return best;
+}
+
 /**
  * reads a line of text with exactly known position and color. y should be the y coord of the text base line, x should be the first pixel of a new character
  */
@@ -271,20 +327,13 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 	var multicol = typeof colors[0] != "number";
 	var allcolors: ColortTriplet[] = multicol ? colors as ColortTriplet[] : [colors as ColortTriplet];
 
-	var detectcolor = function (x: number, y: number, backward: boolean) {
-		var best = null as ColortTriplet | null;
-		var bestscore = Infinity;
-		for (var a = 0; a < allcolors.length; a++) {
-			var chr = readChar(buffer, font, allcolors[a], x, y, backward, false);
-			if (chr && chr.sizescore < bestscore) {
-				best = allcolors[a];
-				bestscore = chr.sizescore;
-			}
-		}
-		return best;
+	var detectcolor = function (sx: number, sy: number, backward: boolean) {
+		var w = Math.floor(font.width * 1.5);
+		if (backward) { sx -= w; }
+		sy -= font.basey;
+		return getChatColor(buffer, { x: sx, y: sy, width: w, height: font.height }, allcolors);
 	}
 
-	type TextFragment = { text: string, color: ColortTriplet, index: number };
 	var fragments: TextFragment[] = [];
 	var x1 = x;
 	var x2 = x;
@@ -294,10 +343,17 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 	var lastcol: ColortTriplet | null = null;
 	let addfrag = (forward: boolean) => {
 		if (!fragtext) { return; }
-		let frag: TextFragment = { text: fragtext, color: lastcol!, index: 0 };
+		let frag: TextFragment = {
+			text: fragtext,
+			color: lastcol!,
+			index: 0,
+			xstart: x + (forward ? fragstartdx : fragenddx),
+			xend: x + (forward ? fragenddx : fragstartdx)
+		};
 		if (forward) { fragments.push(frag); }
 		else { fragments.unshift(frag); }
 		fragtext = "";
+		fragstartdx = dx;
 	}
 
 	for (var dirforward of [true, false]) {
@@ -306,6 +362,8 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 		if (!dirforward && !backward) { continue; }
 
 		var dx = 0;
+		var fragstartdx = dx;
+		var fragenddx = dx;
 		var triedspaces = 0;
 		var triedrecol = false;
 		var col = multicol ? null : colors as ColortTriplet;
@@ -314,15 +372,16 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 			col = col || detectcolor(x + dx, y, !dirforward);
 			var chr = (col ? readChar(buffer, font, col, x + dx, y, !dirforward, true) : null);
 			if (col == null || chr == null) {
-				if (multicol && !triedrecol) {
-					col = null;
-					triedrecol = true;
-					continue;
-				}
 				if (triedspaces < maxspaces) {
 					dx += (dirforward ? 1 : -1) * font.spacewidth;
-					triedrecol = false;
 					triedspaces++;
+					continue;
+				}
+				if (multicol && !triedrecol) {
+					dx -= (dirforward ? 1 : -1) * triedspaces * font.spacewidth;
+					triedspaces = 0;
+					col = null;
+					triedrecol = true;
 					continue;
 				}
 				if (dirforward) { x2 = x + dx - font.spacewidth; }
@@ -339,6 +398,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 				triedspaces = 0;
 				triedrecol = false;
 				dx += (dirforward ? 1 : -1) * chr.basechar.width;
+				fragenddx = dx;
 				lastcol = col;
 			}
 		}

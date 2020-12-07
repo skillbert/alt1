@@ -50,7 +50,7 @@ type MainBarType = "mainflat" | "mainhor" | "mainver" | "maintower";
 export default class ActionbarReader {
 	pos: { x: number, y: number, layout: Layout } | null = null;
 
-	static layouts: StringMap<Layout> = {
+	static layouts: { [name: string]: Layout } = {
 		mainflat: { hp: { x: 0, y: 0 }, dren: { x: 118, y: 0 }, pray: { x: 236, y: 0 }, sum: { x: 354, y: 0 }, width: 465, height: 25, hor: true, barlength: 80, type: "mainflat" },
 		mainhor: { hp: { x: 0, y: 0 }, dren: { x: 100, y: 0 }, pray: { x: 16, y: 22 }, sum: { x: 116, y: 22 }, width: 210, height: 45, hor: true, barlength: 62, type: "mainhor" },
 		mainver: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 100 }, pray: { x: 22, y: 16 }, sum: { x: 22, y: 116 }, width: 35, height: 210, hor: false, barlength: 62, type: "mainver" },

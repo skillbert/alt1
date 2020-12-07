@@ -14,7 +14,8 @@
 	"dependencies": {
 		"tsconfig-paths-webpack-plugin": "^3.3.0",
 		"webpack-chain": "^6.5.1",
-		"webpack-node-externals": "^2.5.1"
+		"webpack-node-externals": "^2.5.1",
+		"terser-webpack-plugin": "^4.0.0"
 	},
 	"bin": {
 		"symlinkalt1": "./bin/linkutil.js"
@@ -24,5 +25,8 @@
 	},
 	"peerDependencies": {
 		"webpack": "4.x"
+	},
+	"devDependencies": {
+		"@types/terser-webpack-plugin": "^4.0.0"
 	}
 }
