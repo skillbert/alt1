@@ -22,7 +22,6 @@ import * as TerserPlugin from "terser-webpack-plugin";
 // 	return null;
 // })()`;
 // var nodeCompatExternals = {
-// 	"node-fetch": { commonjs: "node-fetch", code: "null" },
 // 	"sharp": { commonjs: "sharp", code: "null" },
 // 	"canvas": { commonjs: undefined, code: cnvcode }
 // };
@@ -117,7 +116,7 @@ export default class Alt1Chain {
 		this.chain.devtool(sourcemaps ? (prod ? "source-map" : 'eval-source-map') : "" as any);
 
 		if (!prod && enablehot && webpack.HotModuleReplacementPlugin) {
-			this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin).init(constructApply);
+			this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin as any).init(constructApply);
 		}
 		else { this.chain.plugins.delete("hotmodule"); }
 		this.chain.devServer.clear();
@@ -135,7 +134,7 @@ export default class Alt1Chain {
 		if (!ugly) { this.chain.plugin("namedmodules").use((webpack as any).NamedModulesPlugin).init(constructApply); }
 		else { this.chain.plugins.delete("namedmodules"); }
 		this.chain.optimization.minimize(ugly);
-		this.chain.optimization.minimizer("terser").use(TerserPlugin, [{
+		this.chain.optimization.minimizer("terser").use(TerserPlugin as any, [{
 			terserOptions: {
 				output: {
 					ascii_only: true,//need to properly fix headers everywhere otherwise and doesn't really matter size wise

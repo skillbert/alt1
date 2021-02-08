@@ -600,13 +600,10 @@ export function generatefont(unblended: ImageData, chars: string, seconds: strin
 				}
 			}
 		}
-		//remove process vars from final json obj
-		delete chr.ds;
-		delete chr.de;
 		//prevent js from doing the thing with unnecessary output precision
 		chr.bonus = +chr.bonus.toFixed(3);
 
-		font.chars.push(chr);
+		font.chars.push({ width: chr.width, bonus: chr.bonus, chr: chr.chr, pixels: chr.pixels, secondary: chr.secondary });
 	}
 
 	return font;

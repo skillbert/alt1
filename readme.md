@@ -24,7 +24,7 @@ npm install
 # Use on node.js based environments
 All packages are designed to work in alt1, a normal browser and also in node.js. The libraries will ```require()``` several npm packages as fallback when related browser API's are not available. You will have to install these packages yourself.
 ```sh
-npm i sharp node-fetch canvas
+npm i sharp canvas
 ```
 
 # Build
@@ -39,6 +39,6 @@ npm start pretty-build
 # Basic Alt1 concepts
 Images in can be in one of two different locations in memory, either in js memory or Alt1 memory. They both have their advantages. You can move between them but that comes at a slight cost. A captured image in Alt1 starts in the Alt1 memory, you can do several optimized search and brute force operations on it while it's there. You can however only access the raw pixel data when it is in js memory. Pasted images in the browser also start in js memory. There is also a third type, Webkit render memory, you only use that show the images. There are two important classes in the libraries to deal with all this.
 
-First up is the ImgRef class. This class can contain an image in any type of memory. Most image detection function accept this type as input and choose what operation is most efficient for the image type.
+First up is the ImgRef class. This class can contain an image in any type of memory. Most image detection functions accept this type as input and choose what operation is most efficient for the image type.
 
-The second class is ImageData. This class represents raw image data in js memory. It is a very simple class with three properties; width, height and data. Width and height are the size of the image. Data contains a one dimensional UInt8ClampedArray with all pixels in it, this is mostly like any other js array but more efficient and only holds values between 0 and 255. The length of the array is 4*width*height, this means that it has 4 indexes for every pixel, one each for red, green, blue and alpha. You can get the index of any pixel with i=4*x+4*width*y. More info elsewhere soon.
+The second class is ImageData. This class represents raw image data in js memory. It is a very simple class with three properties; width, height and data. Width and height are the size of the image. Data contains a one dimensional UInt8ClampedArray with all pixels in it, this is mostly like any other js array but more efficient and only holds values between 0 and 255. The length of the array is 4\*width\*height, this means that it has 4 indexes for every pixel, one each for red, green, blue and alpha. You can get the index of any pixel with i=4\*x+4\*width\*y. More info elsewhere soon.

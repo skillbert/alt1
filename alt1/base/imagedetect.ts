@@ -1,6 +1,6 @@
 import { ImgRef, ImgRefBind } from "./imgref";
 import * as wapper from "./wrapper";
-import { requireNodeFetch, requireNodeCanvas } from "./nodeimports";
+import { requireNodeCanvas } from "./nodeimports";
 import { RectLike, Rect } from ".";
 
 /**
@@ -22,9 +22,7 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 		if (url.startsWith(hdr)) {
 			return imageDataFromBase64(url.slice(hdr.length));
 		}
-		var nodefetch = requireNodeFetch();
-		var res = await nodefetch(url).then(r => r.arrayBuffer());
-		return imageDataFromNodeBuffer(new Uint8Array(res));
+		throw new Error("loading remove images in nodejs has been disabled, load the raw bytes and use imageDataFromNodeBuffer instead");
 	}
 }
 

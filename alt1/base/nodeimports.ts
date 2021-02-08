@@ -4,13 +4,6 @@
 
 declare var __non_webpack_require__: any;
 
-export function requireNodeFetch() {
-	if (typeof __non_webpack_require__ != "undefined") {
-		return __non_webpack_require__("node-fetch") as typeof fetch;
-	}
-	throw new Error("couldn't find built-in 'fetch' or the module 'node-fetch'");
-}
-
 export function requireNodeCanvas() {
 	if (typeof __non_webpack_require__ != "undefined") {
 		try { requireSharp(); } catch (e) { }
