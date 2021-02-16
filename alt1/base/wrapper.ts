@@ -7,6 +7,11 @@ import "./alt1api";
 declare global {
 	namespace alt1 {
 		var events: { [event: string]: Alt1EventHandler[] };
+
+		const capture: undefined | ((x: number, y: number, w: number, h: number) => Uint8ClampedArray);
+		const captureAsync: undefined | ((x: number, y: number, w: number, h: number) => Promise<Uint8ClampedArray>);
+		const captureMultiAsync: undefined | (<T extends { [id: string]: RectLike | null | undefined }>(areas: T) => Promise<{ [key in keyof T]: Uint8ClampedArray }>);
+		const bindGetRegionBuffer: undefined | ((id: number, x: number, y: number, width: number, height: number) => Uint8ClampedArray)
 	}
 }
 
@@ -81,10 +86,11 @@ export function capture(x: number, y: number, w: number, h: number): ImageData;
 export function capture(rect: RectLike): ImageData;
 export function capture(...args: any[]): ImageData | null {
 	if (!hasAlt1) { throw new NoAlt1Error(); }
-	var i = 0;
-
 	var rect = Rect.fromArgs(...args);
 
+	if (alt1.capture) {
+		return new ImageData(alt1.capture(rect.x, rect.y, rect.width, rect.height), rect.width, rect.height);
+	}
 	var buf = new ImageData(rect.width, rect.height);
 
 	if (rect.width * rect.height * 4 <= maxtransfer) {
@@ -148,6 +154,9 @@ export function transferImageData(handle: number, x: number, y: number, w: numbe
 	x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
 	requireAlt1();
 
+	if (alt1.bindGetRegionBuffer) {
+		return new ImageData(alt1.bindGetRegionBuffer(handle, x, y, w, h), w, h);
+	}
 	var r = new ImageData(w, h);
 
 	var x1 = x;
@@ -458,25 +467,23 @@ type asyncCaptureFormat = "png" | "raw" | "jpeg";
 /**
  * Asynchronously captures a section of the game screen
  */
-export async function captureAsync(rect: RectLike, format?: asyncCaptureFormat, quality?: number): Promise<ImageData>;
-export async function captureAsync(x: number, y: number, width: number, height: number, format?: asyncCaptureFormat, quality?: number): Promise<ImageData>;
+export async function captureAsync(rect: RectLike): Promise<ImageData>;
+export async function captureAsync(x: number, y: number, width: number, height: number): Promise<ImageData>;
 export async function captureAsync(...args: any[]): Promise<ImageData> {
 	requireAlt1();
-	var i = 0;
-	var rect = (typeof args[i] == "object" ? args[i++] : { x: args[i++], y: args[i++], width: args[i++], height: args[i++] });
-	var format = args[i++] || "raw";
-	var quality = args[i++] || 0.6;
+	var rect = Rect.fromArgs(args);
+	if (alt1.captureAsync) {
+		let img = await alt1.captureAsync(rect.x, rect.y, rect.width, rect.height);
+		return new ImageData(img, rect.width, rect.height);
+	}
+
 	if (!hasAlt1Version("1.4.6")) {
 		return capture(rect.x, rect.y, rect.width, rect.height);
 	}
-	var url = "https://alt1api/pixel/getregion/" + encodeURIComponent(JSON.stringify({ ...rect, format, quality }));
-	if (format == "raw") {
-		var res = await fetch(url);
-		var imgreader = new ImageStreamReader(res.body!.getReader(), rect.width, rect.height);
-		return imgreader.nextImage();
-	} else {
-		return ImageDetect.imageDataFromUrl(url);
-	}
+	var url = "https://alt1api/pixel/getregion/" + encodeURIComponent(JSON.stringify({ ...rect, format: "raw", quality: 1 }));
+	var res = await fetch(url);
+	var imgreader = new ImageStreamReader(res.body!.getReader(), rect.width, rect.height);
+	return imgreader.nextImage();
 }
 
 /**
@@ -485,10 +492,16 @@ export async function captureAsync(...args: any[]): Promise<ImageData> {
  */
 export async function captureMultiAsync<T extends { [id: string]: RectLike | null | undefined }>(areas: T) {
 	requireAlt1();
-	var format: asyncCaptureFormat = "raw";
-	var quality = 0.6;
-
 	var r = {} as { [K in keyof T]: ImageData | null };
+	if (alt1.captureMultiAsync) {
+		let bufs = await alt1.captureMultiAsync(areas);
+		for (let a in areas) {
+			if (!bufs[a]) { r[a] = null; }
+			r[a] = new ImageData(bufs[a], areas[a]!.width, areas[a]!.height);
+		}
+		return r;
+	}
+
 	var capts = [] as RectLike[];
 	var captids = [] as (keyof T)[];
 	for (var id in areas) {
@@ -498,11 +511,11 @@ export async function captureMultiAsync<T extends { [id: string]: RectLike | nul
 	if (capts.length == 0) { return r; }
 	if (!hasAlt1Version("1.5.1")) {
 		var proms = [] as Promise<ImageData>[];
-		for (var a = 0; a < capts.length; a++) { proms.push(captureAsync(capts[a], format, quality)); }
+		for (var a = 0; a < capts.length; a++) { proms.push(captureAsync(capts[a])); }
 		var results = await Promise.all(proms);
 		for (var a = 0; a < capts.length; a++) { r[captids[a]] = results[a]; }
 	} else {
-		var res = await fetch("https://alt1api/pixel/getregionmulti/" + encodeURIComponent(JSON.stringify({ areas: capts, format, quality })));
+		var res = await fetch("https://alt1api/pixel/getregionmulti/" + encodeURIComponent(JSON.stringify({ areas: capts, format: "raw", quality: 1 })));
 		var imgreader = new ImageStreamReader(res.body!.getReader());
 		for (var a = 0; a < capts.length; a++) {
 			var capt = capts[a];

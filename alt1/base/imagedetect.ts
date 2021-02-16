@@ -162,8 +162,8 @@ export function findSubbuffer(haystack: ImageData, needle: ImageData, sx = 0, sy
 
 	//built list of non trans pixel to check
 	var checkList: { x: number, y: number }[] = [];
-	for (var x = 0; x < needle.width; x++) {
-		for (var y = 0; y < needle.height; y++) {
+	for (var y = 0; y < needle.height; y++) {
+		for (var x = 0; x < needle.width; x++) {
 			var i = x * 4 + y * needlestride;
 			if (needle.data[i + 3] == 255) { checkList.push({ x: x, y: y }); }
 			if (checkList.length == 10) { break; }
@@ -174,8 +174,8 @@ export function findSubbuffer(haystack: ImageData, needle: ImageData, sx = 0, sy
 	var cw = (sx + sw) - needle.width;
 	var ch = (sy + sh) - needle.height;
 	var checklength = checkList.length;
-	for (var x = sx; x <= cw; x++) {
-		outer: for (var y = sy; y <= ch; y++) {
+	for (var y = sy; y <= ch; y++) {
+		outer: for (var x = sx; x <= cw; x++) {
 			for (var a = 0; a < checklength; a++) {
 				var i1 = (x + checkList[a].x) * 4 + (y + checkList[a].y) * heystackstride;
 				var i2 = checkList[a].x * 4 + checkList[a].y * needlestride;
