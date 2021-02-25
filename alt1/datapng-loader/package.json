@@ -5,7 +5,7 @@
 	"runeappsLibNameRoot": "Alt1DataPngLoader",
 	"runeappsLibEntry": "./index.ts",
 	"main": "./dist/index.bundle.js",
-	"types": "./types/",
+	"types": "./index.ts",
 	"author": "Skillbert",
 	"version": "0.0.10",
 	"publishConfig": {

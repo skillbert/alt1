@@ -156,7 +156,8 @@ export default class Alt1Chain {
 	nodejs() {
 		this.chain.target("node");
 		let arr = this.chain.get("externals");
-		arr.push(webpackNodeExternals({ modulesFromFile: true, modulesDir: this.rootdir }));
+		//devdependencies are not dependencies of dependent modules, so if they do show up in the bundler they must be bundled
+		arr.push(webpackNodeExternals({ modulesFromFile: { includeInBundle: ["devDependencies"] } as any, modulesDir: this.rootdir }));
 	}
 
 	configureOpts(override?: Partial<Alt1WebpackOpts>) {
