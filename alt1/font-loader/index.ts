@@ -60,7 +60,7 @@ export default function (this: loader.LoaderContext, source: string) {
 		} else if (meta.unblendmode == "blackbg") {
 			outimg = OCR.unblendBlackBackground(inimg, meta.color[0], meta.color[1], meta.color[2])
 		} else {
-			throw "no unblend mode";
+			throw new Error("no unblend mode");
 		}
 		var unblended = new a1lib.ImageData(img.width, pxheight + 1);
 		outimg.copyTo(unblended, 0, 0, outimg.width, outimg.height, 0, 0);

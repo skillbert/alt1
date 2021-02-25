@@ -246,7 +246,7 @@ export function findReadLine(buffer: ImageData, font: FontDefinition, cols: Colo
 	else {
 		chr = findChar(buffer, font, cols[0], x, y, w, h);
 	}
-	if (chr == null) { return { text: "", debugArea: { x, y, w, h } }; }
+	if (chr == null) { return { debugArea: { x, y, w, h }, text: "", fragments: [] } as ReturnType<typeof readLine>; }
 	return readLine(buffer, font, cols, chr.x, chr.y, true, true);
 }
 

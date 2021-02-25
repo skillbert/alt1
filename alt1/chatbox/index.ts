@@ -98,6 +98,9 @@ export default class ChatBoxReader {
 	pos: { mainbox: Chatbox, boxes: Chatbox[] } | null = null;
 	debug = null;
 	overlaplines: ChatLine[] = [];
+	lastTimestamp = -1;
+	lastTimestampUpdate = 0;
+	addedLastread = false;
 	readargs = {
 		colors: defaultcolors.map(c => a1lib.mixColor(c[0], c[1], c[2]))
 	};
@@ -290,6 +293,7 @@ export default class ChatBoxReader {
 
 		var readlines: ChatLine[] = [];
 		var newlines: ChatLine[] = [];
+		let hadtimestampless = false;
 		for (var line = 0; true; line++) {
 			var liney = box.line0y - line * this.font.lineheight + this.font.dy;
 			if (liney - this.font.lineheight < 0) {
@@ -297,10 +301,29 @@ export default class ChatBoxReader {
 				break;
 			}
 
-			readlines.unshift(this.readChatLine(box, imgdata, imgx, imgy, this.font, ocrcolors, line));
+			let newline = this.readChatLine(box, imgdata, imgx, imgy, this.font, ocrcolors, line);
+			readlines.unshift(newline);
 
 			//combine with previous reads
 			if (this.diffRead) {
+				let time = ChatBoxReader.getMessageTime(newline.text);
+				if (!this.addedLastread && !hadtimestampless && time != -1 && this.lastTimestamp != -1) {
+					//don't block messages in the same second as last update
+					if (Date.now() > this.lastTimestampUpdate + 1000) {
+						const maxtime = 24 * 60 * 60;
+						let diff = time - this.lastTimestamp;
+						//wrap around at 00:00:00
+						if (diff < -maxtime / 2) { diff += maxtime; }
+						//don't accept messages with older timestamp
+						if (diff <= 0) {
+							newlines = readlines.slice(1);
+							break;
+						}
+					}
+				} else {
+					//can not use timestamps if there is a msg without timestamp in the same batch
+					hadtimestampless = true;
+				}
 				if (readlines.length >= this.overlaplines.length && this.overlaplines.length >= this.minoverlap) {
 					var matched = true;
 					for (let a = 0; a < this.overlaplines.length; a++) {
@@ -313,11 +336,22 @@ export default class ChatBoxReader {
 				}
 			}
 		}
+		//update the last message timestamp
+		this.addedLastread = newlines.length != 0;
+		for (let a = newlines.length - 1; a >= 0; a--) {
+			let time = ChatBoxReader.getMessageTime(newlines[a].text);
+			if (time != -1) {
+				this.lastTimestamp = time;
+				this.lastTimestampUpdate = Date.now();
+				break;
+			}
+		}
+		//add new lines
 		this.overlaplines = this.overlaplines.concat(newlines);
 		if (this.overlaplines.length > this.minoverlap) { this.overlaplines.splice(0, this.overlaplines.length - this.minoverlap); }
 
-		//qw("Read chat attempt time: " + (Date.now() - t));
-		//for (var a = 0; a < newlines.length; a++) { qw(newlines[a]); }
+		//console.log("Read chat attempt time: " + (Date.now() - t));
+		//for (let a = 0; a < newlines.length; a++) { console.log(newlines[a]); }
 		return newlines;
 	}
 
@@ -371,7 +405,7 @@ export default class ChatBoxReader {
 					botlefts.push(loc);
 				}
 				else {
-					console.log("unlinked quickchat bubble " + JSON.stringify(loc));
+					//console.log("unlinked quickchat bubble " + JSON.stringify(loc));
 				}
 			}
 		});
@@ -491,6 +525,13 @@ export default class ChatBoxReader {
 		// }
 		return false;
 	}
+
+	static getMessageTime(str: string) {
+		let m = str.match(/^\[(\d{2}):(\d{2}):(\d{2})\]/);
+		if (!m) { return -1; }
+		return ((+m[1]) * 24 + (+m[2])) * 60 + (+m[3]);
+	}
+
 	static getFontColor(buffer: ImageData, x: number, y: number, w: number, h: number) {
 		var bestscore = -Infinity;
 		var bestx = 0, besty = 0;
