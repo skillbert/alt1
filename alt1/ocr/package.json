@@ -13,7 +13,7 @@
 		"@alt1/base": "^0.0.10"
 	},
 	"scripts": {
-		"build": "node ../../buildutil.js --custom-webpack -p"
+		"build": "node ../../buildutil.js --custom-webpack"
 	},
 	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
 }
