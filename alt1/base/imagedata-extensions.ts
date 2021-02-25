@@ -1,5 +1,5 @@
 import * as a1lib from "./index";
-import { requireNodeCanvas, requireSharp } from "./nodeimports";
+import * as nodeimports from "./nodepolyfill";
 
 declare global {
 	interface ImageData {
@@ -27,7 +27,7 @@ declare global {
 
 		setPixelInt(x: number, y: number, color: number): void;
 
-		toFileBytes(format: "image/png" | "image/webp", quality?: any): Promise<ArrayBuffer>;
+		toFileBytes(format: "image/png" | "image/webp", quality?: any): Promise<Uint8Array>;
 		toPngBase64(): string;
 
 		pixelCompare(buf: ImageData, x?: number, y?: number, max?: number): number;
@@ -120,7 +120,7 @@ export var ImageData: ImageDataConstr;
 	}
 
 	if (fillconstr) {
-		var constr = function (this: any) {
+		var constr = function ImageDataShim(this: any) {
 			var i = 0;
 			var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
 			var width = arguments[i++];
@@ -161,8 +161,7 @@ export var ImageData: ImageDataConstr;
 //Recast into a drawable imagedata class on all platforms, into a normal browser ImageData on browsers or a node-canvas imagedata on nodejs
 ImageData.prototype.toDrawableData = function () {
 	if (typeof document == "undefined") {
-		let nodecnv = requireNodeCanvas();
-		return new nodecnv.ImageData(this.data, this.width, this.height);
+		return nodeimports.imageDataToDrawable(this);
 	} else {
 		return this;
 	}
@@ -232,18 +231,17 @@ ImageData.prototype.show = function (this: ImageData, x = 5, y = 5, zoom = 1) {
 } as typeof ImageData["prototype"]["show"];
 ImageData.prototype.show.maxImages = 10;
 
-ImageData.prototype.toImage = function (rect?) {
+ImageData.prototype.toImage = function (this: ImageData, rect?) {
 	if (!rect) { rect = new a1lib.Rect(0, 0, this.width, this.height); }
 	if (typeof document != "undefined") {
 		var el = document.createElement("canvas");
 		el.width = rect.width;
 		el.height = rect.height;
 	} else {
-		var nodecnv = requireNodeCanvas();
-		var el = nodecnv.createCanvas(rect.width, rect.height) as any as HTMLCanvasElement;
+		el = nodeimports.createCanvas(rect.width, rect.height);
 	}
 	var ctx = el.getContext("2d")!;
-	ctx.putImageData(this, -rect.x, -rect.y);
+	ctx.putImageData(this.toDrawableData(), -rect.x, -rect.y);
 	return el;
 }
 
@@ -285,57 +283,19 @@ ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png"
 		return new Promise<ArrayBuffer>(d => this.toImage().toBlob(b => {
 			var r = new FileReader();
 			r.readAsArrayBuffer(b!);
-			r.onload = () => d(r.result as ArrayBuffer);
+			r.onload = () => d(new Uint8Array(r.result as ArrayBuffer));
 		}, format, quality));
 	} else {
-		var sharp = requireSharp();
-		return new Promise<ArrayBuffer>(d => {
-			var img = sharp(Buffer.from(this.data.buffer), { raw: { width: this.width, height: this.height, channels: 4 } });
-			if (format == "image/png") { img.png(); }
-			else if (format == "image/webp") {
-				var opts = { quality: 80 };
-				if (typeof quality == "number") { opts.quality = quality * 100; }
-				img.webp(opts)
-			}
-			else { throw new Error("unknown image format: " + format); }
-			img.toBuffer({ resolveWithObject: false }).then(r => d(r.buffer));
-		})
+		return nodeimports.imageDataToFileBytes(this, format, quality);
 	}
 }
-
-//use the implementation using the sharp package in order to support webp
-/*
-ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png" | "image/webp", quality?: any) {
-	return new Promise<ArrayBuffer>((done, error) => {
-		var cnv = this.toImage();
-		if (typeof cnv.toBlob != "undefined") {
-			cnv.toBlob(b => {
-				var r = new FileReader();
-				r.readAsArrayBuffer(b!);
-				r.onload = () => done(r.result as ArrayBuffer);
-				r.onerror = error;
-			}, format, quality);
-		} else {
-			var nodecnv = requireNodeCanvas();
-			var ncnv = cnv as any as InstanceType<typeof nodecnv.Canvas>;
-			//TODO webp not supported right now
-			if (format != "image/png") { throw new Error("only png compression available on node right now"); }
-			let stream = ncnv.createPNGStream();
-			var chunks: Buffer[] = [];
-			stream.once("error", error);
-			stream.once("end", () => done(Buffer.concat(chunks)))
-			stream.on("data", c => chunks.push(c as Buffer));
-		}
-	});
-}
-*/
 
 ImageData.prototype.toPngBase64 = function (this: ImageData) {
 	if (typeof HTMLCanvasElement != "undefined") {
 		var str = this.toImage().toDataURL("image/png");
 		return str.slice(str.indexOf(",") + 1);
 	} else {
-		throw new Error("synchronous image conversion no supported in nodejs, try using ImageData.prototype.toFileBytes");
+		throw new Error("synchronous image conversion not supported in nodejs, try using ImageData.prototype.toFileBytes");
 	}
 }
 

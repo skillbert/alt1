@@ -1,6 +1,6 @@
 import { ImgRef, ImgRefBind } from "./imgref";
 import * as wapper from "./wrapper";
-import { requireNodeCanvas } from "./nodeimports";
+import * as nodeimports from "./nodepolyfill";
 import { RectLike, Rect } from ".";
 
 /**
@@ -22,29 +22,8 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 		if (url.startsWith(hdr)) {
 			return imageDataFromBase64(url.slice(hdr.length));
 		}
-		throw new Error("loading remove images in nodejs has been disabled, load the raw bytes and use imageDataFromNodeBuffer instead");
+		throw new Error("loading remote images in nodejs has been disabled, load the raw bytes and use imageDataFromNodeBuffer instead");
 	}
-}
-
-/**
- * Only use in modules that you know for sure that browsers will never call this
- */
-export function imageDataFromNodeBuffer(buffer: Uint8Array) {
-	return new Promise<ImageData>((done, error) => {
-		clearPngColorspace(buffer);
-		var nodecnv = requireNodeCanvas();
-		let img = new nodecnv.Image();
-		img.onerror = error;
-		img.onload = () => {
-			var cnv = nodecnv.createCanvas(img.naturalWidth, img.naturalHeight);
-			var ctx = cnv.getContext("2d")!;
-			ctx.drawImage(img, 0, 0);
-			var data = ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
-			//use our own class
-			done(new ImageData(data.data, data.width, data.height));
-		}
-		img.src = Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-	});
 }
 
 /**
@@ -56,9 +35,7 @@ export async function imageDataFromBase64(data: string) {
 	if (typeof Image != "undefined") {
 		return imageDataFromUrl("data:image/png;base64," + data);
 	} else {
-		var raw = Buffer.from(data, "base64");
-		var buffer = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
-		return imageDataFromNodeBuffer(buffer);
+		return nodeimports.imageDataFromBase64(data);
 	}
 }
 
