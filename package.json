@@ -21,7 +21,7 @@
 		"@types/node": "^8.0.19",
 		"@types/react": "^16.9.2",
 		"@types/react-dom": "^16.9.0",
-		"@types/sharp": "^0.24.0",
+		"@types/sharp": "^0.27.1",
 		"@types/webpack": "^4.4.24",
 		"@types/webpack-chain": "^5.2.0",
 		"@types/webpack-env": "^1.13.6",
@@ -38,7 +38,7 @@
 		"ts-node": "^7.0.1",
 		"tsconfig-paths": "^3.6.0",
 		"tsconfig-paths-webpack-plugin": "^3.2.0",
-		"typescript": "^3.9.5",
+		"typescript": "^4.2.3",
 		"uglifyjs-webpack-plugin": "^1.1.2",
 		"url-loader": "^2.0.0",
 		"vue-loader": "^15.4.2",
@@ -56,6 +56,6 @@
 	"dependencies": {
 		"canvas": "^2.6.1",
 		"node-fetch": "^2.6.1",
-		"sharp": "^0.25.4"
+		"sharp": "^0.27.2"
 	}
 }

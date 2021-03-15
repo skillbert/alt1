@@ -12,7 +12,7 @@
 	},
 	"peerDependencies": {
 		"canvas": "^2.6.1",
-		"sharp": "^0.24.0"
+		"sharp": ">0.27.2"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
