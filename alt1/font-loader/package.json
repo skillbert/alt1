@@ -14,7 +14,7 @@
 	"dependencies": {
 		"@alt1/base": "^0.0.12",
 		"@alt1/ocr": "^0.0.12",
-		"sharp": ">0.27.2"
+		"sharp": ">=0.27.2"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
