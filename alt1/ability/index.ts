@@ -114,7 +114,7 @@ export default class AbilityReader<T extends AbilityInfoBare> {
 		var data: ImageData;
 		if (!this.captureRect) { throw new Error("no capturerect set "); }
 		if (img instanceof ImgRef) { data = img.toData(this.captureRect.x, this.captureRect.y, this.captureRect.width, this.captureRect.height); }
-		else { data = a1lib.capture(this.captureRect.x, this.captureRect.y, this.captureRect.width, this.captureRect.height); }
+		else { data = a1lib.capture(this.captureRect.x, this.captureRect.y, this.captureRect.width, this.captureRect.height)!; }
 		var capts = {};
 		var captareas = {};
 		for (var a in this.bars) {

@@ -31,19 +31,13 @@ export default class Rect implements RectLike {
 		this.height = h;
 	}
 
-	static fromArgs(obj: RectLike): Rect;
-	static fromArgs(xywh: number[]): Rect;
-	static fromArgs(x: number, y: number, w: number, h: number): Rect;
-	static fromArgs(...args: any[]): Rect;
-	static fromArgs(...args: any[]): Rect {
+	static fromArgs(...args: [RectLike] | [x: number, y: number, w: number, h: number]): Rect {
 		if (typeof args[0] == "object") {
-			if (typeof args[0][0] == "number") {
-				return new Rect(args[0], args[1], args[2], args[3]);
-			} else {
-				return new Rect(args[0].x, args[0].y, args[0].width, args[0].height);
-			}
+			return new Rect(args[0].x, args[0].y, args[0].width, args[0].height);
+		} else if (typeof args[0] == "number" && args.length >= 4) {
+			return new Rect(args[0], args[1]!, args[2]!, args[3]!);
 		} else {
-			return new Rect(args[0], args[1], args[2], args[3]);
+			throw new Error("invalid rect args");
 		}
 	}
 

@@ -18,6 +18,7 @@ declare global {
 		toImage(rect?: a1lib.RectLike): HTMLCanvasElement;
 
 		getPixel(x: number, y: number): [number, number, number, number];
+		getPixelValueSum(x: number, y: number): number;
 		getPixelInt(x: number, y: number): number;
 		getColorDifference(x: number, y: number, r: number, g: number, b: number, a?: number): number;
 
@@ -248,6 +249,11 @@ ImageData.prototype.toImage = function (this: ImageData, rect?) {
 ImageData.prototype.getPixel = function (x, y): [number, number, number, number] {
 	var i = x * 4 + y * 4 * this.width;
 	return [this.data[i], this.data[i + 1], this.data[i + 2], this.data[i + 3]];
+}
+
+ImageData.prototype.getPixelValueSum = function (x, y) {
+	var i = x * 4 + y * 4 * this.width;
+	return this.data[i] + this.data[i + 1] + this.data[i + 2];
 }
 
 ImageData.prototype.getPixelInt = function (x, y) {

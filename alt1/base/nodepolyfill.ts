@@ -9,33 +9,41 @@ declare var __non_webpack_require__: any;
 function requireNodeCanvas() {
 	if (typeof __non_webpack_require__ != "undefined") {
 		//attempt to require sharp first, after loading canvas the module sharp fails to load
-		try { requireSharp(); } catch (e) { }
-		return __non_webpack_require__("canvas");// as typeof import("canvas");
+		requireSharp();
+		try {
+			return __non_webpack_require__("canvas");// as typeof import("canvas");
+		} catch (e) { }
 	}
-	throw new Error("couldn't find built-in canvas or the module 'canvas'");
+	return null;
 }
 
 function requireSharp() {
 	if (typeof __non_webpack_require__ != "undefined") {
-		return __non_webpack_require__("sharp");// as typeof import("sharp");
+		try {
+			return __non_webpack_require__("sharp");// as typeof import("sharp");
+		} catch (e) { }
 	}
-	throw new Error("coulnd't find build-in image compression methods or the module 'sharp'");
+	return null;
 }
 
 function requireElectronCommon() {
 	if (typeof __non_webpack_require__ != "undefined") {
-		return __non_webpack_require__("electron/common");
+		try {
+			return __non_webpack_require__("electron/common");
+		} catch (e) { }
 	}
-	throw new Error("could not load module electron/common");
+	return null;
 }
 
 export function imageDataToDrawable(buf: ImageData) {
 	let nodecnv = requireNodeCanvas();
+	if (!nodecnv) { throw new Error("couldn't find built-in canvas or the module 'canvas'"); }
 	return new nodecnv.ImageData(buf.data, buf.width, buf.height);
 }
 
 export function createCanvas(w: number, h: number) {
-	var nodecnv = requireNodeCanvas();
+	let nodecnv = requireNodeCanvas();
+	if (!nodecnv) { throw new Error("couldn't find built-in canvas or the module 'canvas'"); }
 	return nodecnv.createCanvas(w, h) as any as HTMLCanvasElement;
 }
 
@@ -47,47 +55,53 @@ function flipBGRAtoRGBA(data: Uint8ClampedArray | Uint8Array) {
 	}
 }
 
-export function showImageData(img: ImageData) {
-	let nativeImage = requireElectronCommon().nativeImage;
-	//need to copy the buffer in order to flip it without destring the original
-	let buf = Buffer.from(img.data.slice(img.data.byteOffset, img.data.byteLength));
-	flipBGRAtoRGBA(buf);
-	let nativeimg = nativeImage.createFromBitmap(buf, { width: img.width, height: img.height });
-	return nativeimg.toPNG();
-}
-
 export async function imageDataToFileBytes(buf: ImageData, format: "image/png" | "image/webp", quality?: any) {
-	var sharp = requireSharp();
-	var img = sharp(Buffer.from(buf.data.buffer), { raw: { width: buf.width, height: buf.height, channels: 4 } });
-	if (format == "image/png") { img.png(); }
-	else if (format == "image/webp") {
-		var opts = { quality: 80 };
-		if (typeof quality == "number") { opts.quality = quality * 100; }
-		img.webp(opts)
+	//use the electron API if we're in electron
+	var electronCommon: any;
+	var sharp: any;
+	if (electronCommon = requireElectronCommon()) {
+		let nativeImage = electronCommon.nativeImage;
+		//need to copy the buffer in order to flip it without destroying the original
+		let bufcpy = Buffer.from(buf.data.slice(buf.data.byteOffset, buf.data.byteLength));
+		flipBGRAtoRGBA(bufcpy);
+		let nativeimg = nativeImage.createFromBitmap(bufcpy, { width: buf.width, height: buf.height });
+		return nativeimg.toPNG();
 	}
-	else { throw new Error("unknown image format: " + format); }
-	return await img.toBuffer({ resolveWithObject: false }).buffer;
+	else if (sharp = requireSharp()) {
+		let img = sharp(Buffer.from(buf.data.buffer), { raw: { width: buf.width, height: buf.height, channels: 4 } });
+		if (format == "image/png") { img.png(); }
+		else if (format == "image/webp") {
+			var opts = { quality: 80 };
+			if (typeof quality == "number") { opts.quality = quality * 100; }
+			img.webp(opts)
+		}
+		else { throw new Error("unknown image format: " + format); }
+		return await img.toBuffer({ resolveWithObject: false }).buffer;
+	}
+	throw new Error("coulnd't find build-in image compression methods or the module 'electron/common' or 'sharp'");
 }
 
 export function imageDataFromBase64(base64: string) {
-	var buffer = Buffer.from(base64, "base64");
-	return new Promise<ImageData>((done, error) => {
-		clearPngColorspace(buffer);
-		//use the electron API if we're in electron
-		var electronCommon: any = null;
-		try { electronCommon = requireElectronCommon(); }
-		catch (e) { }
-		if (electronCommon) {
-			let nativeImage = electronCommon.nativeImage;
-			let img = nativeImage.createFromBuffer(buffer);
-			let pixels = img.toBitmap();
-			let size = img.getSize();
-			done(new ImageData(new Uint8ClampedArray(pixels.buffer, pixels.byteOffset, pixels.byteLength), size.width, size.height));
-		} else {
-			//fallback to node-canvas
-			var nodecnv = requireNodeCanvas();
+	return imageDataFromBuffer(Buffer.from(base64, "base64"));
+}
+
+export async function imageDataFromBuffer(buffer: Uint8Array) {
+	clearPngColorspace(buffer);
+	//use the electron API if we're in electron
+	var electronCommon: any;
+	var nodecnv: any;
+	if (electronCommon = requireElectronCommon()) {
+		let nativeImage = electronCommon.nativeImage;
+		let img = nativeImage.createFromBuffer(buffer);
+		let pixels = img.toBitmap();
+		let size = img.getSize();
+		let pixbuf = new Uint8ClampedArray(pixels.buffer, pixels.byteOffset, pixels.byteLength);
+		flipBGRAtoRGBA(pixbuf);
+		return new ImageData(pixbuf, size.width, size.height);
+	} else if (nodecnv = requireNodeCanvas()) {
+		return new Promise<ImageData>((done, err) => {
 			let img = new nodecnv.Image();
-			img.onerror = error;
+			img.onerror = err;
 			img.onload = () => {
 				var cnv = nodecnv.createCanvas(img.naturalWidth, img.naturalHeight);
 				var ctx = cnv.getContext("2d")!;
@@ -97,8 +111,9 @@ export function imageDataFromBase64(base64: string) {
 				done(new ImageData(data.data, data.width, data.height));
 			}
 			img.src = Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-		}
-	});
+		});
+	}
+	throw new Error("couldn't find built-in canvas, module 'electron/common' or the module 'canvas'");
 }
 
 

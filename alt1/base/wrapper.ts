@@ -8,6 +8,7 @@ declare global {
 	namespace alt1 {
 		var events: { [event: string]: Alt1EventHandler[] };
 
+		//extension api
 		const capture: undefined | ((x: number, y: number, w: number, h: number) => Uint8ClampedArray);
 		const captureAsync: undefined | ((x: number, y: number, w: number, h: number) => Promise<Uint8ClampedArray>);
 		const captureMultiAsync: undefined | (<T extends { [id: string]: RectLike | null | undefined }>(areas: T) => Promise<{ [key in keyof T]: Uint8ClampedArray }>);
@@ -82,9 +83,8 @@ export function getdisplaybounds() {
 /**
  * gets an imagebuffer with pixel data about the requested region
  */
-export function capture(x: number, y: number, w: number, h: number): ImageData;
-export function capture(rect: RectLike): ImageData;
-export function capture(...args: any[]): ImageData | null {
+export function capture(...args: [rect: RectLike] | [x: number, y: number, w: number, h: number]) {
+	//TODO change null return on error into throw instead (x3)
 	if (!hasAlt1) { throw new NoAlt1Error(); }
 	var rect = Rect.fromArgs(...args);
 
@@ -95,18 +95,18 @@ export function capture(...args: any[]): ImageData | null {
 
 	if (rect.width * rect.height * 4 <= maxtransfer) {
 		var data = alt1.getRegion(rect.x, rect.y, rect.width, rect.height);
-		if (!data) { return null; }
+		if (!data) { return null!; }
 		decodeImageString(data, buf, 0, 0, rect.width, rect.height);
 	}
 	else {
 		//split up the request to to exceed the single transfer limit (for now)
 		var x1 = rect.x;
 		var ref = alt1.bindRegion(rect.x, rect.y, rect.width, rect.height);
-		if (ref <= 0) { return null; }
+		if (ref <= 0) { return null!; }
 		while (x1 < rect.x + rect.width) {
 			var x2 = Math.min(rect.x + rect.width, Math.floor(x1 + (maxtransfer / 4 / rect.height)));
 			var data = alt1.bindGetRegion(ref, x1, rect.y, x2 - x1, rect.height);
-			if (!data) { return null; }
+			if (!data) { return null!; }
 			decodeImageString(data, buf, x1 - rect.x, 0, x2 - x1, rect.height);
 			x1 = x2;
 		}
@@ -308,7 +308,7 @@ export function once<K extends keyof Alt1EventType>(type: K, listener: (ev: Alt1
 	};
 	on(type, fn);
 }
-interface Alt1EventType {
+export interface Alt1EventType {
 	"alt1pressed": { eventName: "alt1pressed", text: string, mouseAbs: { x: number, y: number }, mouseRs: { x: number, y: number }, x: number, y: number, rsLinked: boolean },
 	"menudetected": { eventName: "menudetected", rectangle: { x: number, y: number, width: number, height: number } },
 	"rslinked": { eventName: "rslinked" },
@@ -325,7 +325,7 @@ interface Alt1EventType {
  */
 export class ImageStreamReader {
 	private framebuffer: ImageData | null = null;
-	private streamreader: ReadableStreamReader;
+	private streamreader: ReadableStreamReader<Uint8Array>;
 	private pos = 0;
 	private reading = false;
 	closed = false;
@@ -334,10 +334,10 @@ export class ImageStreamReader {
 	private pausedindex = -1;
 	private pausedbuffer: Uint8Array | null = null;
 
-	constructor(reader: ReadableStreamReader, width: number, height: number);
-	constructor(reader: ReadableStreamReader, framebuffer: ImageData);
-	constructor(reader: ReadableStreamReader);
-	constructor(reader: ReadableStreamReader, ...args: any[]) {
+	constructor(reader: ReadableStreamReader<Uint8Array>, width: number, height: number);
+	constructor(reader: ReadableStreamReader<Uint8Array>, framebuffer: ImageData);
+	constructor(reader: ReadableStreamReader<Uint8Array>);
+	constructor(reader: ReadableStreamReader<Uint8Array>, ...args: any[]) {
 		this.streamreader = reader;
 		if (args[0] instanceof ImageData) { this.setFrameBuffer(args[0]); }
 		else if (typeof args[0] == "number") { this.setFrameBuffer(new ImageData(args[0], args[1])); }
@@ -374,7 +374,7 @@ export class ImageStreamReader {
 			}
 			else {
 				synctime += Date.now();
-				var res = await this.streamreader.read() as { value: Uint8Array, done: boolean };
+				var res = await this.streamreader.read();
 				synctime -= Date.now();
 				if (res.done) { throw new Error("Stream closed while reading"); }
 				var data = res.value;
@@ -467,11 +467,9 @@ type asyncCaptureFormat = "png" | "raw" | "jpeg";
 /**
  * Asynchronously captures a section of the game screen
  */
-export async function captureAsync(rect: RectLike): Promise<ImageData>;
-export async function captureAsync(x: number, y: number, width: number, height: number): Promise<ImageData>;
-export async function captureAsync(...args: any[]): Promise<ImageData> {
+export async function captureAsync(...args: [rect: RectLike] | [x: number, y: number, width: number, height: number]) {
 	requireAlt1();
-	var rect = Rect.fromArgs(args);
+	var rect = Rect.fromArgs(...args);
 	if (alt1.captureAsync) {
 		let img = await alt1.captureAsync(rect.x, rect.y, rect.width, rect.height);
 		return new ImageData(img, rect.width, rect.height);
@@ -510,7 +508,7 @@ export async function captureMultiAsync<T extends { [id: string]: RectLike | nul
 	}
 	if (capts.length == 0) { return r; }
 	if (!hasAlt1Version("1.5.1")) {
-		var proms = [] as Promise<ImageData>[];
+		var proms = [] as Promise<ImageData | null>[];
 		for (var a = 0; a < capts.length; a++) { proms.push(captureAsync(capts[a])); }
 		var results = await Promise.all(proms);
 		for (var a = 0; a < capts.length; a++) { r[captids[a]] = results[a]; }

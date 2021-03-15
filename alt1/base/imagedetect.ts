@@ -40,6 +40,24 @@ export async function imageDataFromBase64(data: string) {
 }
 
 /**
+ * Loads an ImageData object directly from a png encoded file buffer
+ * This method ensures that png color space headers are taken care off
+ * @param data The bytes of a png file
+ */
+export async function imageDataFromFileBuffer(data: Uint8Array) {
+	clearPngColorspace(data);
+	if (typeof Image != "undefined") {
+		let blob = new Blob([data], { type: "image/png" });
+		let url = URL.createObjectURL(blob);
+		let r = await imageDataFromUrl(url);
+		URL.revokeObjectURL(url);
+		return r;
+	} else {
+		return nodeimports.imageDataFromBuffer(data);
+	}
+}
+
+/**
 * Checks if a given byte array is a png file (by checking for ?PNG as first 4 bytes)
 * @param bytes Raw bytes of the png file
 */

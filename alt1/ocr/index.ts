@@ -237,6 +237,7 @@ export function findReadLine(buffer: ImageData, font: FontDefinition, cols: Colo
 	if (h == -1) { h = 7; y -= 1; }
 	var chr: ReturnType<typeof findChar> = null;
 	if (cols.length > 1) {
+		//TODO use getChatColor() instead for non-mono?
 		var sorted = GetChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols);
 		//loop until we have a match (max 2 cols)
 		for (var a = 0; a < 2 && a < sorted.length && chr == null; a++) {
@@ -267,7 +268,7 @@ export function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortT
 		}
 		colobj.score = score;
 	}
-	return colormap;
+	return colormap.sort((a,b)=>b.score-a.score);
 }
 
 
