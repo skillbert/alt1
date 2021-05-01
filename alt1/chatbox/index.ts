@@ -529,7 +529,7 @@ export default class ChatBoxReader {
 	static getMessageTime(str: string) {
 		let m = str.match(/^\[(\d{2}):(\d{2}):(\d{2})\]/);
 		if (!m) { return -1; }
-		return ((+m[1]) * 24 + (+m[2])) * 60 + (+m[3]);
+		return (+m[1]) * 60 * 60 + (+m[2]) * 60 + (+m[3]);
 	}
 
 	static getFontColor(buffer: ImageData, x: number, y: number, w: number, h: number) {
