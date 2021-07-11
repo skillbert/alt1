@@ -157,7 +157,7 @@ export default class Alt1Chain {
 		this.chain.target("node");
 		let arr = this.chain.get("externals");
 		//devdependencies are not dependencies of dependent modules, so if they do show up in the bundler they must be bundled
-		arr.push(webpackNodeExternals({ modulesFromFile: { includeInBundle: ["devDependencies"] } as any, modulesDir: this.rootdir }));
+		arr.push(webpackNodeExternals({ modulesFromFile: { includeInBundle: ["devDependencies"] } as any, modulesDir: this.rootdir, allowlist: this.opts.nodejsExcludeExceptions }));
 	}
 
 	configureOpts(override?: Partial<Alt1WebpackOpts>) {
@@ -225,7 +225,8 @@ export type Alt1WebpackOpts = {
 	hotEnable: boolean,
 	hotProxy: string,
 	nodejs: boolean,
-	sourcemaps: boolean
+	sourcemaps: boolean,
+	nodejsExcludeExceptions: webpackNodeExternals.AllowlistOption[]
 };
 
 export type NpmConfig = {
@@ -248,7 +249,8 @@ export function getCmdConfig() {
 		ugly: false,
 		hotEnable: false,
 		hotProxy: "",
-		nodejs: false
+		nodejs: false,
+		nodejsExcludeExceptions: []
 	};
 	for (var arg of process.argv) {
 		switch (arg) {

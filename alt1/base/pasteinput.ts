@@ -89,13 +89,15 @@ export function start() {
 	//turns out this one is interesting, edge is a hybrid between the paste api's
 	var apipasted = function (e: ClipboardEvent) {
 		if (!e.clipboardData) { return; }
-		for (var a = 0; a < e.clipboardData.items.length; a++) {//loop all data types
+
+		//loop all data types
+		for (var a = 0; a < e.clipboardData.items.length; a++) {
 			if (e.clipboardData.items[a].type.indexOf("image") != -1) {
-				var file = e.clipboardData.items[a].getAsFile();
-				var img = new Image();
-				img.src = (window.URL || (window as any).webkitURL).createObjectURL(file);
-				if (img.width > 0) { pasted(img); }
-				else { img.onload = function () { pasted(img); } }
+				fromFile(e.clipboardData.items[a].getAsFile());
+				// var img = new Image();
+				// img.src = (window.URL || (window as any).webkitURL).createObjectURL(file);
+				// if (img.width > 0) { pasted(img); }
+				// else { img.onload = function () { pasted(img); } }
 			}
 		}
 	};

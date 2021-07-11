@@ -31,9 +31,9 @@ npm i sharp canvas
 Building will build all sub-projects and output in their respective dist folders
 ```sh
 # minified build
-npm start build
+npm run build
 # readable build (will not work in old browsers)
-npm start pretty-build
+npm run pretty-build
 ```
 
 # Basic Alt1 concepts

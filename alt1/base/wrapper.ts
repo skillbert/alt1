@@ -227,9 +227,13 @@ export function unmixColor(col: number): [number, number, number] {
 	return [r, g, b];
 }
 
-
 export function identifyApp(url: string) {
 	if (hasAlt1) { alt1.identifyAppUrl(url); }
+}
+
+export function resetEnvironment() {
+	hasAlt1 = (typeof alt1 != "undefined");
+	skinName = hasAlt1 ? alt1.skinName : "default";
 }
 
 function convertAlt1Version(str: string) {
@@ -461,8 +465,6 @@ export class ImageStreamReader {
 		return false;
 	}
 }
-
-type asyncCaptureFormat = "png" | "raw" | "jpeg";
 
 /**
  * Asynchronously captures a section of the game screen
