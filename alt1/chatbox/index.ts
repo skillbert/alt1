@@ -8,12 +8,12 @@ type FontSetting = { name: string, lineheight: number, badgey: number, dy: numbe
 let chatfont = require("@alt1/ocr/fonts/chat_8px.fontmeta.json");
 
 let fonts: FontSetting[] = [
-	{ name: "11pt", lineheight: 15, badgey: -8, dy: 0, def: require("@alt1/ocr/fonts/chat_8px.fontmeta.json") },
-	{ name: "13pt", lineheight: 17, badgey: -9, dy: -1, def: require("@alt1/ocr/fonts/chat_10px.fontmeta.json") },
-	{ name: "15pt", lineheight: 19, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_11px.fontmeta.json") },
-	{ name: "17pt", lineheight: 21, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_13px.fontmeta.json") }
+	{ name: "11pt", lineheight: 12, badgey: -8, dy: 0, def: require("@alt1/ocr/fonts/chat_8px.fontmeta.json") },
+	{ name: "13pt", lineheight: 21, badgey: -9, dy: -8, def: require("@alt1/ocr/fonts/chat_10px.fontmeta.json") },
+	{ name: "15pt", lineheight: 26, badgey: -11, dy: -12, def: require("@alt1/ocr/fonts/chat_11px.fontmeta.json") },
+	{ name: "17pt", lineheight: 23, badgey: -11, dy: -7, def: require("@alt1/ocr/fonts/chat_13px.fontmeta.json") }
 ];
- 
+
 const imgs = ImageDetect.webpackImages({
 	plusbutton: require("./imgs/plusbutton.data.png"),
 	minusbutton: require("./imgs/minusbutton.data.png"),
@@ -95,18 +95,21 @@ export type ChatLine = {
 };
 
 export default class ChatBoxReader {
+	//settings
+	readargs = {
+		colors: defaultcolors.map(c => a1lib.mixColor(c[0], c[1], c[2]))
+	};
+	minoverlap = 2;
+	diffRead = true;
+	diffReadUseTimestamps = true;
+
+	//state
 	pos: { mainbox: Chatbox, boxes: Chatbox[] } | null = null;
 	debug = null;
 	overlaplines: ChatLine[] = [];
 	lastTimestamp = -1;
 	lastTimestampUpdate = 0;
 	addedLastread = false;
-	readargs = {
-		colors: defaultcolors.map(c => a1lib.mixColor(c[0], c[1], c[2]))
-	};
-
-	minoverlap = 2;
-	diffRead = true;
 	font: FontSetting | null = null;
 	lastReadBuffer: ImgRefData | null = null;
 
@@ -307,7 +310,7 @@ export default class ChatBoxReader {
 			//combine with previous reads
 			if (this.diffRead) {
 				let time = ChatBoxReader.getMessageTime(newline.text);
-				if (!this.addedLastread && !hadtimestampless && time != -1 && this.lastTimestamp != -1) {
+				if (this.diffReadUseTimestamps && !this.addedLastread && !hadtimestampless && time != -1 && this.lastTimestamp != -1) {
 					//don't block messages in the same second as last update
 					if (Date.now() > this.lastTimestampUpdate + 1000) {
 						const maxtime = 24 * 60 * 60;
@@ -482,7 +485,7 @@ export default class ChatBoxReader {
 
 
 			group.line0x = 0;
-			group.line0y = group.rect.height - 15;//-11//- 9;//-10 before mobile interface update
+			group.line0y = group.rect.height - 12;//- 15;//-11//- 9;//-10 before mobile interface update
 
 			if (group.leftfound) { group.timestamp = this.checkTimestamp(img, group); }
 			if (mainbox == null || group.type == "main") { mainbox = group; }
