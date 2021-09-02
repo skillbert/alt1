@@ -268,7 +268,7 @@ export function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortT
 		}
 		colobj.score = score;
 	}
-	return colormap.sort((a,b)=>b.score-a.score);
+	return colormap.sort((a, b) => b.score - a.score);
 }
 
 
@@ -341,6 +341,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 	var maxspaces = (typeof font.maxspaces == "number" ? font.maxspaces : 1);
 
 	let fragtext = "";
+	let fraghadprimary = false;
 	var lastcol: ColortTriplet | null = null;
 	let addfrag = (forward: boolean) => {
 		if (!fragtext) { return; }
@@ -355,6 +356,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 		else { fragments.unshift(frag); }
 		fragtext = "";
 		fragstartdx = dx;
+		fraghadprimary = false;
 	}
 
 	for (var dirforward of [true, false]) {
@@ -378,7 +380,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 					triedspaces++;
 					continue;
 				}
-				if (multicol && !triedrecol) {
+				if (multicol && !triedrecol && fraghadprimary) {
 					dx -= (dirforward ? 1 : -1) * triedspaces * font.spacewidth;
 					triedspaces = 0;
 					col = null;
@@ -396,6 +398,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 				for (var a = 0; a < triedspaces; a++) { spaces += " "; }
 				if (dirforward) { fragtext += spaces + chr.chr; }
 				else { fragtext = chr.chr + spaces + fragtext; }
+				if (!chr.basechar.secondary) { fraghadprimary = true; }
 				triedspaces = 0;
 				triedrecol = false;
 				dx += (dirforward ? 1 : -1) * chr.basechar.width;
@@ -403,7 +406,7 @@ export function readLine(buffer: ImageData, font: FontDefinition, colors: Colort
 				lastcol = col;
 			}
 		}
-		if (lastcol) { addfrag(dirforward); }
+		if (lastcol && fraghadprimary) { addfrag(dirforward); }
 	}
 
 	fragments.forEach((f, i) => f.index = i);

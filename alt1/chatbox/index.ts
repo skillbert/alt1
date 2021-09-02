@@ -7,11 +7,20 @@ type FontSetting = { name: string, lineheight: number, badgey: number, dy: numbe
 
 let chatfont = require("@alt1/ocr/fonts/chat_8px.fontmeta.json");
 
-let fonts: FontSetting[] = [
-	{ name: "11pt", lineheight: 15, badgey: -8, dy: 0, def: require("@alt1/ocr/fonts/chat_8px.fontmeta.json") },
-	{ name: "13pt", lineheight: 17, badgey: -9, dy: -1, def: require("@alt1/ocr/fonts/chat_10px.fontmeta.json") },
-	{ name: "15pt", lineheight: 19, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_11px.fontmeta.json") },
-	{ name: "17pt", lineheight: 21, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_13px.fontmeta.json") }
+// let fonts: FontSetting[] = [
+// 	{ name: "11pt", lineheight: 15, badgey: -8, dy: 0, def: require("@alt1/ocr/fonts/chat_8px.fontmeta.json") },
+// 	{ name: "13pt", lineheight: 17, badgey: -9, dy: -1, def: require("@alt1/ocr/fonts/chat_10px.fontmeta.json") },
+// 	{ name: "15pt", lineheight: 19, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_11px.fontmeta.json") },
+// 	{ name: "17pt", lineheight: 21, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_13px.fontmeta.json") }
+// ];
+let fonts: FontSetting[] = [ 
+	{ name: "10pt", lineheight: 14, badgey: -9, dy: -1, def: require("./fonts/10pt.fontmeta.json") },
+	{ name: "12pt", lineheight: 16, badgey: -10, dy: -4, def: require("./fonts/12pt.fontmeta.json") },
+	{ name: "14pt", lineheight: 19, badgey: -10, dy: -8, def: require("./fonts/14pt.fontmeta.json") },
+	{ name: "16pt", lineheight: 22, badgey: -12, dy: -10, def: require("./fonts/16pt.fontmeta.json") },
+	{ name: "18pt", lineheight: 25, badgey: -12, dy: -14, def: require("./fonts/18pt.fontmeta.json") },
+	{ name: "20pt", lineheight: 27, badgey: -13, dy: -16, def: require("./fonts/20pt.fontmeta.json") },
+	{ name: "22pt", lineheight: 30, badgey: -14, dy: -20, def: require("./fonts/22pt.fontmeta.json") },
 ];
 
 const imgs = ImageDetect.webpackImages({
@@ -157,23 +166,7 @@ export default class ChatBoxReader {
 						continue;
 					}
 				}
-				//main body of read
-				var data = OCR.readLine(imgdata, font.def, ocrcolors, (dirforward ? rightx : leftx), imgliney, dirforward, !dirforward);
-				if (data.text) {
-					if (dirforward) { data.fragments.forEach(f => addfrag(f)); }
-					else { data.fragments.reverse().forEach(f => addfrag(f)); }
-					triedletterspacingskip = false;
-				}
-
-				//failed to read closing square bracket?
-				if (dirforward && text.match(/\[[\w: ]+$/)) {
-					let closebracket = OCR.readChar(imgdata, font.def, [255, 255, 255], rightx, imgliney, false, false);
-					if (closebracket?.chr == "]") {
-						addfrag({ color: [255, 255, 255], text: "] ", index: -1, xstart: rightx, xend: rightx + closebracket.basechar.width + font.def.spacewidth });
-						continue;
-					}
-				}
-
+				
 				//chat badges
 				if (
 					(dirforward && text.match(/(\] ?|news: ?|^)$/i)) ||
@@ -191,6 +184,24 @@ export default class ChatBoxReader {
 							addfrag({ color: [255, 255, 255], index: -1, text: badgemap[badge], xstart: badgeleft, xend: badgeleft + bimg.width });
 							continue retryloop;
 						}
+					}
+				}
+
+				//main body of read
+				var data = OCR.readLine(imgdata, font.def, ocrcolors, (dirforward ? rightx : leftx), imgliney, dirforward, !dirforward);
+				if (data.text) {
+					if (dirforward) { data.fragments.forEach(f => addfrag(f)); }
+					else { data.fragments.reverse().forEach(f => addfrag(f)); }
+					triedletterspacingskip = false;
+					continue;
+				}
+
+				//failed to read closing square bracket?
+				if (dirforward && text.match(/\[[\w: ]+$/)) {
+					let closebracket = OCR.readChar(imgdata, font.def, [255, 255, 255], rightx, imgliney, false, false);
+					if (closebracket?.chr == "]") {
+						addfrag({ color: [255, 255, 255], text: "] ", index: -1, xstart: rightx, xend: rightx + closebracket.basechar.width + font.def.spacewidth });
+						continue;
 					}
 				}
 
