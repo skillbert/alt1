@@ -6,7 +6,7 @@ import { clearPngColorspace } from "./imagedetect";
 
 declare var __non_webpack_require__: any;
 
-function requireNodeCanvas() {
+export function requireNodeCanvas() {
 	if (typeof __non_webpack_require__ != "undefined") {
 		//attempt to require sharp first, after loading canvas the module sharp fails to load
 		requireSharp();
@@ -17,7 +17,7 @@ function requireNodeCanvas() {
 	return null;
 }
 
-function requireSharp() {
+export function requireSharp() {
 	if (typeof __non_webpack_require__ != "undefined") {
 		try {
 			return __non_webpack_require__("sharp");// as typeof import("sharp");
@@ -26,7 +26,7 @@ function requireSharp() {
 	return null;
 }
 
-function requireElectronCommon() {
+export function requireElectronCommon() {
 	if (typeof __non_webpack_require__ != "undefined") {
 		try {
 			return __non_webpack_require__("electron/common");
