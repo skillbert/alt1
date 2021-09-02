@@ -311,9 +311,10 @@ ImageData.prototype.pixelCompare = function (buf: ImageData, x = 0, y = 0, max?:
 
 ImageData.prototype.copyTo = function (target: ImageData, sourcex: number, sourcey: number, width: number, height: number, targetx: number, targety: number) {
 	//convince v8 that these are 31bit uints
-	const targetwidth = width | 0;
+	const targetwidth = target.width | 0;
 	const thiswidth = this.width | 0;
 
+	const copywidth = width | 0;
 	const fastwidth = Math.floor(width / 4) * 4;
 	const thisdata = new Int32Array(this.data.buffer, this.data.byteOffset, this.data.byteLength / 4);
 	const targetdata = new Int32Array(target.data.buffer, target.data.byteOffset, target.data.byteLength / 4);
@@ -331,7 +332,7 @@ ImageData.prototype.copyTo = function (target: ImageData, sourcex: number, sourc
 			is += 4;
 		}
 		//copy remainder per pixel
-		for (; cx < targetwidth; cx++) {
+		for (; cx < copywidth; cx++) {
 			targetdata[it] = thisdata[is];
 			it += 1;
 			is += 1;
