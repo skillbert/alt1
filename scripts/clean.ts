@@ -5,7 +5,6 @@ import * as fs from "fs";
 var rootdir = path.resolve(__dirname, "..");
 
 var globs = {
-	packtypes: path.resolve(rootdir, "alt1/*/types/**/*"),
 	packdist: path.resolve(rootdir, "alt1/*/dist/**/*"),
 	typebuild: path.resolve(rootdir, "types/**/*")
 };

@@ -2,8 +2,9 @@
 	"name": "@alt1/ability",
 	"umdGlobal": "AbilityReader",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.bundle.js",
-	"types": "./index.ts",
+	"main": "./dist/index.js",
+	"types": "./dist/",
+	"files": ["./dist/"],
 	"author": "Skillbert",
 	"version": "0.0.17",
 	"publishConfig": {

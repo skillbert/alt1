@@ -58,6 +58,7 @@ export function chainAlt1Lib(rootdir: string) {
 	}
 	if (!foundentry) { throw new Error("couldn't find entry file in " + rootdir); }
 	config.output("./dist");
+	config.chain.output.filename("[name].js");
 	return config;
 }
 var cachedPackageMeta: { [name: string]: ReturnType<typeof getPackageInfo> } | null = null;

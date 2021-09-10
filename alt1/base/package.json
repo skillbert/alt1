@@ -3,8 +3,9 @@
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "A1lib",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.bundle.js",
-	"types": "./index.ts",
+	"main": "./dist/index.js",
+	"types": "./dist/",
+	"files": ["./dist/"],
 	"author": "Skillbert",
 	"version": "0.0.17",
 	"publishConfig": {

@@ -1,10 +1,10 @@
 {
 	"compilerOptions": {
+		"rootDir": "./alt1/",
 		"moduleResolution": "node",
 		"module": "commonjs",
 		"lib": [ "es6", "dom" ],
 		"target": "es6",
-		"sourceMap": true,
 		"alwaysStrict": true,
 		"jsx": "react",
 		"allowJs": false,
@@ -14,8 +14,9 @@
 		"experimentalDecorators": true,
 		"paths": {
 			"@alt1/*": [ "alt1/*" ]
-		}
+		},
+		"sourceMap": true
 	},
-	"exclude": [ "node_modules", "types", "**/dist" ],
+	"exclude": [ "node_modules", "./types", "**/dist", "./scripts/**","**/webpack.config.ts" ],
 	"compileOnSave": false
 }

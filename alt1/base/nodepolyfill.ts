@@ -4,32 +4,47 @@
 import { ImageData } from "./index";
 import { clearPngColorspace } from "./imagedetect";
 
-declare var __non_webpack_require__: any;
+/**
+ * Require call that doesn't get absorbed by webpack (recursively)
+ * - __non_webpack_require__ doesn't work recusrively over multiple compiles
+ * - config.externals doesn't lazy load and pulls in all native/huge/optional externals on load on nodejs
+ */
+function nodejsRequire(module: string) {
+	//return __non_webpack_require__(module);
+	let glob: any = (typeof globalThis != "undefined" ? globalThis : global);
+	return glob.require(module);
+}
+
+function hasNodejsRequire(){
+	//return typeof __non_webpack_require__ != "undefined";
+	let glob: any = (typeof globalThis != "undefined" ? globalThis : global);
+	return !!glob.require;
+}
 
 export function requireNodeCanvas() {
-	if (typeof __non_webpack_require__ != "undefined") {
+	if (hasNodejsRequire()) {
 		//attempt to require sharp first, after loading canvas the module sharp fails to load
 		requireSharp();
 		try {
-			return __non_webpack_require__("canvas");// as typeof import("canvas");
+			return nodejsRequire("canvas");// as typeof import("canvas");
 		} catch (e) { }
 	}
 	return null;
 }
 
 export function requireSharp() {
-	if (typeof __non_webpack_require__ != "undefined") {
+	if (hasNodejsRequire()) {
 		try {
-			return __non_webpack_require__("sharp");// as typeof import("sharp");
+			return nodejsRequire("sharp");// as typeof import("sharp");
 		} catch (e) { }
 	}
 	return null;
 }
 
 export function requireElectronCommon() {
-	if (typeof __non_webpack_require__ != "undefined") {
+	if (hasNodejsRequire()) {
 		try {
-			return __non_webpack_require__("electron/common");
+			return nodejsRequire("electron/common");
 		} catch (e) { }
 	}
 	return null;

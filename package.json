@@ -6,8 +6,7 @@
 		"build": "lerna run build -- -- -p --types --nougly",
 		"pretty-build": "lerna run build -- -- --nougly",
 		"start": "lerna run build -- -- --watch",
-		"types-old": "tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes",
-		"types": "echo 'types script skipped as it is obsolete'",
+		"types": "tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes",
 		"clean": "node -r ./scripts/ts ./scripts/clean",
 		"link": "lerna exec -- npm link & lerna link",
 		"build-release": "npm run clean & npm run build & npm run types",
@@ -16,6 +15,7 @@
 	"devDependencies": {
 		"@alt1/font-loader": "file:./alt1/font-loader",
 		"@alt1/imagedata-loader": "file:./alt1/imagedata-loader",
+		"@alt1/webpack": "file:./alt1/webpack",
 		"@types/glob": "^5.0.35",
 		"@types/html-webpack-plugin": "^3.2.0",
 		"@types/node": "^8.0.19",
@@ -54,8 +54,8 @@
 		"./alt1/base/imagedata-extensions.ts"
 	],
 	"dependencies": {
-		"canvas": "^2.6.1",
+		"canvas": "^2.8.0",
 		"node-fetch": "^2.6.1",
-		"sharp": "^0.27.2"
+		"sharp": "^0.29.0"
 	}
 }
