@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as fs from "fs";
-//import actual index.ts here as otherwise it will get redirected to ./dist/min.js which is the old version
+//import actual index.ts here as otherwise it will get redirected to ./dist/min.js which isn't compiled yet
 import * as webpackutil from "@alt1/webpack/index";
 import * as webpack from "webpack";
 import * as alt1webpack from "./alt1webpack";
@@ -10,7 +10,7 @@ var buildTypes = buildTypesOnly || process.argv.indexOf("--types") != -1;
 var customWebpackConfig = process.argv.indexOf("--custom-webpack") != -1
 
 var projectdir = process.cwd();
-var tsCompilerOpts = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../tsconfig.json")).toString()).compilerOptions;
+var tsCompilerOpts = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../tsconfig.json"), "utf-8")).compilerOptions;
 var packageObject = webpackutil.getPackageInfo(path.resolve(projectdir, "package.json"));
 
 //build main
@@ -30,7 +30,7 @@ if (!buildTypesOnly) {
 		});
 	} else {
 		compilation.run((err, stats) => {
-			console.log(stats.toString());
+			console.log(stats?.toString());
 			console.log("webpack done " + projectdir, err);
 		});
 	}

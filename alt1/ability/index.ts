@@ -1,8 +1,7 @@
 import * as a1lib from "@alt1/base";
 import * as OCR from "@alt1/ocr";
 import ActionbarReader, { LifeState } from "./actionbar";
-import { Rect, ImgRef, captureAsync } from "@alt1/base";
-import { ImageDataSet } from "@alt1/base/imagedetect";
+import { Rect, ImgRef, captureAsync, ImageDetect } from "@alt1/base";
 
 export { default as ActionbarReader } from "./actionbar";
 
@@ -17,11 +16,11 @@ var imgs = a1lib.ImageDetect.webpackImages({
 	actionbarnumbers: require("./imgs/actionbarnumbers.data.png")
 });
 
-var barnumimgs: ImageDataSet = null!;
+var barnumimgs: ImageDetect.ImageDataSet = null!;
 var barnummap: { [id: number]: string } = {};
 
 imgs.promise.then(() => {
-	barnumimgs = ImageDataSet.fromFilmStrip(imgs.actionbarnumbers, 10);
+	barnumimgs = ImageDetect.ImageDataSet.fromFilmStrip(imgs.actionbarnumbers, 10);
 	for (let a = 0; a < 13; a++) { barnummap[a] = (a + 1) + ""; }
 });
 

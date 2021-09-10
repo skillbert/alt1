@@ -1,7 +1,7 @@
 ﻿import * as sharp from "sharp";
 import * as OCR from "@alt1/ocr";
 import * as a1lib from "@alt1/base";
-import { loader } from "webpack";
+import { LoaderContext } from "webpack";
 
 type FontMeta = {
 	basey: number,
@@ -23,7 +23,7 @@ function cloneImage(img: ImageData, x, y, w, h) {
 	return clone;
 }
 
-export default function (this: loader.LoaderContext, source: string) {
+export default function (this: LoaderContext<void>, source: string) {
 	this.cacheable(true);
 	var me = this;
 	var meta = JSON.parse(source) as FontMeta;
@@ -33,12 +33,12 @@ export default function (this: loader.LoaderContext, source: string) {
 	this.async();
 
 	(async () => {
-		var bytes = await new Promise((done, err) => {
-			this.fs.readFile(meta.img, (e, buf) => {
+		var bytes = await new Promise<Buffer>((done, err) => {
+			this.fs.readFile(meta.img!, (e, buf) => {
 				if (e) { err(e); }
-				done(buf);
+				done(buf as Buffer);
 			})
-		}) as Buffer;
+		});
 		var byteview = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 		a1lib.ImageDetect.clearPngColorspace(byteview);
 		//currently still need the sharp package instead of node-canvas for this to prevent losing precision due to premultiplied alphas

@@ -1,7 +1,7 @@
 ﻿import { ImageDetect } from "@alt1/base";
-import { loader } from "webpack";
+import { LoaderContext } from "webpack";
 
-export default function (this: loader.LoaderContext, source: Buffer) {
+export default function (this: LoaderContext<void>, source: Buffer) {
 	this.cacheable(true);
 	ImageDetect.clearPngColorspace(source);
 	var imgstr = source.toString("base64");

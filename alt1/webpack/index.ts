@@ -1,6 +1,5 @@
 import * as webpack from "webpack";
 import * as path from "path";
-import * as glob from "glob";
 import * as fs from "fs";
 import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import * as webpackNodeExternals from "webpack-node-externals";
@@ -12,24 +11,9 @@ import * as TerserPlugin from "terser-webpack-plugin";
 //daslkjdsalkdjqlkewjqwlkejqewwqe
 //webpack-chain is so fucking dumb 
 
-// //sharp will crash if loaded after canvas because of a weird common dependency, so make sure they are always loaded in the correct order
-// var cnvcode = `(()=>{
-// 	/* sharp crashes if loaded after canvas because of weird common dependency */
-// 	if(typeof require!="undefined"){
-// 		try{require("sharp");}catch(e){}
-// 		return require("canvas");
-// 	}
-// 	return null;
-// })()`;
-// var nodeCompatExternals = {
-// 	"sharp": { commonjs: "sharp", code: "null" },
-// 	"canvas": { commonjs: undefined, code: cnvcode }
-// };
-
 function constructApply(fn: Function, args: any) {
 	return new (Function.prototype.bind.apply(fn, args));
 }
-
 
 declare module "webpack-chain" {
 	export interface Rule {
@@ -85,7 +69,7 @@ export default class Alt1Chain {
 	makeUmd(name: string, windowExport: string) {
 		this.chain.output.libraryTarget("umd");
 		this.chain.output.set("library", { root: windowExport, commonjs: name, amd: name });
-		this.chain.output.jsonpFunction(name);
+		this.chain.output.set("chunkLoadingGlobal", name);
 	}
 
 	toConfig() {
@@ -131,8 +115,8 @@ export default class Alt1Chain {
 	}
 
 	ugly(ugly: boolean) {
-		if (!ugly) { this.chain.plugin("namedmodules").use((webpack as any).NamedModulesPlugin).init(constructApply); }
-		else { this.chain.plugins.delete("namedmodules"); }
+		//TODO just set config.mode instead
+		this.chain.optimization.set("moduleIds", ugly ? "natural" : "named");
 		this.chain.optimization.minimize(ugly);
 		this.chain.optimization.minimizer("terser").use(TerserPlugin as any, [{
 			terserOptions: {
@@ -141,7 +125,7 @@ export default class Alt1Chain {
 					max_line_len: 250//makes dev tools not crash when viewing
 				}
 			}
-		} as TerserPlugin.TerserPluginOptions]);
+		} as any]);
 	}
 
 	dropconsole() {
