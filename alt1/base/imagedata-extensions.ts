@@ -223,9 +223,8 @@ ImageData.prototype.show = function (this: ImageData, x = 5, y = 5, zoom = 1) {
 	el.style.cursor = "pointer";
 	el.style.imageRendering = "pixelated";
 	el.style.outline = "1px solid #0f0";
-	el.style.width = (this.width == 1 ? 100 : this.width) + "px";
-	el.style.height = (this.height == 1 ? 100 : this.height) + "px";
-	el.style.zoom = "" + zoom;
+	el.style.width = (this.width == 1 ? 100 : this.width) * zoom + "px";
+	el.style.height = (this.height == 1 ? 100 : this.height) * zoom + "px";
 	el.onclick = function () { el.remove(); }
 	document.body.appendChild(el);
 	return el;

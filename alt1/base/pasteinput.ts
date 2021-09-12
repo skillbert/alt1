@@ -2,9 +2,9 @@ import { ImgRefCtx } from "./index";
 import * as ImageDetect from "./imagedetect";
 import { ImgRef } from "./imgref";
 
-
+type ErrorCode = "noimg" | "notpng" | "invalidfile";
 type ImgCallback = (imgref: ImgRef) => any;
-type ErrorCallback = (text: string, id: string) => any;
+type ErrorCallback = (text: string, id: ErrorCode) => any;
 var listeners: { cb: ImgCallback, error: ErrorCallback | undefined }[] = [];
 var started = false;
 var dndStarted = false;
@@ -39,7 +39,7 @@ function pasted(img: HTMLImageElement | HTMLCanvasElement) {
 	triggerPaste(new ImgRefCtx(cnv));
 }
 
-function error(mes: string, error: string) {
+function error(error: ErrorCode, mes: string) {
 	pasting = false;
 	for (var a in listeners) {
 		listeners[a].error?.(mes, error);
@@ -58,7 +58,7 @@ export function startDragNDrop() {
 			}
 		}
 		if (foundimage) {
-			error("The image you uploaded is not a .png image. Other image type have compression noise and can't be used for image detection.", "notpng");
+			error("notpng", "The image you uploaded is not a .png image. Other image type have compression noise and can't be used for image detection.");
 		}
 		return null;
 	}
@@ -89,15 +89,13 @@ export function start() {
 	//turns out this one is interesting, edge is a hybrid between the paste api's
 	var apipasted = function (e: ClipboardEvent) {
 		if (!e.clipboardData) { return; }
-
-		//loop all data types
-		for (var a = 0; a < e.clipboardData.items.length; a++) {
+		for (var a = 0; a < e.clipboardData.items.length; a++) {//loop all data types
 			if (e.clipboardData.items[a].type.indexOf("image") != -1) {
-				fromFile(e.clipboardData.items[a].getAsFile());
-				// var img = new Image();
-				// img.src = (window.URL || (window as any).webkitURL).createObjectURL(file);
-				// if (img.width > 0) { pasted(img); }
-				// else { img.onload = function () { pasted(img); } }
+				var file = e.clipboardData.items[a].getAsFile();
+				var img = new Image();
+				img.src = (window.URL || (window as any).webkitURL).createObjectURL(file);
+				if (img.width > 0) { pasted(img); }
+				else { img.onload = function () { pasted(img); } }
 			}
 		}
 	};
@@ -131,7 +129,7 @@ export function start() {
 		if (e.keyCode != "V".charCodeAt(0) || !e.ctrlKey) { return; }
 		pasting = true;
 		setTimeout(function () {
-			if (pasting) { error("You pressed Ctrl+V, but no image was pasted by your browser, make sure your clipboard contains an image, and not a link to an image.", "noimg"); }
+			if (pasting) { error("noimg", "You pressed Ctrl+V, but no image was pasted by your browser, make sure your clipboard contains an image, and not a link to an image."); }
 		}, 1000);
 		if (catcher) { catcher.focus(); }
 	});
@@ -156,7 +154,7 @@ function fromFile(file: File | null) {
 		}
 		var blob = new Blob([bytearray], { type: "image/png" });
 		var img = new Image();
-		img.onerror = () => error("The file you uploaded could not be opened as an image.", "invalidfile");
+		img.onerror = () => error("invalidfile", "The file you uploaded could not be opened as an image.",);
 		var bloburl = URL.createObjectURL(blob);
 		img.src = bloburl;
 		if (img.width > 0) { pasted(img); URL.revokeObjectURL(bloburl); }
