@@ -9,23 +9,12 @@ declare global {
 		var events: { [event: string]: Alt1EventHandler[] };
 
 		//extension api
-		const capture: undefined | ((x: number, y: number, w: number, h: number) => Uint8ClampedArray);
-		const captureAsync: undefined | ((x: number, y: number, w: number, h: number) => Promise<Uint8ClampedArray>);
-		const captureMultiAsync: undefined | (<T extends { [id: string]: RectLike | null | undefined }>(areas: T) => Promise<{ [key in keyof T]: Uint8ClampedArray }>);
-		const bindGetRegionBuffer: undefined | ((id: number, x: number, y: number, width: number, height: number) => Uint8ClampedArray)
+		var capture: undefined | ((x: number, y: number, w: number, h: number) => Uint8ClampedArray);
+		var captureAsync: undefined | ((x: number, y: number, w: number, h: number) => Promise<Uint8ClampedArray>);
+		var captureMultiAsync: undefined | (<T extends { [id: string]: RectLike | null | undefined }>(areas: T) => Promise<{ [key in keyof T]: Uint8ClampedArray }>);
+		var bindGetRegionBuffer: undefined | ((id: number, x: number, y: number, width: number, height: number) => Uint8ClampedArray)
 	}
 }
-
-
-// namespace alt1 {
-// 	declare var events: { [event: string]: Alt1EventHandler[] };
-
-// 	//extension api
-// 	declare const capture: undefined | ((x: number, y: number, w: number, h: number) => Uint8ClampedArray);
-// 	declare const captureAsync: undefined | ((x: number, y: number, w: number, h: number) => Promise<Uint8ClampedArray>);
-// 	declare const captureMultiAsync: undefined | (<T extends { [id: string]: RectLike | null | undefined }>(areas: T) => Promise<{ [key in keyof T]: Uint8ClampedArray }>);
-// 	declare const bindGetRegionBuffer: undefined | ((id: number, x: number, y: number, width: number, height: number) => Uint8ClampedArray)
-// }
 
 /**
  * Thrown when a method is called that can not be used outside of Alt1

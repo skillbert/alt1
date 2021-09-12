@@ -3,7 +3,7 @@ import * as path from "path";
 import * as glob from "glob";
 import * as fs from "fs";
 //import actual index.ts here as otherwise it will get redirected to ./dist/min.js which is the old version
-import Alt1Chain, { getPackageInfo } from "@alt1/webpack/index";
+import Alt1Chain, { getPackageInfo } from "../alt1/webpack";
 
 
 

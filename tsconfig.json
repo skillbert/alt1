@@ -12,11 +12,8 @@
 		"strictNullChecks": true,
 		"strictPropertyInitialization": false,
 		"experimentalDecorators": true,
-		"paths": {
-			"@alt1/*": [ "alt1/*" ]
-		},
 		"sourceMap": true
 	},
-	"exclude": [ "node_modules", "./types", "**/dist", "./scripts/**","**/webpack.config.ts" ],
+	"exclude": [ "node_modules", "./types/*", "./scripts/**", "**/webpack.config.ts" ],
 	"compileOnSave": false
 }

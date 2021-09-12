@@ -13,9 +13,10 @@
 		"publish": "lerna publish"
 	},
 	"devDependencies": {
+		"@alt1/base": "file:./alt1/base",
+		"@alt1/ocr": "file:./alt1/ocr",
 		"@alt1/font-loader": "file:./alt1/font-loader",
 		"@alt1/imagedata-loader": "file:./alt1/imagedata-loader",
-		"@alt1/webpack": "file:./alt1/webpack",
 		"@types/glob": "^5.0.35",
 		"@types/node": "^8.0.19",
 		"@types/react": "^16.9.2",

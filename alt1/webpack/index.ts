@@ -2,23 +2,29 @@ import * as webpack from "webpack";
 import * as path from "path";
 import * as fs from "fs";
 import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
-import * as webpackNodeExternals from "webpack-node-externals";
-import * as WebpackChain from "webpack-chain";
 import * as TerserPlugin from "terser-webpack-plugin";
 
-//import Config = require("webpack-chain");
-
-//daslkjdsalkdjqlkewjqwlkejqewwqe
-//webpack-chain is so fucking dumb 
-
-function constructApply(fn: Function, args: any) {
-	return new (Function.prototype.bind.apply(fn, args));
-}
-
+//these packages have outdated webpack v4 typings but still work, use require syntax to shut up typescript errors
+/*
+import * as webpackNodeExternals from "webpack-node-externals";
+import * as WebpackChain from "webpack-chain";
 declare module "webpack-chain" {
 	export interface Rule {
 		oneOf(name: string): WebpackChain.Rule;
 	}
+}
+/*/
+const WebpackChain = require("webpack-chain");
+const webpackNodeExternals = require("webpack-node-externals");
+type WebpackChain = any;
+type webpackNodeExternals = any;
+type AllowlistOption = any;
+//*/
+
+//TODO get rid of webpack-chain
+
+function constructApply(fn: Function, args: any) {
+	return new (Function.prototype.bind.apply(fn, args));
 }
 
 export default class Alt1Chain {
@@ -32,7 +38,7 @@ export default class Alt1Chain {
 		this.chain.context(rootdir);
 		this.rootdir = rootdir;
 		var dir = path.resolve(rootdir);
-		this.chain.resolve.mainFields.prepend("runeappsLibEntry").add("module").add("main");
+		//this.chain.resolve.mainFields.prepend("runeappsLibEntry").add("module").add("main");
 		while (true) {
 			var file = path.resolve(dir, "tsconfig.json");
 			if (fs.existsSync(file)) {
@@ -97,7 +103,8 @@ export default class Alt1Chain {
 
 	production(prod: boolean, sourcemaps: boolean, enablehot: boolean, hotproxy?: string) {
 		this.chain.mode(prod ? "production" : "development");
-		this.chain.devtool(sourcemaps ? (prod ? "source-map" : 'eval-source-map') : "" as any);
+		//this.chain.devtool(sourcemaps ? (prod ? "source-map" : 'eval-source-map') : undefined as any);
+		this.chain.devtool(prod ? "source-map" : undefined as any);
 
 		if (!prod && enablehot && webpack.HotModuleReplacementPlugin) {
 			this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin as any).init(constructApply);
@@ -140,6 +147,7 @@ export default class Alt1Chain {
 	nodejs() {
 		this.chain.target("node");
 		let arr = this.chain.get("externals");
+		this.chain.set("externalsPresets", { node: true });
 		//devdependencies are not dependencies of dependent modules, so if they do show up in the bundler they must be bundled
 		arr.push(webpackNodeExternals({ modulesFromFile: { includeInBundle: ["devDependencies"] } as any, modulesDir: this.rootdir, allowlist: this.opts.nodejsExcludeExceptions }));
 	}
@@ -162,9 +170,6 @@ export default class Alt1Chain {
 
 		this.chain.output.globalObject("(typeof self!='undefined'?self:this)");
 		this.chain.externals([]);
-		// for (var ext in nodeCompatExternals) {
-		// 	this.addExternal(ext, nodeCompatExternals[ext].commonjs, nodeCompatExternals[ext].code);
-		// }
 
 		this.chain.module.rule("typescript")
 			.test(/\.(ts|tsx)$/)
@@ -210,7 +215,7 @@ export type Alt1WebpackOpts = {
 	hotProxy: string,
 	nodejs: boolean,
 	sourcemaps: boolean,
-	nodejsExcludeExceptions: webpackNodeExternals.AllowlistOption[]
+	nodejsExcludeExceptions: AllowlistOption[]
 };
 
 export type NpmConfig = {
