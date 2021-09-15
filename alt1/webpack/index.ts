@@ -1,7 +1,6 @@
 import * as webpack from "webpack";
 import * as path from "path";
 import * as fs from "fs";
-import TsconfigPathsPlugin, * as TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import * as TerserPlugin from "terser-webpack-plugin";
 
 //these packages have outdated webpack v4 typings but still work, use require syntax to shut up typescript errors
@@ -38,7 +37,6 @@ export default class Alt1Chain {
 		this.chain.context(rootdir);
 		this.rootdir = rootdir;
 		var dir = path.resolve(rootdir);
-		//this.chain.resolve.mainFields.prepend("runeappsLibEntry").add("module").add("main");
 		while (true) {
 			var file = path.resolve(dir, "tsconfig.json");
 			if (fs.existsSync(file)) {
@@ -88,23 +86,12 @@ export default class Alt1Chain {
 		let arr = this.chain.get("externals");
 		arr.push({ [id]: { root: windowExport, commonjs: packname, commonjs2: packname, amd: packname } });
 	}
-	useTsconfigPaths() {
-		this.chain.resolve.plugin("tsconfigpaths").use(TsconfigPathsPlugin as any).init((cl) => {
-			//typings of webpack-chain are wrong (again)
-			//use some hardcore casting
-			var mainFields = this.chain.resolve.mainFields.values();
-			return new (cl as any as typeof TsconfigPathsPlugin)({
-				configFile: this.tsconfigfile,
-				extensions: this.chain.resolve.extensions.values(),
-				mainFields: mainFields
-			}) as any;
-		});
-	}
 
 	production(prod: boolean, sourcemaps: boolean, enablehot: boolean, hotproxy?: string) {
 		this.chain.mode(prod ? "production" : "development");
 		//this.chain.devtool(sourcemaps ? (prod ? "source-map" : 'eval-source-map') : undefined as any);
-		this.chain.devtool(prod ? "source-map" : undefined as any);
+		this.chain.devtool(sourcemaps ? (prod ? "source-map" : 'eval-source-map') : false as any);
+		//this.chain.devtool(prod ? "source-map" : false as any);
 
 		if (!prod && enablehot && webpack.HotModuleReplacementPlugin) {
 			this.chain.plugin("hotmodule").use(webpack.HotModuleReplacementPlugin as any).init(constructApply);
@@ -149,7 +136,13 @@ export default class Alt1Chain {
 		let arr = this.chain.get("externals");
 		this.chain.set("externalsPresets", { node: true });
 		//devdependencies are not dependencies of dependent modules, so if they do show up in the bundler they must be bundled
-		arr.push(webpackNodeExternals({ modulesFromFile: { includeInBundle: ["devDependencies"] } as any, modulesDir: this.rootdir, allowlist: this.opts.nodejsExcludeExceptions }));
+		arr.push(webpackNodeExternals({
+			modulesFromFile: {
+				exclude: ["devDependencies"]
+			},
+			modulesDir: this.rootdir,
+			allowlist: this.opts.nodejsExcludeExceptions
+		}));
 	}
 
 	configureOpts(override?: Partial<Alt1WebpackOpts>) {
@@ -177,7 +170,7 @@ export default class Alt1Chain {
 		this.chain.module.rule("css")
 			.test(/\.css$/)
 			.use("style").loader("style-loader").end()
-			.use("css").loader("css-loader?-url").end();
+			.use("css").loader("css-loader").end();
 		this.chain.module.rule("scss")
 			.test(/\.scss$/)
 			.use("style").loader("style-loader").end()

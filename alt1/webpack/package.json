@@ -14,7 +14,6 @@
 	},
 	"dependencies": {
 		"terser-webpack-plugin": "^4.0.0",
-		"tsconfig-paths-webpack-plugin": "^3.3.0",
 		"webpack-chain": "^6.5.1",
 		"webpack-node-externals": "^2.5.2"
 	},
