@@ -12,13 +12,13 @@ import { clearPngColorspace } from "./imagedetect";
 function nodejsRequire(module: string) {
 	//return __non_webpack_require__(module);
 	let glob: any = (typeof globalThis != "undefined" ? globalThis : global);
-	return glob.require(module);
+	return glob.process.mainModule.require(module);
 }
 
-function hasNodejsRequire(){
+function hasNodejsRequire() {
 	//return typeof __non_webpack_require__ != "undefined";
 	let glob: any = (typeof globalThis != "undefined" ? globalThis : global);
-	return !!glob.require;
+	return !!glob?.process?.mainModule?.require;
 }
 
 export function requireNodeCanvas() {
