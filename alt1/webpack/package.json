@@ -4,7 +4,8 @@
 	"runeappsTarget": "node",
 	"runeappsLibNameRoot": "Alt1Webpack",
 	"runeappsLibEntry": "./index.ts",
-	"main": "./dist/index.js",
+	"main": "./dist/index.bundle.js",
+	"module": "./dist/index.js",
 	"types": "./dist/",
 	"files": ["./dist/"],
 	"author": "Skillbert",
@@ -17,16 +18,10 @@
 		"webpack-chain": "^6.5.1",
 		"webpack-node-externals": "^2.5.2"
 	},
-	"bin": {
-		"symlinkalt1": "./bin/linkutil.js"
-	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
 	},
 	"peerDependencies": {
 		"webpack": "5.x"
-	},
-	"devDependencies": {
-		"@types/terser-webpack-plugin": "^4.0.0"
 	}
 }

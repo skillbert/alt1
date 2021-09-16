@@ -4,10 +4,12 @@ import * as fs from "fs";
 import * as webpackutil from "../alt1/webpack";
 import * as webpack from "webpack";
 import * as alt1webpack from "./alt1webpack";
+import EmitAllPlugin from "./emitallplugin";
+
 
 var buildTypesOnly = process.argv.indexOf("--typesonly") != -1;
 var buildTypes = buildTypesOnly || process.argv.indexOf("--types") != -1;
-var customWebpackConfig = process.argv.indexOf("--custom-webpack") != -1
+var customWebpackConfig = process.argv.indexOf("--custom-webpack") != -1;
 
 var projectdir = process.cwd();
 var tsCompilerOpts = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../tsconfig.json"), "utf-8")).compilerOptions;
@@ -20,6 +22,9 @@ if (!buildTypesOnly) {
 	} else {
 		var config = alt1webpack.chainAlt1Lib(projectdir).toConfig() as webpack.Configuration;//extra cast here because of weird type conflict
 	}
+
+	if (!config.plugins) { config.plugins = []; }
+	config.plugins.push(new EmitAllPlugin());
 
 	var compilation = webpack(config);
 

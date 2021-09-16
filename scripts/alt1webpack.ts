@@ -58,7 +58,7 @@ export function chainAlt1Lib(rootdir: string) {
 	}
 	if (!foundentry) { throw new Error("couldn't find entry file in " + rootdir); }
 	config.output("./dist");
-	config.chain.output.filename("[name].js");
+	config.chain.output.filename("[name].bundle.js");
 	//prevent libs from using their own dist as source for index.ts
 	config.chain.resolve.mainFields.prepend("runeappsLibEntry").add("module").add("main");
 	return config;
