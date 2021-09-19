@@ -22,8 +22,8 @@ var imgs_leg = a1lib.ImageDetect.webpackImages({
 	boxtr: require("./imgs/boxtr_leg.data.png")
 });
 
-var fontmono = require("@alt1/ocr/fonts/aa_8px_mono_new.fontmeta.json");
-var fontheavy = require("@alt1/ocr/fonts/aa_8px_mono_allcaps.fontmeta.json");
+var fontmono = require("@alt1/ocr/fonts/aa_8px_mono_new.js");
+var fontheavy = require("@alt1/ocr/fonts/aa_8px_mono_allcaps.js");
 
 type DialogButtonLocation = { x: number, y: number, hover: boolean, active: boolean };
 export type DialogButton = DialogButtonLocation & { text: string, width: number, buttonx: number };

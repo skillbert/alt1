@@ -7,7 +7,7 @@ var imgs = a1lib.ImageDetect.webpackImages({
 	debuff: require("./imgs/debuffborder.data.png"),
 });
 
-var font = require("../ocr/fonts/pixel_digits_8px_shadow.fontmeta.json");
+var font = require("@alt1/ocr/fonts/pixel_digits_8px_shadow.js");
 
 function negmod(a: number, b: number) {
 	return ((a % b) + b) % b;

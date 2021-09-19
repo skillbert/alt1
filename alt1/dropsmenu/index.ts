@@ -8,7 +8,7 @@ var imgs = a1lib.ImageDetect.webpackImages({
 	droptext: require("./imgs/droptext.data.png"),
 	quantitytext: require("./imgs/quantitytext.data.png")
 });
-var font = require("@alt1/ocr/fonts/aa_8px_new.fontmeta.json");
+var font = require("@alt1/ocr/fonts/aa_8px_new.js");
 
 
 var fontcolors:OCR.ColortTriplet[] = [

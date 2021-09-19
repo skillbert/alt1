@@ -2,7 +2,7 @@ import * as a1lib from "@alt1/base";
 import * as OCR from "@alt1/ocr";
 import { ImgRef } from "@alt1/base";
 
-var font = require("@alt1/ocr/fonts/aa_10px_mono.fontmeta.json");
+var font = require("@alt1/ocr/fonts/aa_10px_mono.js");
 
 export type TooltipState = ReturnType<typeof TooltipReader.read>;
 
