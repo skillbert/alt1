@@ -4,6 +4,7 @@ import * as glob from "glob";
 import * as fs from "fs";
 //import actual index.ts here as otherwise it will get redirected to ./dist/min.js which is the old version
 import Alt1Chain, { getPackageInfo } from "../alt1/webpack";
+import EmitAllPlugin from "./emitallplugin";
 
 
 
@@ -31,8 +32,7 @@ export function chainAlt1Lib(rootdir: string) {
 	if (!filenamematch) { throw new Error("Can't get file name for " + pack.name); }
 	var config = new Alt1Chain(rootdir, { nodejs: pack.target == "node" });
 	config.makeUmd(pack.name, pack.umdName);
-	//config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../node_modules"));
-	//config.chain.resolveLoader.modules.add(path.resolve(__dirname, "../alt1"));
+	config.chain.plugin("EmitAllPlugin").use(EmitAllPlugin);
 
 	var alldeps = { ...pack.optionalDependencies, ...pack.dependencies };
 	for (var dep in alldeps) {

@@ -23,6 +23,10 @@ function cloneImage(img: ImageData, x, y, w, h) {
 	return clone;
 }
 
+declare var __non_webpack_require__: any;
+
+a1lib.NodePolyfill.polyfillRequire(typeof __non_webpack_require__ != "undefined" ? __non_webpack_require__ : require);
+
 export default function (this: LoaderContext<void>, source: string) {
 	this.cacheable(true);
 	var me = this;
@@ -45,7 +49,7 @@ export default function (this: LoaderContext<void>, source: string) {
 		var imgfile = sharp(bytes);
 		var imgdata = await imgfile.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 		var img = new a1lib.ImageData(new Uint8ClampedArray(imgdata.data.buffer), imgdata.info.width, imgdata.info.height);
-		if (imgdata.info.premultiplied) { console.warn("png unpacking used premultiplied alpha, pixels with low alpha values have suffered loss of presicion in rgb channels"); }
+		if (imgdata.info.premultiplied) { console.warn("png unpacking used premultiplied alpha, pixels with low alpha values have suffered loss of precision in rgb channels"); }
 
 		var bg: ImageData | null = null;
 		var pxheight = img.height - 1;

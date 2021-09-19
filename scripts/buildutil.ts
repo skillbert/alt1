@@ -4,7 +4,6 @@ import * as fs from "fs";
 import * as webpackutil from "../alt1/webpack";
 import * as webpack from "webpack";
 import * as alt1webpack from "./alt1webpack";
-import EmitAllPlugin from "./emitallplugin";
 
 
 var buildTypesOnly = process.argv.indexOf("--typesonly") != -1;
@@ -24,7 +23,6 @@ if (!buildTypesOnly) {
 	}
 
 	if (!config.plugins) { config.plugins = []; }
-	config.plugins.push(new EmitAllPlugin());
 
 	var compilation = webpack(config);
 

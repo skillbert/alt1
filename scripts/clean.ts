@@ -5,8 +5,10 @@ import * as fs from "fs";
 var rootdir = path.resolve(__dirname, "..");
 
 var globs = {
+	// "/**/*" pattern to not match the folder itself, only subfolders and files
 	packdist: path.resolve(rootdir, "alt1/*/dist/**/*"),
-	typebuild: path.resolve(rootdir, "types/**/*")
+	typebuild: path.resolve(rootdir, "types/**/*"),
+	ocrfonts:path.resolve(rootdir,"alt1/ocr/fonts/**/*")
 };
 
 var files = [] as string[];
@@ -19,8 +21,8 @@ for (var g in globs) {
 }
 
 //some sanity checks
-if (files.length > 200) {
-	throw new Error("More files listed for deletion than expected " + files.length + "/200. Might have to adjust this limit.");
+if (files.length > 400) {
+	throw new Error("More files listed for deletion than expected " + files.length + "/400. Might have to adjust this limit.");
 }
 for (var file of files) {
 	if (path.relative(rootdir, file).startsWith("..")) {

@@ -4,49 +4,40 @@
 import { ImageData } from "./index";
 import { clearPngColorspace } from "./imagedetect";
 
+var requirefunction: null | ((mod: string) => any) = null;
+
 /**
- * Require call that doesn't get absorbed by webpack (recursively)
- * - __non_webpack_require__ doesn't work recusrively over multiple compiles
- * - config.externals doesn't lazy load and pulls in all native/huge/optional externals on load on nodejs
+ * Call this function to let the libs require extra dependencies on nodejs in order
+ * to polyfill some browser api's (mostly image compression/decompression)
+ * `NodePolifill.polyfillRequire(require);` should solve most cases
  */
-function nodejsRequire(module: string) {
-	//return __non_webpack_require__(module);
-	let glob: any = (typeof globalThis != "undefined" ? globalThis : global);
-	return glob.process.mainModule.require(module);
-}
-
-function hasNodejsRequire() {
-	//return typeof __non_webpack_require__ != "undefined";
-	let glob: any = (typeof globalThis != "undefined" ? globalThis : global);
-	return !!glob?.process?.mainModule?.require;
-}
-
-export function requireNodeCanvas() {
-	if (hasNodejsRequire()) {
-		//attempt to require sharp first, after loading canvas the module sharp fails to load
-		requireSharp();
-		try {
-			return nodejsRequire("canvas");// as typeof import("canvas");
-		} catch (e) { }
-	}
-	return null;
+export function polyfillRequire(requirefn: (mod: string) => any) {
+	requirefunction = requirefn;
 }
 
 export function requireSharp() {
-	if (hasNodejsRequire()) {
-		try {
-			return nodejsRequire("sharp");// as typeof import("sharp");
-		} catch (e) { }
-	}
+	try {
+		if (!requirefunction) { throw new Error("no require function set"); }
+		return requirefunction("sharp");// as typeof import("sharp");
+	} catch (e) { }
+	return null;
+}
+
+export function requireNodeCanvas() {
+	//attempt to require sharp first, after loading canvas the module sharp fails to load
+	requireSharp();
+	try {
+		if (!requirefunction) { throw new Error("no require function set"); }
+		return requirefunction("canvas");// as typeof import("canvas");
+	} catch (e) { }
 	return null;
 }
 
 export function requireElectronCommon() {
-	if (hasNodejsRequire()) {
-		try {
-			return nodejsRequire("electron/common");
-		} catch (e) { }
-	}
+	try {
+		if(!requirefunction){throw new Error("no require function set");}
+		return requirefunction("electron/common");
+	} catch (e) { }
 	return null;
 }
 

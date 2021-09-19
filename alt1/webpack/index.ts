@@ -138,6 +138,7 @@ export default class Alt1Chain {
 		//devdependencies are not dependencies of dependent modules, so if they do show up in the bundler they must be bundled
 		arr.push(webpackNodeExternals({
 			modulesFromFile: {
+				include: ["dependencies", "peerDependencies", "optionalDependencies"],
 				exclude: ["devDependencies"]
 			},
 			modulesDir: this.rootdir,
@@ -183,7 +184,7 @@ export default class Alt1Chain {
 		this.chain.module.rule("imagefiles")
 			.oneOf("image")
 			.test(/\.(png|jpg|gif)$/i)
-			.use("url-loader").loader("url-loader").options({ limit: 8192, name: "[path][name].[ext]" });
+			.use("url-loader").loader("url-loader").options({ limit: 8192, esModule: false, name: "[path][name].[ext]" });
 		this.chain.module.rule("jsonfiles")
 			.test(/\.json$/)
 			.type("javascript/auto")
