@@ -1,7 +1,7 @@
 {
 	"name": "@alt1/dropsmenu",
 	"umdGlobal": "DropsMenuReader",
-	"runeappsLibEntry": "./index.ts",
+	"runeappsLibEntry": "./src/index.ts",
 	"main": "./dist/index.bundle.js",
 	"module": "./dist/index.js",
 	"types": "./dist/",

@@ -78,7 +78,6 @@ export default class EmitAllPlugin {
 	}
 
 	handleModule(compiler: Compiler, mod: Module) {
-		debugger;
 		if (!(mod instanceof NormalModule)) { return; }
 		if (!mod.type.match(/^javascript\//)) { return; }
 		const absolutePath = mod.resource;

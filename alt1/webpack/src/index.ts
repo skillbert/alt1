@@ -22,6 +22,11 @@ type AllowlistOption = any;
 
 //TODO get rid of webpack-chain
 
+/**
+ * Test webpack watch changesasdsadas
+ */
+export function test2(){}
+
 function constructApply(fn: Function, args: any) {
 	return new (Function.prototype.bind.apply(fn, args));
 }
@@ -42,7 +47,9 @@ export default class Alt1Chain {
 			if (fs.existsSync(file)) {
 				this.tsconfigfile = file;
 				var tsconfig = JSON.parse(fs.readFileSync(file, "utf8").replace(/^[^{}]+/, ""));
+				if (!tsconfig.compilerOptions) { tsconfig.compilerOptions = {}; }
 				tsconfig.compilerOptions.module = "esnext";//enables tree shaking
+
 				this.tsOptions = {
 					compilerOptions: tsconfig.compilerOptions,
 					appendTsSuffixTo: [/\.vue$/],
@@ -217,6 +224,7 @@ export type NpmConfig = {
 	umdGlobal?: string,
 	runeappsRootPackage?: boolean,
 	types?: string,
+	main?: string,
 	runeappsLibNameRoot?: string,
 	runeappsTarget?: "combined" | "node",
 	dependencies: { [name: string]: string },
@@ -268,6 +276,7 @@ export function getPackageInfo(fileabs: string) {
 		dir: path.dirname(fileabs),
 		name: cnf.name,
 		types: cnf.types,
+		main: cnf.main || "./dist",
 		target: cnf.runeappsTarget || "combined",
 		umdName: cnf.umdGlobal || cnf.runeappsLibNameRoot || cnf.name || "",
 		dependencies: cnf.dependencies || {},

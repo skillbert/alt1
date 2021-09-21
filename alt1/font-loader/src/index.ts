@@ -1,5 +1,5 @@
 ﻿import * as sharp from "sharp";
-import * as OCR from "@alt1/ocr";
+import * as OCR from "@alt1/ocr/src";
 import * as a1lib from "@alt1/base";
 import { LoaderContext } from "webpack";
 

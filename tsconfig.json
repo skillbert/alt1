@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"rootDir": "./alt1/",
+		"rootDir": "./",
 		"moduleResolution": "node",
 		"module": "commonjs",
 		"lib": [ "es6", "dom" ],
@@ -12,7 +12,9 @@
 		"strictNullChecks": true,
 		"strictPropertyInitialization": false,
 		"experimentalDecorators": true,
-		"sourceMap": true
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true
 	},
 	"exclude": [ "node_modules", "./types/*", "./scripts/**", "**/webpack.config.ts" ],
 	"compileOnSave": false

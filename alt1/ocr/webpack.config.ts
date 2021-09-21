@@ -1,4 +1,4 @@
-import A1webpack from "../webpack/index";
+import A1webpack from "../webpack/src";
 import * as fs from "fs";
 import * as path from "path";
 import { chainAlt1Lib, addAlt1Externals } from "../../scripts/alt1webpack";
@@ -10,7 +10,7 @@ var cnf = chainAlt1Lib(__dirname);
 var configs = [cnf];
 //extra builds for fonts
 
-var fontdir = path.resolve(__dirname, "fontssrc");
+var fontdir = path.resolve(__dirname, "src/fontssrc");
 var files = fs.readdirSync(fontdir);
 for (var file of files) {
 	var m = file.match(/([\w-]+)\.fontmeta\.json$/i);

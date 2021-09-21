@@ -2,7 +2,7 @@
 	"name": "@alt1/abilitytooltip",
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "AbilityTooltipReader",
-	"runeappsLibEntry": "./index.ts",
+	"runeappsLibEntry": "./src/index.ts",
 	"main": "./dist/index.bundle.js",
 	"module": "./dist/index.js",
 	"types": "./dist/",

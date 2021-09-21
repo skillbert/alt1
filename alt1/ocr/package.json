@@ -1,7 +1,7 @@
 {
 	"name": "@alt1/ocr",
 	"umdGlobal": "OCR",
-	"runeappsLibEntry": "./index.ts",
+	"runeappsLibEntry": "./src/index.ts",
 	"main": "./dist/index.bundle.js",
 	"module": "./dist/index.js",
 	"types": "./dist/",
@@ -13,6 +13,9 @@
 	},
 	"dependencies": {
 		"@alt1/base": "^0.0.17"
+	},
+	"devDependencies": {
+		"@alt1/font-loader": "0.0.17"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js --custom-webpack"

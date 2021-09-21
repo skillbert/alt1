@@ -2,8 +2,8 @@ import * as webpack from "webpack";
 import * as path from "path";
 import * as glob from "glob";
 import * as fs from "fs";
-//import actual index.ts here as otherwise it will get redirected to ./dist/min.js which is the old version
-import Alt1Chain, { getPackageInfo } from "../alt1/webpack";
+//import actual src here as otherwise it will get redirected to ./dist/min.js which is the old version
+import Alt1Chain, { getPackageInfo } from "../alt1/webpack/src";
 import EmitAllPlugin from "./emitallplugin";
 
 
@@ -30,10 +30,28 @@ export function chainAlt1Lib(rootdir: string) {
 	if (!rootpack) { throw new Error("can't find root package"); }
 	var filenamematch = pack.name.match(/^@alt1\/([\w-]+)$/);
 	if (!filenamematch) { throw new Error("Can't get file name for " + pack.name); }
-	var config = new Alt1Chain(rootdir, { nodejs: pack.target == "node" });
+
+	//find entry file
+	//TODO use package.json "runeappsLibEntry" instead
+	var entryfiles = ["src/index.tsx", "src/index.ts", "src/index.jsx", "src/index.js", "index.tsx", "index.ts", "index.jsx", "index.js"];
+
+	var entrypath = "";
+	for (var entryfile of entryfiles) {
+		var file = path.resolve(rootdir, entryfile);
+		if (fs.existsSync(file)) {
+			entrypath = file;
+			break;
+		}
+	}
+	if (!entrypath) { throw new Error("couldn't find entry file in " + rootdir); }
+
+	var config = new Alt1Chain(path.dirname(entrypath), { nodejs: pack.target == "node" });
+	config.entry("index", path.basename(entrypath));
+
 	config.makeUmd(pack.name, pack.umdName);
 	config.chain.plugin("EmitAllPlugin").use(EmitAllPlugin);
 
+	//TODO obsolete now?
 	var alldeps = { ...pack.optionalDependencies, ...pack.dependencies };
 	for (var dep in alldeps) {
 		var localdep = dep.match(/^@alt1\/([\w-]+)$/);
@@ -45,21 +63,14 @@ export function chainAlt1Lib(rootdir: string) {
 		}
 	}
 
-	var entryfiles = ["index.tsx", "index.ts", "index.jsx", "index.js"];
-
-	var foundentry = false;
-	for (var entryfile of entryfiles) {
-		var entrypath = path.resolve(rootdir, entryfile);
-		if (fs.existsSync(entrypath)) {
-			foundentry = true;
-			config.entry("index", entrypath);
-			break;
-		}
-	}
-	if (!foundentry) { throw new Error("couldn't find entry file in " + rootdir); }
-	config.output("./dist");
+	let outdir = path.resolve(pack.dir, path.dirname(pack.main));
+	//speed up compilation and prevent error spam from (uncompiled) other libs
+	config.tsOptions.context = config.rootdir;
+	config.tsOptions.compilerOptions.declarationDir = outdir;
+	config.output(outdir);
 	config.chain.output.filename("[name].bundle.js");
 	//prevent libs from using their own dist as source for index.ts
+	//TODO obsolete?
 	config.chain.resolve.mainFields.prepend("runeappsLibEntry").add("module").add("main");
 	return config;
 }

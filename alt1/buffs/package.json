@@ -2,7 +2,7 @@
 	"name": "@alt1/buffs",
 	"runeappsType": "lib",
 	"runeappsLibNameRoot": "BuffsReader",
-	"runeappsLibEntry": "./index.ts",
+	"runeappsLibEntry": "./src/index.ts",
 	"main": "./dist/index.bundle.js",
 	"module": "./dist/index.js",
 	"types": "./dist/",

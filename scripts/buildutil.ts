@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as fs from "fs";
 //import actual index.ts here as otherwise it will get redirected to ./dist/min.js which isn't compiled yet
-import * as webpackutil from "../alt1/webpack";
+import * as webpackutil from "../alt1/webpack/src";
 import * as webpack from "webpack";
 import * as alt1webpack from "./alt1webpack";
 
