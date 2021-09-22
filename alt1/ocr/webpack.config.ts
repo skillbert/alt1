@@ -3,13 +3,14 @@ import * as fs from "fs";
 import * as path from "path";
 import { chainAlt1Lib, addAlt1Externals } from "../../scripts/alt1webpack";
 import EmitAllPlugin from "../../scripts/emitallplugin";
+import Alt1Chain from "../webpack/src";
+
+var configs: Alt1Chain[] = [];
 
 //standard build steps
-var cnf = chainAlt1Lib(__dirname);
+configs.push(chainAlt1Lib(__dirname));
 
-var configs = [cnf];
 //extra builds for fonts
-
 var fontdir = path.resolve(__dirname, "src/fontssrc");
 var files = fs.readdirSync(fontdir);
 for (var file of files) {
@@ -22,6 +23,9 @@ for (var file of files) {
 		fontcnf.makeUmd(fontname, "OCR_" + fontname);
 		fontcnf.entry(fontname, path.resolve(fontdir, file));
 		fontcnf.chain.set("devtool", undefined);
+		fontcnf.chain.module.rule("jsonfile")
+			.oneOf("fontmeta")
+			.use("font-loader").loader("../font-loader/src");
 		configs.push(fontcnf);
 	}
 }

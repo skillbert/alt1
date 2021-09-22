@@ -18,7 +18,7 @@
 		"@alt1/font-loader": "0.0.17"
 	},
 	"scripts": {
-		"build": "node ../../buildutil.js --custom-webpack"
+		"build": "node ../../buildutil.js & node ../../buildutil.js --custom-webpack"
 	},
 	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
 }

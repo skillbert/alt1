@@ -14,6 +14,7 @@
 		"access": "public"
 	},
 	"dependencies": {
+		"@alt1/ocr": "^0.0.17",
 		"@alt1/base": "^0.0.17",
 		"sharp": "^0.29.0"
 	},
