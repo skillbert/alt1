@@ -17,8 +17,11 @@ export function polyfillRequire(requirefn: (mod: string) => any) {
 
 export function requireSharp() {
 	try {
-		if (!requirefunction) { throw new Error("no require function set"); }
-		return requirefunction("sharp");// as typeof import("sharp");
+		if (requirefunction) {
+			return requirefunction("sharp");
+		} else {
+			return require(/* webpackIgnore: true */ "sharp");// as typeof import("sharp");
+		}
 	} catch (e) { }
 	return null;
 }
@@ -27,16 +30,22 @@ export function requireNodeCanvas() {
 	//attempt to require sharp first, after loading canvas the module sharp fails to load
 	requireSharp();
 	try {
-		if (!requirefunction) { throw new Error("no require function set"); }
-		return requirefunction("canvas");// as typeof import("canvas");
+		if (requirefunction) {
+			return requirefunction("canvas");
+		} else {
+			return require(/* webpackIgnore: true */ "canvas");// as typeof import("sharp");
+		}
 	} catch (e) { }
 	return null;
 }
 
 export function requireElectronCommon() {
 	try {
-		if(!requirefunction){throw new Error("no require function set");}
-		return requirefunction("electron/common");
+		if (requirefunction) {
+			return requirefunction("electron/common");
+		} else {
+			return require(/* webpackIgnore: true */ "electron/common");
+		}
 	} catch (e) { }
 	return null;
 }

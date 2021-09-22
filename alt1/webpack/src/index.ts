@@ -22,11 +22,6 @@ type AllowlistOption = any;
 
 //TODO get rid of webpack-chain
 
-/**
- * Test webpack watch changesasdsadas
- */
-export function test2(){}
-
 function constructApply(fn: Function, args: any) {
 	return new (Function.prototype.bind.apply(fn, args));
 }
@@ -171,7 +166,8 @@ export default class Alt1Chain {
 
 		this.chain.output.globalObject("(typeof self!='undefined'?self:this)");
 		this.chain.externals([]);
-
+		let parser = this.chain.module.getOrCompute("parser", () => ({}));
+		(parser.javascript ??= {}).commonjsMagicComments = true;
 		this.chain.module.rule("typescript")
 			.test(/\.(ts|tsx)$/)
 			.use("ts-loader").loader("ts-loader").options(this.tsOptions);
