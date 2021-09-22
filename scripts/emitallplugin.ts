@@ -3,7 +3,7 @@
 
 
 import * as path from "path";
-import { Compiler, Module, NormalModule } from "webpack";
+import { Compilation, Compiler, dependencies, Module, NormalModule, sources } from "webpack";
 import * as acorn from "acorn";
 import * as acornWalk from "acorn-walk";
 
@@ -77,7 +77,7 @@ export default class EmitAllPlugin {
 		return { absout, relout }
 	}
 
-	handleModule(compiler: Compiler, mod: Module) {
+	handleModule(compiler: Compiler, comp: Compilation, mod: Module) {
 		if (!(mod instanceof NormalModule)) { return; }
 		if (!mod.type.match(/^javascript\//)) { return; }
 		const absolutePath = mod.resource;
@@ -85,16 +85,18 @@ export default class EmitAllPlugin {
 		if (this.ignoreExternals && (mod as any).external) { return; }
 		if (this.shouldIgnore(absolutePath)) { return; }
 
-		let dest = this.rewritePath(compiler, mod.context!, absolutePath).absout;
+		let dest = this.rewritePath(compiler, mod.context!, absolutePath);
 
 		const source = (mod as any)._source?._valueAsString ?? (mod as any)._source?._value ?? "";
 		const editedsource = this.replaceImportPaths(compiler, absolutePath, source);
+
+		// comp.assets[dest.relout] = new sources.RawSource(editedsource);
 		(compiler.outputFileSystem.mkdir as any)(
-			path.dirname(dest),
+			path.dirname(dest.absout),
 			{ recursive: true },
 			err => {
 				if (err) throw err;
-				compiler.outputFileSystem.writeFile(dest, editedsource, err => {
+				compiler.outputFileSystem.writeFile(dest.absout, editedsource, err => {
 					if (err) throw err;
 				});
 			}
@@ -104,9 +106,23 @@ export default class EmitAllPlugin {
 	apply(compiler: Compiler) {
 		compiler.hooks.compilation.tap("EmitAllPlugin", (comp, params) => {
 			comp.hooks.succeedModule.tap("EmitAllPlugin", (mod) => {
-				this.handleModule(compiler, mod);
+				this.handleModule(compiler, comp, mod);
 			});
+
+		});
+		compiler.hooks.emit.tap("EmitAllPlugin", (comp) => {
+			debugger;
+			for (let entry of comp.entries.values()) {
+				let mod = entry.dependencies[0] as dependencies.ModuleDependency;
+				let chunk = comp.chunkGraph.getModuleChunks(comp.moduleGraph.getModule(mod))[0];
+				let chunkfile = [...chunk.files][0];
+				let namematch = chunkfile?.match(/^(.*?)([^\/]*)\.js$/);
+				if (!namematch) { continue; }
+				let src = new sources.RawSource(`export * from "${this.rewritePath(compiler, "", mod.request).relout}";\n`);
+				comp.assets[`${namematch[1]}${namematch[2]}.d.ts`] = src;
+			}
 		})
+
 		// compiler.hooks.afterCompile.tapAsync(
 		// 	'EmitAllPlugin',
 		// 	(compilation, cb) => {
