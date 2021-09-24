@@ -90,6 +90,7 @@ export default class EmitAllPlugin {
 		const source = (mod as any)._source?._valueAsString ?? (mod as any)._source?._value ?? "";
 		const editedsource = this.replaceImportPaths(compiler, absolutePath, source);
 
+		//TODO is there a working way to make this internal to webpack instead of using fs?
 		// comp.assets[dest.relout] = new sources.RawSource(editedsource);
 		(compiler.outputFileSystem.mkdir as any)(
 			path.dirname(dest.absout),
@@ -108,29 +109,19 @@ export default class EmitAllPlugin {
 			comp.hooks.succeedModule.tap("EmitAllPlugin", (mod) => {
 				this.handleModule(compiler, comp, mod);
 			});
-
 		});
-		compiler.hooks.emit.tap("EmitAllPlugin", (comp) => {
-			debugger;
-			for (let entry of comp.entries.values()) {
-				let mod = entry.dependencies[0] as dependencies.ModuleDependency;
-				let chunk = comp.chunkGraph.getModuleChunks(comp.moduleGraph.getModule(mod))[0];
-				let chunkfile = [...chunk.files][0];
-				let namematch = chunkfile?.match(/^(.*?)([^\/]*)\.js$/);
-				if (!namematch) { continue; }
-				let src = new sources.RawSource(`export * from "${this.rewritePath(compiler, "", mod.request).relout}";\n`);
-				comp.assets[`${namematch[1]}${namematch[2]}.d.ts`] = src;
-			}
-		})
-
-		// compiler.hooks.afterCompile.tapAsync(
-		// 	'EmitAllPlugin',
-		// 	(compilation, cb) => {
-		// 		compilation.modules.forEach(mod => {
-		// 			//this.handleModule(compiler, mod);
-		// 		});
-		// 		cb();
-		// 	}
-		// );
+		compiler.hooks.compilation.tap("EmitAllPlugin", comp => {
+			comp.hooks.processAssets.tap("EmitAllPlugin", ass => {
+				for (let entry of comp.entries.values()) {
+					let mod = entry.dependencies[0] as dependencies.ModuleDependency;
+					let chunk = comp.chunkGraph.getModuleChunks(comp.moduleGraph.getModule(mod))[0];
+					let chunkfile = [...chunk.files][0];
+					let namematch = chunkfile?.match(/^(.*?)([^\/]*)\.js$/);
+					if (!namematch) { continue; }
+					let src = new sources.RawSource(`export * from "${this.rewritePath(compiler, "", mod.request).relout}";\n`);
+					comp.assets[`${namematch[1]}${namematch[2]}.d.ts`] = src;
+				}
+			})
+		});
 	}
 };

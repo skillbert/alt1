@@ -25,7 +25,7 @@ for (var file of files) {
 		fontcnf.chain.set("devtool", undefined);
 		fontcnf.chain.module.rule("jsonfile")
 			.oneOf("fontmeta")
-			.use("font-loader").loader("../font-loader/src");
+			.use("font-loader").loader("@alt1/font-loader/src");
 		configs.push(fontcnf);
 	}
 }

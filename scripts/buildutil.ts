@@ -14,6 +14,8 @@ var projectdir = process.cwd();
 var tsCompilerOpts = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../tsconfig.json"), "utf-8")).compilerOptions;
 var packageObject = webpackutil.getPackageInfo(path.resolve(projectdir, "package.json"));
 
+//error if we somehow exit early
+process.exitCode = 1;
 //build main
 if (!buildTypesOnly) {
 	if (customWebpackConfig) {
@@ -33,8 +35,9 @@ if (!buildTypesOnly) {
 		});
 	} else {
 		compilation.run((err, stats) => {
-			console.log(stats?.toString());
+			console.log(stats?.toString("summary"));
 			console.log("webpack done " + projectdir, err);
+			process.exitCode = stats?.hasErrors() ? 2 : 0;
 		});
 	}
 }

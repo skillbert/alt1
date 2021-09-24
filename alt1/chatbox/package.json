@@ -16,6 +16,9 @@
 		"@alt1/base": "^0.0.17",
 		"@alt1/ocr": "^0.0.17"
 	},
+	"devDependencies": {
+		"@alt1/font-loader": "^0.0.17"
+	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
 	},

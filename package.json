@@ -6,11 +6,9 @@
 		"build": "lerna run build -- -- -p --types --nougly",
 		"pretty-build": "lerna run build -- -- --nougly",
 		"start": "lerna run build -- -- --watch",
-		"types": "echo \"types are now handled by webpack\"",
 		"typesold": "tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes",
 		"clean": "node -r ./scripts/ts ./scripts/clean",
-		"link": "lerna exec -- npm link & lerna link",
-		"build-release": "npm run clean & npm run build & npm run types",
+		"build-release": "npm run clean & npm run build",
 		"publish": "lerna publish"
 	},
 	"devDependencies": {
