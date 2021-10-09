@@ -1,0 +1,25 @@
+{
+	"name": "@alt1/bosstimer",
+	"runeappsType": "lib",
+	"runeappsLibNameRoot": "BossTimer",
+	"runeappsLibEntry": "./src/index.ts",
+	"main": "./dist/index.bundle.js",
+	"module": "./dist/index.js",
+	"types": "./dist/",
+	"files": ["./dist/"],
+	"author": "Skillbert",
+	"version": "0.0.17",
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@alt1/base": "^0.0.17",
+		"@alt1/ocr": "^0.0.17"
+	},
+	"devDependencies": {
+		"@alt1/font-loader": "^0.0.17"
+	},
+	"scripts": {
+		"build": "node ../../buildutil.js"
+	}
+}
