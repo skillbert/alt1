@@ -13,7 +13,7 @@ let chatfont = require("@alt1/ocr/fonts/chat_8px.js");
 // 	{ name: "15pt", lineheight: 19, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_11px.js") },
 // 	{ name: "17pt", lineheight: 21, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_13px.js") }
 // ];
-let fonts: FontSetting[] = [ 
+let fonts: FontSetting[] = [
 	{ name: "10pt", lineheight: 14, badgey: -9, dy: -1, def: require("./fonts/10pt.fontmeta.json") },
 	{ name: "12pt", lineheight: 16, badgey: -10, dy: -4, def: require("./fonts/12pt.fontmeta.json") },
 	{ name: "14pt", lineheight: 19, badgey: -10, dy: -8, def: require("./fonts/14pt.fontmeta.json") },
@@ -112,6 +112,9 @@ export default class ChatBoxReader {
 	diffRead = true;
 	diffReadUseTimestamps = true;
 
+	forwardnudges = defaultforwardnudges.slice();
+	backwardnudges = defaultbackwardnudges.slice();
+
 	//state
 	pos: { mainbox: Chatbox, boxes: Chatbox[] } | null = null;
 	debug = null;
@@ -123,149 +126,73 @@ export default class ChatBoxReader {
 	lastReadBuffer: ImgRefData | null = null;
 
 	readChatLine(box: Chatbox, imgdata: ImageData, imgx: number, imgy: number, font: FontSetting, ocrcolors: OCR.ColortTriplet[], linenr: number): ChatLine {
-		var fragments: OCR.TextFragment[] = [];
-		var text = "";
 		var liney = box.line0y - linenr * font.lineheight + font.dy;
-		var imgliney = liney + box.rect.y - imgy;
 
-
-		var rightx = box.line0x + box.rect.x - imgx;
-		if (!box.leftfound) {
-			let col = OCR.getChatColor(imgdata, { x: rightx - 5, y: imgliney - 10, width: 10, height: 10 }, ocrcolors);
-			if (!col) { return { text: "", fragments: [], basey: liney }; }
-			let pos = OCR.findChar(imgdata, font.def, col, rightx - 5, imgliney, font.def.width, 1);
-			if (!pos) { return { text: "", fragments: [], basey: liney }; }
-			rightx = pos.x;
-		}
-		var leftx = rightx;
-
-		for (let dirforward of [false, true]) {
-
-			if (box.leftfound && !dirforward) { continue; }
-
-			let addfrag = (frag: OCR.TextFragment) => {
-				if (dirforward) {
-					fragments.push(frag);
-					text += frag.text;
-					rightx = frag.xend;
+		let ctx: ReadLineContext = {
+			badgedy: font.badgey,
+			baseliney: liney + box.rect.y - imgy,
+			colors: ocrcolors,
+			font: font.def,
+			forward: true,
+			imgdata,
+			leftx: box.line0x + box.rect.x - imgx,
+			rightx: box.line0x + box.rect.x - imgx,
+			text: "",
+			fragments: [],
+			addfrag(this: ReadLineContext, frag: OCR.TextFragment) {
+				if (this.forward) {
+					this.fragments.push(frag);
+					this.text += frag.text;
+					this.rightx = frag.xend;
 				}
 				else {
-					fragments.unshift(frag);
-					text = frag.text + text;
-					leftx = frag.xstart;
+					this.fragments.unshift(frag);
+					this.text = frag.text + this.text;
+					this.leftx = frag.xstart;
 				}
 			}
+		}
 
-			let triedletterspacingskip = false;
+		if (!box.leftfound) {
+			let col = OCR.getChatColor(imgdata, { x: ctx.rightx - 5, y: ctx.baseliney - 10, width: 10, height: 10 }, ocrcolors);
+			if (!col) { return { text: "", fragments: [], basey: liney }; }
+			let pos = OCR.findChar(imgdata, font.def, col, ctx.rightx - 5, ctx.baseliney, font.def.width, 1);
+			if (!pos) { return { text: "", fragments: [], basey: liney }; }
+			ctx.rightx = pos.x;
+			ctx.leftx = pos.x;
+		}
+
+		for (let dirforward of [false, true]) {
+			if (box.leftfound && !dirforward) { continue; }
+			ctx.forward = dirforward;
+			let nudges = (dirforward ? this.forwardnudges : this.backwardnudges);
 			retryloop: while (true) {
-				//fix for "[" first char
-				if (text == "" && dirforward) {
-					let timestampopen = OCR.readChar(imgdata, font.def, [255, 255, 255], rightx, imgliney, false, false);
-					if (timestampopen?.chr == "[") {
-						addfrag({ color: [255, 255, 255], index: -1, text: "[", xstart: rightx, xend: rightx + timestampopen.basechar.width });
-						continue;
-					}
-				}
-				
-				//chat badges
-				if (
-					(dirforward && text.match(/(\] ?|news: ?|^)$/i)) ||
-					(!dirforward && text.match(/^(news: |[\w\-_]{1,12}: )/i))
-				) {
-					let addspace = dirforward && text.length != 0 && text[text.length - 1] != " ";
-					for (let badge in chatbadges.raw) {
-						let bimg = chatbadges.raw[badge];
-						let badgeleft = (dirforward ? rightx + (addspace ? font.def.spacewidth : 0) : leftx - bimg.width);
-						let d = imgdata.pixelCompare(bimg, badgeleft, imgliney + font.badgey);
-						if (d < Infinity) {
-							if (addspace) {
-								addfrag({ color: [255, 255, 255], index: -1, xstart: rightx, xend: badgeleft, text: " " });
-							}
-							addfrag({ color: [255, 255, 255], index: -1, text: badgemap[badge], xstart: badgeleft, xend: badgeleft + bimg.width });
+				for (let nudge of nudges) {
+					let m = ctx.text.match(nudge.match)
+					if (m) {
+						if (nudge.fn(ctx, m)) {
 							continue retryloop;
 						}
 					}
 				}
-
-				//main body of read
-				var data = OCR.readLine(imgdata, font.def, ocrcolors, (dirforward ? rightx : leftx), imgliney, dirforward, !dirforward);
-				if (data.text) {
-					if (dirforward) { data.fragments.forEach(f => addfrag(f)); }
-					else { data.fragments.reverse().forEach(f => addfrag(f)); }
-					triedletterspacingskip = false;
-					continue;
-				}
-
-				//failed to read closing square bracket?
-				if (dirforward && text.match(/\[[\w: ]+$/)) {
-					let closebracket = OCR.readChar(imgdata, font.def, [255, 255, 255], rightx, imgliney, false, false);
-					if (closebracket?.chr == "]") {
-						addfrag({ color: [255, 255, 255], text: "] ", index: -1, xstart: rightx, xend: rightx + closebracket.basechar.width + font.def.spacewidth });
-						continue;
-					}
-				}
-
-				//strong col check at start of line
-				if (dirforward && text.match(/(^|\]|:) ?$/i)) {
-					let addspace = text.length != 0 && text[text.length - 1] != " ";
-					let x = rightx + (addspace ? font.def.spacewidth : 0);
-					let best: OCR.ReadCharInfo | null = null;
-					let bestcolor: OCR.ColortTriplet | null = null;
-					for (let col of ocrcolors) {
-						let chr = OCR.readChar(imgdata, font.def, col, x, imgliney, false, false);
-						if (chr && (!best || chr.sizescore < best.sizescore)) {
-							best = chr;
-							bestcolor = col;
-						}
-					}
-					if (bestcolor) {
-						var data = OCR.readLine(imgdata, font.def, bestcolor, x, imgliney, true, false);
-						if (data.text) {
-							if (addspace) { addfrag({ color: [255, 255, 255], index: -1, text: " ", xstart: rightx, xend: x }); }
-							//console.log("hardrecol", text, data.text);
-							data.fragments.forEach(f => addfrag(f));
-							triedletterspacingskip = false;
-							continue;
-						}
-					}
-					//console.log("hardrecol failed", text);
-				}
-
-				//white colon
-				if (dirforward && text.match(/\w$/) || !dirforward && text.match(/^\w/)) {
-					let startx = (dirforward ? rightx : leftx - font.def.spacewidth);
-					let colonchar = OCR.readChar(imgdata, font.def, [255, 255, 255], startx, imgliney, !dirforward, true);
-					if (colonchar?.chr == ":") {
-						if (!dirforward) { startx -= colonchar.basechar.width; }
-						addfrag({ color: [255, 255, 255], index: -1, text: ": ", xstart: startx, xend: startx + colonchar.basechar.width + font.def.spacewidth });
-						continue;
-					}
-				}
-
-				//in 17pt font the size of a space character is 2px smaller in usernames (don't ask me why)
-				if (font.name == "17pt" && !triedletterspacingskip && dirforward && text.match(/\] [\w\-_]{1,12}$/i)) {
-					rightx -= 2;
-					triedletterspacingskip = true;
-					continue;
-				}
-
 				break;
 			}
 		}
-		fragments.forEach(f => { f.xstart += imgx; f.xend += imgx });
+
+		ctx.fragments.forEach(f => { f.xstart += imgx; f.xend += imgx });
 		if (!box.leftfound) {
 			let found = false;
-			if (text.indexOf(badgemap.broadcast + "News") == 0) { found = true; }
-			if (text.match(/^(\[\w)/i)) { found = true; }
+			if (ctx.text.indexOf(badgemap.broadcast + "News") == 0) { found = true; }
+			if (ctx.text.match(/^(\[\w)/i)) { found = true; }
 			if (found) {
-				let dx = fragments[0].xstart - box.rect.x;
+				let dx = ctx.fragments[0].xstart - box.rect.x;
 				box.rect.x += dx;
 				box.rect.width -= dx;
 				box.leftfound = true;
 				console.log("found box left because of chat contents");
 			}
 		}
-		return { text, fragments, basey: imgliney + imgy };
+		return { text: ctx.text, fragments: ctx.fragments, basey: ctx.baseliney + imgy };
 	}
 
 	read(img?: ImgRef | null) {
@@ -513,30 +440,7 @@ export default class ChatBoxReader {
 	}
 
 	checkTimestamp(img: ImgRef, pos) {
-		//the chatbox has timestamps if in the first 3 lines a line start with [00:00:00]
-		// var readargs = { colors: [a1lib.mixColor(127, 169, 255)] };
-		// for (var line = 0; line < 3; line++) {
-		// 	var y = pos.rect.y + pos.line0y - line * this.font.lineheight;
-		// 	var x = pos.rect.x + pos.line0x;
-		// 	x += 3;//the leading '[' can't be the positioning char
-		// 	for (var offset = 0; offset >= (pos.leftfound ? 0 : -200); offset -= 10) {
-		// 		var str: any = null;
-		// 		//TODO
-		// 		//try { str = JSON.parse(alt1.bindReadStringEx(img.handle, x + offset, y, JSON.stringify(readargs))); }
-		// 		//catch (e) { }
-
-		// 		if (str && str.text.match(/^\d\d:\d\d:\d\d/)) {
-		// 			if (!pos.leftfound) {
-		// 				var d = offset + 10;
-		// 				pos.rect.x += d;
-		// 				pos.rect.width -= d;
-		// 				//not an exact pos but better guess
-		// 			}
-
-		// 			return true;
-		// 		}
-		// 	}
-		// }
+		//TODO replace this
 		return false;
 	}
 
@@ -572,7 +476,143 @@ export default class ChatBoxReader {
 }
 
 
+type ReadLineContext = {
+	addfrag: (frag: OCR.TextFragment) => void,
+	leftx: number,
+	rightx: number,
+	baseliney: number,
+	imgdata: ImageData,
+	font: OCR.FontDefinition,
+	badgedy: number,
+	colors: [number, number, number][]
+	text: string,
+	fragments: OCR.TextFragment[],
+	forward: boolean
+}
 
 
+type ReadLineNudge = {
+	name: string,
+	match: RegExp,
+	fn: (ctx: ReadLineContext, match: RegExpMatchArray) => boolean | undefined
+};
 
 
+let checkchatbadge = (ctx: ReadLineContext) => {
+	let addspace = ctx.forward && ctx.text.length != 0 && ctx.text[ctx.text.length - 1] != " ";
+	for (let badge in chatbadges.raw) {
+		let bimg = chatbadges.raw[badge];
+		let badgeleft = (ctx.forward ? ctx.rightx + (addspace ? ctx.font.spacewidth : 0) : ctx.leftx - bimg.width);
+		let d = ctx.imgdata.pixelCompare(bimg, badgeleft, ctx.baseliney + ctx.badgedy);
+		if (d < Infinity) {
+			if (addspace) {
+				ctx.addfrag({ color: [255, 255, 255], index: -1, xstart: ctx.rightx, xend: badgeleft, text: " " });
+			}
+			ctx.addfrag({ color: [255, 255, 255], index: -1, text: badgemap[badge], xstart: badgeleft, xend: badgeleft + bimg.width });
+			return true;
+		}
+	}
+}
+
+let defaultforwardnudges: ReadLineNudge[] = [
+	{
+		//fix for "[" first char
+		match: /^$/,
+		name: "timestampopen", fn: (ctx) => {
+			let timestampopen = OCR.readChar(ctx.imgdata, ctx.font, [255, 255, 255], ctx.rightx, ctx.baseliney, false, false);
+			if (timestampopen?.chr == "[") {
+				ctx.addfrag({ color: [255, 255, 255], index: -1, text: "[", xstart: ctx.rightx, xend: ctx.rightx + timestampopen.basechar.width });
+				return true;
+			}
+		}
+	},
+	{
+		match: /(\] ?|news: ?|^)$/i,
+		name: "badge", fn: checkchatbadge
+	},
+	{
+		match: /.*/,
+		name: "body", fn: ctx => {
+			var data = OCR.readLine(ctx.imgdata, ctx.font, ctx.colors, ctx.rightx, ctx.baseliney, true, false);
+			if (data.text) {
+				data.fragments.forEach(f => ctx.addfrag(f));
+				return true;
+			}
+		}
+	},
+	{
+		match: /\[[\w: ]+$/,
+		name: "timestampclose", fn: ctx => {
+			let closebracket = OCR.readChar(ctx.imgdata, ctx.font, [255, 255, 255], ctx.rightx, ctx.baseliney, false, false);
+			if (closebracket?.chr == "]") {
+				ctx.addfrag({ color: [255, 255, 255], text: "] ", index: -1, xstart: ctx.rightx, xend: ctx.rightx + closebracket.basechar.width + ctx.font.spacewidth });
+				return true;
+			}
+		}
+	},
+	{
+		match: /(^|\]|:)( ?)$/i,
+		name: "startline", fn: (ctx,match) => {
+			let addspace = !match[2];
+			let x = ctx.rightx + (addspace ? ctx.font.spacewidth : 0);
+			let best: OCR.ReadCharInfo | null = null;
+			let bestcolor: OCR.ColortTriplet | null = null;
+			for (let col of ctx.colors) {
+				let chr = OCR.readChar(ctx.imgdata, ctx.font, col, x, ctx.baseliney, false, false);
+				if (chr && (!best || chr.sizescore < best.sizescore)) {
+					best = chr;
+					bestcolor = col;
+				}
+			}
+			if (bestcolor) {
+				var data = OCR.readLine(ctx.imgdata, ctx.font, bestcolor, x, ctx.baseliney, true, false);
+				if (data.text) {
+					if (addspace) { ctx.addfrag({ color: [255, 255, 255], index: -1, text: " ", xstart: ctx.rightx, xend: x }); }
+					//console.log("hardrecol", text, data.text);
+					data.fragments.forEach(f => ctx.addfrag(f));
+					return true;
+				}
+			}
+		}
+	},
+	{
+		match: /\w$/,
+		name: "whitecolon", fn: ctx => {
+			let startx = ctx.rightx;
+			let colonchar = OCR.readChar(ctx.imgdata, ctx.font, [255, 255, 255], startx, ctx.baseliney, false, true);
+			if (colonchar?.chr == ":") {
+				ctx.addfrag({ color: [255, 255, 255], index: -1, text: ": ", xstart: startx, xend: startx + colonchar.basechar.width + ctx.font.spacewidth });
+				return true;
+			}
+		}
+	}
+];
+
+let defaultbackwardnudges: ReadLineNudge[] = [
+	{
+		match: /^(news: |[\w\-_]{1,12}: )/i,
+		name: "badge", fn: checkchatbadge
+	},
+	{
+		match: /.*/,
+		name: "body", fn: ctx => {
+			var data = OCR.readLine(ctx.imgdata, ctx.font, ctx.colors, ctx.leftx, ctx.baseliney, false, true);
+			if (data.text) {
+				data.fragments.reverse().forEach(f => ctx.addfrag(f));
+				return true;
+			}
+		}
+	},
+	{
+		match: /^\w/,
+		name: "whitecolon", fn: ctx => {
+			let startx = ctx.leftx - ctx.font.spacewidth;
+			let colonchar = OCR.readChar(ctx.imgdata, ctx.font, [255, 255, 255], startx, ctx.baseliney, false, true);
+			if (colonchar?.chr == ":") {
+				startx -= colonchar.basechar.width;
+				ctx.addfrag({ color: [255, 255, 255], index: -1, text: ": ", xstart: startx, xend: startx + colonchar.basechar.width + ctx.font.spacewidth });
+				return true;
+			}
+		}
+	}
+];
