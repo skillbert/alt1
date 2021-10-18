@@ -6,16 +6,18 @@
 	"main": "./dist/index.bundle.js",
 	"module": "./dist/index.js",
 	"types": "./dist/",
-	"files": ["./dist/"],
+	"files": [
+		"./dist/"
+	],
 	"author": "Skillbert",
-	"version": "0.0.17",
+	"version": "1.0.0-alpha.0",
 	"publishConfig": {
 		"access": "public"
 	},
 	"optionalDependencies": {
 		"canvas": ">=2.6.1",
-		"sharp": ">=0.27.2",
-		"electron":">=10.0.0"
+		"electron": ">=10.0.0",
+		"sharp": ">=0.27.2"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"

@@ -6,15 +6,17 @@
 	"main": "./dist/index.bundle.js",
 	"module": "./dist/index.js",
 	"types": "./dist/",
-	"files": ["./dist/"],
+	"files": [
+		"./dist/"
+	],
 	"author": "Skillbert",
-	"version": "0.0.17",
+	"version": "1.0.0-alpha.0",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
-		"@alt1/base": "^0.0.17",
-		"@alt1/ocr": "^0.0.17"
+		"@alt1/base": "^1.0.0-alpha.0",
+		"@alt1/ocr": "^1.0.0-alpha.0"
 	},
 	"scripts": {
 		"build": "node ../../buildutil.js"
