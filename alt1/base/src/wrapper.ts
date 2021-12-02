@@ -282,7 +282,7 @@ export type Alt1EventHandler = (e: any) => void;
  * Add an event listener
  */
 export function on<K extends keyof Alt1EventType>(type: K, listener: (ev: Alt1EventType[K]) => void) {
-	requireAlt1();
+	if (!hasAlt1) { return; }
 	if (!alt1.events) { alt1.events = {}; }
 	if (!alt1.events[type]) { alt1.events[type] = []; }
 	alt1.events[type].push(listener);
@@ -292,7 +292,7 @@ export function on<K extends keyof Alt1EventType>(type: K, listener: (ev: Alt1Ev
  * Removes an event listener
  */
 export function removeListener<K extends keyof Alt1EventType>(type: K, listener: (ev: Alt1EventType[K]) => void) {
-	var elist = alt1.events && alt1.events[type];
+	var elist = hasAlt1 && alt1.events && alt1.events[type];
 	if (!elist) { return; }
 	var i = elist.indexOf(listener);
 	if (i == -1) { return; }
@@ -305,7 +305,6 @@ export function removeListener<K extends keyof Alt1EventType>(type: K, listener:
  * @param cb
  */
 export function once<K extends keyof Alt1EventType>(type: K, listener: (ev: Alt1EventType[K]) => void) {
-	requireAlt1();
 	var fn = (e: Alt1EventType[K]) => {
 		removeListener(type, fn);
 		listener(e);
