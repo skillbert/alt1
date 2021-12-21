@@ -1,74 +1,230 @@
 import * as a1lib from "@alt1/base";
-import { ImgRef } from "@alt1/base";
+import {ImgRef, RectLike} from "@alt1/base";
 import * as OCR from "@alt1/ocr";
+import {parseAmount} from "./monetary-util";
+import {DEBUG_COLORS, debugOverlayRectLike} from "./debug-util";
 
-var imgs = a1lib.ImageDetect.webpackImages({
+const imgs = a1lib.ImageDetect.webpackImages({
 	loot: require("./imgs/lootbutton.data.png"),
 	reset: require("./imgs/reset.data.png"),
-	droptext: require("./imgs/droptext.data.png"),
-	quantitytext: require("./imgs/quantitytext.data.png")
+	lootText: require("./imgs/loottext.data.png"),
+	qtyText: require("./imgs/quantitytext.data.png")
 });
-var font = require("@alt1/ocr/fonts/aa_8px_new.js");
 
+const font = require("@alt1/ocr/fonts/aa_8px_new.js");
 
-var fontcolors:OCR.ColortTriplet[] = [
-	[255, 255, 255],//white
-	[30, 255, 0],//green
-	[102, 152, 255],//blue
-	[163, 53, 238],//purple
-	[255, 128, 0]//orange (1b+ and boss pets)
+const fontColors: OCR.ColortTriplet[] = [
+	[255, 255, 255],    // white
+	[30, 255, 0],       // green
+	[102, 152, 255],    // blue
+	[163, 53, 238],     // purple
+	[255, 128, 0]       //orange (1b+ and boss pets)
 ];
 
+const offsetRectLike = (rectLike: RectLike, offset: { x: number, y: number }): RectLike => ({
+	x: rectLike.x + offset.x,
+	y: rectLike.y + offset.y,
+	width: rectLike.width,
+	height: rectLike.height
+});
+
+interface ICustomDropsMenuReaderConstraints {
+	areaLoot?: RectLike;
+	resetLoot?: RectLike;
+	lootTitle?: RectLike;
+	qtyTitle?: RectLike;
+	box?: RectLike;
+}
+
+export interface IDropsMenuLine {
+	name: string;
+	amount: number;
+}
+
 export default class DropsMenuReader {
-	pos = null as a1lib.RectLike | null;
-	items = [];
-	onincrease = null as ((name: string, increase: number, newtotal: number) => any) | null
 
-	find(img?: ImgRef) {
-		if (!img) { img = a1lib.captureHoldFullRs(); }
-		if (!img) { return null; }
-		var pos = img.findSubimage(imgs.loot);
-		if (pos.length == 0) { return null; }
-		var left = pos[0].x - 32;
-		var bot = pos[0].y - 5;
+	private readonly debugMode: boolean;
+	private constraints: ICustomDropsMenuReaderConstraints = {};
+	private items: { [name: string]: number } = {};
+	public onincrease?: (name: string, increase: number, newTotal: number) => any;
 
-		var rpos = img.findSubimage(imgs.reset, left + 50, bot + 5, img.width - left - 50, imgs.reset.height);
-		if (rpos.length == 0) { return null; }
-		var width = rpos[0].x - left + 15;
-
-		var dropspos = img.findSubimage(imgs.droptext, left + 6, 0, imgs.droptext.width, bot - 50);
-		if (dropspos.length == 0) { return null; }
-		var top = dropspos[0].y - 4;
-
-		var p = { x: left, y: top, height: bot - top, width: width };
-		alt1.overLayRect(a1lib.mixColor(255, 255, 255), p.x, p.y, p.width, p.height, 5000, 1);
-		this.pos = p;
-		return p;
+	constructor(debugMode = false) {
+		this.debugMode = debugMode;
 	}
 
-	read(img?: ImgRef) {
-		if (!this.pos) { return null; }
-		var buf: ImageData;
-		if (img) { buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
-		else { buf = a1lib.capture(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
+	findAreaLootImgPosition(img: ImgRef): RectLike {
+		const pos = img.findSubimage(imgs.loot);
+		if (pos.length == 0) {
+			throw new Error('Could not detect "Open Area Loot" image.');
+		}
 
-		var rpos = a1lib.ImageDetect.findSubbuffer(buf, imgs.quantitytext, 20, 4, buf.width - 20, imgs.quantitytext.height);
-		if (rpos.length == 0) { return null; }
-		var right = rpos[0].x - 3;
+		const constraints = {
+			x: pos[0].x,
+			y: pos[0].y,
+			width: imgs.loot.width,
+			height: imgs.loot.height
+		};
+		if (this.debugMode) {
+			console.debug('AreaLoot image detected:', constraints);
+			debugOverlayRectLike(DEBUG_COLORS.PINK, constraints);
+		}
+		return constraints;
+	}
 
-		for (var y = 34; y + 5 < buf.height; y += 18) {
-			var itemstr = OCR.readLine(buf, font, fontcolors, 5, y, true, false);
-			var amount = OCR.readLine(buf, font, fontcolors, right, y, true, false);
-			if (itemstr.text && amount.text) {
-				var name = itemstr.text;
-				var item = this.items[name];
-				if (!item) { item = this.items[name] = { amount: 0 }; }
-				var n = +amount.text.replace(/,/g, "");
-				var d = n - item.amount;
-				if (d == 0) { break; }
-				this.onincrease && this.onincrease(name, d, n);
-				item.amount = n;
+	findResetLootImgPosition(img: ImgRef): RectLike {
+		const areaLoot = this.constraints.areaLoot!;
+		const boundingBox = [
+			areaLoot.x + areaLoot.width,
+			areaLoot.y,
+			img.width - (areaLoot.x + areaLoot.width),
+			imgs.reset.height
+		];
+		const pos = img.findSubimage(imgs.reset, ...boundingBox);
+		if (pos.length == 0) {
+			throw new Error('Could not detect "Reset Loot" image.');
+		}
+
+		const constraints = {
+			x: pos[0].x,
+			y: pos[0].y,
+			width: imgs.reset.width,
+			height: imgs.reset.height
+		};
+		if (this.debugMode) {
+			console.debug('ResetLoot image detected:', constraints);
+			debugOverlayRectLike(DEBUG_COLORS.PINK, constraints);
+		}
+		return constraints;
+	}
+
+	findLootTitlePosition(img: ImgRef): RectLike {
+		const areaLoot = this.constraints.areaLoot!;
+		const leftEdge = areaLoot.x - 32; // The left edge of the interface
+		const minHeightInterface = 50; // Not exactly the minHeight, but this limits the bounding box a little extra.
+
+		const pos = img.findSubimage(imgs.lootText, leftEdge + 5, 0, imgs.lootText.width, areaLoot.y - 5 - minHeightInterface);
+		if (pos.length == 0) {
+			throw new Error('Could not detect "Loot" title.');
+		}
+
+		const constraints = {
+			x: pos[0].x,
+			y: pos[0].y,
+			width: imgs.lootText.width,
+			height: imgs.lootText.height
+		};
+		if (this.debugMode) {
+			console.debug('LootTitle text detected:', constraints);
+			debugOverlayRectLike(DEBUG_COLORS.PINK, constraints);
+		}
+		return constraints;
+	}
+
+	calculateFullInterfaceConstraints() {
+		const areaLoot = this.constraints.areaLoot!;
+		const lootTitle = this.constraints.lootTitle!;
+		const resetLoot = this.constraints.resetLoot!;
+
+		const x = areaLoot.x - 32;
+		const y = lootTitle.y - 4;
+		const width = (resetLoot.x + resetLoot.width + 4) - (x);
+		const height = (areaLoot.y + areaLoot.height + 5) - (y);
+
+
+		const constraints = {x, y, width, height};
+		if (this.debugMode) {
+			console.debug('Full interface detected:', constraints);
+			debugOverlayRectLike(DEBUG_COLORS.WHITE, constraints);
+		}
+		return constraints;
+	}
+
+	find(img?: ImgRef) {
+		img = img || a1lib.captureHoldFullRs();
+		if (!img) {
+			return null;
+		}
+
+		try {
+			this.constraints.areaLoot = this.findAreaLootImgPosition(img);
+			this.constraints.resetLoot = this.findResetLootImgPosition(img);
+			this.constraints.lootTitle = this.findLootTitlePosition(img);
+			this.constraints.box = this.calculateFullInterfaceConstraints();
+		} catch (reason) {
+			console.error(reason?.message);
+		}
+
+		return this.constraints.box;
+	}
+
+	findQtyTitlePosition(boxBuffer: ImageData): RectLike {
+		const boundingBox = [
+			20,
+			4,
+			boxBuffer.width - 20,
+			imgs.qtyText.height
+		];
+		const [x, y, width, height] = boundingBox;
+		const pos = a1lib.ImageDetect.findSubbuffer(boxBuffer, imgs.qtyText, x, y, width, height);
+		if (pos.length == 0) {
+			throw new Error('Could not detect "Qty" title.');
+		}
+
+		const constraints = {
+			x: pos[0].x,
+			y: pos[0].y,
+			width: imgs.qtyText.width,
+			height: imgs.qtyText.height
+		};
+		if (this.debugMode) {
+			console.debug('LootQty text detected (relative constraints):', constraints);
+			debugOverlayRectLike(DEBUG_COLORS.PINK, offsetRectLike(constraints, this.constraints.box!));
+		}
+		return constraints;
+	}
+
+	read(img?: ImgRef): IDropsMenuLine[] | null {
+		if (!this.constraints?.box) {
+			return null;
+		}
+		let boxBuffer: ImageData;
+		const {box} = this.constraints;
+		if (img) {
+			boxBuffer = img.toData(box.x, box.y, box.width, box.height);
+		} else {
+			const {box} = this.constraints;
+			boxBuffer = a1lib.capture(box.x, box.y, box.width, box.height);
+		}
+
+		const qtyTitleRelConstraints = this.findQtyTitlePosition(boxBuffer); // These constraints are relative to the "box"
+
+		const readItems: IDropsMenuLine[] = [];
+		for (let lootLineOffset = 34; lootLineOffset + 5 < boxBuffer.height; lootLineOffset += 18) {
+			alt1.overLayRect(DEBUG_COLORS.CYAN, box.x + 5, box.y + lootLineOffset, 1, 1, 3000, 1);
+			const itemLine = OCR.readLine(boxBuffer, font, fontColors, 5, lootLineOffset, true, false);
+			if (itemLine.text) {
+				const amount = OCR.readLine(boxBuffer, font, fontColors, qtyTitleRelConstraints.x, lootLineOffset, true, false);
+				const item: IDropsMenuLine = {
+					name: itemLine.text,
+					amount: parseAmount(amount.text)
+				}
+				readItems.push(item);
+
+				let diff = 0
+				if (!this.items[item.name]) {
+					this.items[item.name] = item.amount;
+					diff = item.amount;
+				} else {
+					diff = item.amount - this.items[item.name];
+					this.items[item.name] = item.amount;
+				}
+
+				if (diff === 0) {
+					continue;
+				}
+				this.onincrease?.(item.name, diff, item.amount);
 			}
 		}
+		return readItems;
 	}
 }
