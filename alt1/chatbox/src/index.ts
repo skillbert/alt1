@@ -176,14 +176,23 @@ export default class ChatBoxReader {
 		ctx.fragments.forEach(f => { f.xstart += imgx; f.xend += imgx });
 		if (!box.leftfound) {
 			let found = false;
-			if (ctx.text.indexOf(badgemap.broadcast + "News") == 0) { found = true; }
-			if (ctx.text.match(/^(\[\w)/i)) { found = true; }
+			let extraoffset = 0;
+			//needs extra check if the "[" even exists
+			// if (ctx.text.match(/^[\w:]{,12}\]/)) {
+			// 	found = true;
+			// 	extraoffset = font.def.chars.find(q => q.chr == "[")!.width;
+			// }
+			//can no longer do this since it skips the timestamp and the timestamp can now be variable pixel size
+			// if (ctx.text.indexOf(badgemap.broadcast + "News") == 0) { found = true; }
+			if (ctx.text.match(/^(\[\w)/i)) {
+				found = true;
+			}
 			if (found) {
-				let dx = ctx.fragments[0].xstart - box.rect.x;
+				let dx = ctx.fragments[0].xstart - box.rect.x - extraoffset;
 				box.rect.x += dx;
 				box.rect.width -= dx;
 				box.leftfound = true;
-				console.log("found box left because of chat contents");
+				console.log("found box left because of chat contents", ctx.text);
 			}
 		}
 		return { text: ctx.text, fragments: ctx.fragments, basey: ctx.baseliney + imgy };
@@ -311,9 +320,9 @@ export default class ChatBoxReader {
 		var img = imgornull;
 		var toprights: BoxCorner[] = [];
 
-		img.findSubimage(imgs.plusbutton).forEach(loc => toprights.push({ x: loc.x + 2, y: loc.y - 1, type: "hidden" }));
+		img.findSubimage(imgs.plusbutton).forEach(loc => toprights.push({ x: loc.x + 2, y: loc.y + 21, type: "hidden" }));
+		img.findSubimage(imgs.filterbutton).forEach(loc => toprights.push({ x: loc.x + 19, y: loc.y + 19, type: "hidden" }));
 		img.findSubimage(imgs.minusbutton).forEach(loc => toprights.push({ x: loc.x + 2, y: loc.y + 21, type: "full" }));
-
 
 		var botlefts: a1lib.PointLike[] = [];
 		img.findSubimage(imgs.chatbubble).forEach(loc => {
@@ -546,7 +555,7 @@ let defaultforwardnudges: ReadLineNudge[] = [
 	},
 	{
 		match: /(^|\]|:)( ?)$/i,
-		name: "startline", fn: (ctx,match) => {
+		name: "startline", fn: (ctx, match) => {
 			let addspace = !match[2];
 			let x = ctx.rightx + (addspace ? ctx.font.spacewidth : 0);
 			let best: OCR.ReadCharInfo | null = null;
