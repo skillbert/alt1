@@ -36,7 +36,7 @@ export default class DropsMenuReader {
 		if (rpos.length == 0) { return null; }
 		var width = rpos[0].x - left + 15;
 
-		var dropspos = img.findSubimage(imgs.droptext, left + 6, 0, imgs.droptext.width, bot - 50);
+		var dropspos = img.findSubimage(imgs.droptext, left + 5, 0, imgs.droptext.width, bot - 50);
 		if (dropspos.length == 0) { return null; }
 		var top = dropspos[0].y - 4;
 
@@ -52,9 +52,9 @@ export default class DropsMenuReader {
 		if (img) { buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
 		else { buf = a1lib.capture(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
 
-		var rpos = a1lib.ImageDetect.findSubbuffer(buf, imgs.quantitytext, 20, 4, buf.width - 20, imgs.quantitytext.height);
-		if (rpos.length == 0) { return null; }
-		var right = rpos[0].x - 3;
+		var qpos = a1lib.ImageDetect.findSubbuffer(buf, imgs.quantitytext, 20, 4, buf.width - 20, imgs.quantitytext.height);
+		if (qpos.length == 0) { return null; }
+		var right = qpos[0].x;
 
 		for (var y = 34; y + 5 < buf.height; y += 18) {
 			var itemstr = OCR.readLine(buf, font, fontcolors, 5, y, true, false);
