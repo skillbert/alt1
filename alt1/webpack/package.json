@@ -18,7 +18,7 @@
 		"webpack-node-externals": "^2.5.2"
 	},
 	"scripts": {
-		"build": "node ../../buildutil.js"
+		"build": "webpack --config ../../buildutil.js --env nodejs"
 	},
 	"peerDependencies": {
 		"webpack": "5.x"

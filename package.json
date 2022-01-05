@@ -3,8 +3,8 @@
 	"runeappsRootPackage": true,
 	"private": true,
 	"scripts": {
-		"build": "lerna run build -- -- -p --types --nougly",
-		"pretty-build": "lerna run build -- -- --nougly",
+		"build": "lerna run build -- -- --env prod",
+		"pretty-build": "lerna run build -- -- --env nougly",
 		"start": "lerna run build -- -- --watch",
 		"typesold": "tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes",
 		"clean": "node -r ./scripts/ts ./scripts/clean",

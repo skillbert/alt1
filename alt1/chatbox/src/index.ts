@@ -7,12 +7,6 @@ type FontSetting = { name: string, lineheight: number, badgey: number, dy: numbe
 
 let chatfont = require("@alt1/ocr/fonts/chat_8px.js");
 
-// let fonts: FontSetting[] = [
-// 	{ name: "11pt", lineheight: 15, badgey: -8, dy: 0, def: require("@alt1/ocr/fonts/chat_8px.js") },
-// 	{ name: "13pt", lineheight: 17, badgey: -9, dy: -1, def: require("@alt1/ocr/fonts/chat_10px.js") },
-// 	{ name: "15pt", lineheight: 19, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_11px.js") },
-// 	{ name: "17pt", lineheight: 21, badgey: -11, dy: -2, def: require("@alt1/ocr/fonts/chat_13px.js") }
-// ];
 let fonts: FontSetting[] = [
 	{ name: "10pt", lineheight: 14, badgey: -9, dy: -1, def: require("./fonts/10pt.fontmeta.json") },
 	{ name: "12pt", lineheight: 16, badgey: -10, dy: -4, def: require("./fonts/12pt.fontmeta.json") },

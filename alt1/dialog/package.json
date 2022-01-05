@@ -15,6 +15,6 @@
 		"@alt1/ocr": "^1.0.0-alpha.1"
 	},
 	"scripts": {
-		"build": "node ../../buildutil.js"
+		"build": "webpack --config ../../buildutil.js"
 	}
 }

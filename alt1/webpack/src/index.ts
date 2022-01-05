@@ -32,7 +32,7 @@ export default class Alt1Chain {
 	tsOptions: any;
 	chain: WebpackChain;
 	opts!: Alt1WebpackOpts;
-	constructor(rootdir: string, opts?: Partial<Alt1WebpackOpts>) {
+	constructor(rootdir: string, env: Record<string, string | boolean>, opts?: Partial<Alt1WebpackOpts>) {
 		this.chain = new WebpackChain();
 		this.chain.context(rootdir);
 		this.rootdir = rootdir;
@@ -60,7 +60,7 @@ export default class Alt1Chain {
 		this.chain.node.clear().set("false", true);
 
 		this.defaultModule();
-		this.configureOpts(opts);
+		this.configureOpts(env, opts);
 	}
 
 	entry(name: string, filename: string, append?: boolean) {
@@ -148,8 +148,8 @@ export default class Alt1Chain {
 		}));
 	}
 
-	configureOpts(override?: Partial<Alt1WebpackOpts>) {
-		var opts = { ...getCmdConfig(), ...override };
+	configureOpts(env: Record<string, string | boolean>, override?: Partial<Alt1WebpackOpts>) {
+		var opts = { ...override, ...getCmdConfig(env) };
 		this.opts = opts;
 		this.production(opts.production, opts.sourcemaps, opts.hotEnable, opts.hotProxy);;
 		this.ugly(opts.ugly);
@@ -227,39 +227,19 @@ export type NpmConfig = {
 	optionalDependencies: { [name: string]: string }
 };
 
-export function getCmdConfig() {
+export function getCmdConfig(env: Record<string, string | boolean>) {
+	let prod = !!(env.prod ?? env.production ?? env.mode == "prod");
 	var baseopts: Alt1WebpackOpts = {
-		sourcemaps: true,
-		production: false,
+		sourcemaps: prod,
+		production: prod,
 		dropConsole: false,
-		esnext: true,
-		ugly: false,
+		esnext: (typeof env.esnext == "boolean" ? env.esnext : !prod),
+		ugly: (typeof env.ugly == "boolean" ? env.ugly : prod),
 		hotEnable: false,
 		hotProxy: "",
-		nodejs: false,
+		nodejs: (typeof env.nodejs == "boolean" ? env.nodejs : false),
 		nodejsExcludeExceptions: []
 	};
-	for (var arg of process.argv) {
-		switch (arg) {
-			case "-p":
-				baseopts.production = true;
-				baseopts.ugly = true;
-				baseopts.esnext = false;
-				break;
-			case "--ugly":
-				baseopts.ugly = true;
-				break;
-			case "--nougly":
-				baseopts.ugly = false;
-				break;
-			case "--esnext":
-				baseopts.esnext = true;
-				break;
-			case "--noesnext":
-				baseopts.esnext = false;
-				break;
-		}
-	}
 	return baseopts;
 }
 

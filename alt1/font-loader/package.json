@@ -18,7 +18,7 @@
 		"sharp": "^0.29.0"
 	},
 	"scripts": {
-		"build": "node ../../buildutil.js"
+		"build": "webpack --config ../../buildutil.js"
 	},
 	"gitHead": "56379edfca7653ef75dc4a4c357e999b70fd34bd"
 }

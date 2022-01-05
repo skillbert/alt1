@@ -15,7 +15,7 @@ export function addAlt1Externals(config: Alt1Chain) {
 	}
 }
 
-export function chainAlt1Lib(rootdir: string) {
+export function chainAlt1Lib(rootdir: string, env: Record<string, string | boolean>) {
 	var pack = getPackageInfo(path.resolve(rootdir, "package.json"));
 	var rootpack: ReturnType<typeof getPackageInfo> | null = null;
 	for (let parentdir = rootdir; true;) {
@@ -45,7 +45,7 @@ export function chainAlt1Lib(rootdir: string) {
 	}
 	if (!entrypath) { throw new Error("couldn't find entry file in " + rootdir); }
 
-	var config = new Alt1Chain(path.dirname(entrypath), { nodejs: pack.target == "node" });
+	var config = new Alt1Chain(path.dirname(entrypath), env, { nodejs: pack.target == "node" });
 	config.entry("index", path.basename(entrypath));
 
 	config.makeUmd(pack.name, pack.umdName);

@@ -1,2 +1,2 @@
 require("./scripts/ts");
-require("./scripts/buildutil");
+module.exports = require("./scripts/buildutil");
