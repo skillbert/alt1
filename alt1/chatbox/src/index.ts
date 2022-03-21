@@ -8,13 +8,13 @@ type FontSetting = { name: string, lineheight: number, badgey: number, dy: numbe
 let chatfont = require("@alt1/ocr/fonts/chat_8px.js");
 
 let fonts: FontSetting[] = [
-	{ name: "10pt", lineheight: 14, badgey: -9, dy: -1, def: require("./fonts/10pt.fontmeta.json") },
-	{ name: "12pt", lineheight: 16, badgey: -9, dy: -5, def: require("./fonts/12pt.fontmeta.json") },
-	{ name: "14pt", lineheight: 18, badgey: -10, dy: -7, def: require("./fonts/14pt.fontmeta.json") },
-	{ name: "16pt", lineheight: 21, badgey: -10, dy: -11, def: require("./fonts/16pt.fontmeta.json") },
-	{ name: "18pt", lineheight: 23, badgey: -12, dy: -13, def: require("./fonts/18pt.fontmeta.json") },
-	{ name: "20pt", lineheight: 25, badgey: -13, dy: -17, def: require("./fonts/20pt.fontmeta.json") },
-	{ name: "22pt", lineheight: 27, badgey: -14, dy: -19, def: require("./fonts/22pt.fontmeta.json") },
+	{ name: "10pt", lineheight: 14, badgey: -9, dy: 2, def: require("./fonts/10pt.fontmeta.json") },
+	{ name: "12pt", lineheight: 16, badgey: -9, dy: -1, def: require("./fonts/12pt.fontmeta.json") },
+	{ name: "14pt", lineheight: 18, badgey: -10, dy: -3, def: require("./fonts/14pt.fontmeta.json") },
+	{ name: "16pt", lineheight: 21, badgey: -10, dy: -6, def: require("./fonts/16pt.fontmeta.json") },
+	{ name: "18pt", lineheight: 23, badgey: -11, dy: -8, def: require("./fonts/18pt.fontmeta.json") },
+	{ name: "20pt", lineheight: 25, badgey: -11, dy: -11, def: require("./fonts/20pt.fontmeta.json") },
+	{ name: "22pt", lineheight: 27, badgey: -12, dy: -13, def: require("./fonts/22pt.fontmeta.json") },
 ];
 
 const imgs = ImageDetect.webpackImages({
@@ -35,8 +35,9 @@ const chatbadges = ImageDetect.webpackImages({
 	vip: require("./imgs/badgevip.data.png"),
 	pmod: require("./imgs/badgepmod.data.png"),
 	pmodvip: require("./imgs/badgepmodvip.data.png"),
-	broadcast: require("./imgs/badgebroadcast.data.png"),
-	drop: require("./imgs/badgedrop.data.png"),
+	broadcast_gold: require("./imgs/badge_broadcast_gold.data.png"),
+	broadcast_silver: require("./imgs/badge_broadcast_silver.data.png"),
+	broadcast_bronze: require("./imgs/badge_broadcast_bronze.data.png"),
 	ironman: require("./imgs/badgeironman.data.png"),
 	hcim: require("./imgs/badgehcim.data.png")
 });
@@ -45,8 +46,9 @@ const badgemap: { [key in keyof typeof chatbadges.raw]: string } = {
 	vip: "\u2730",//SHADOWED WHITE STAR
 	pmod: "\u2655",//WHITE CHESS QUEEN
 	pmodvip: "\u2655",//WHITE CHESS QUEEN
-	broadcast: "\u2746",//HEAVY CHEVRON SNOWFLAKE
-	drop: "\u2746",//HEAVY CHEVRON SNOWFLAKE
+	broadcast_gold: "\u2746",//HEAVY CHEVRON SNOWFLAKE
+	broadcast_silver: "\u2746",//HEAVY CHEVRON SNOWFLAKE
+	broadcast_bronze: "\u2746",//HEAVY CHEVRON SNOWFLAKE
 	ironman: "\u26AF",//UNMARRIED PARTNERSHIP SYMBOL
 	hcim: "\u{1F480}",//SKULL
 }
