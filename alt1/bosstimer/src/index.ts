@@ -8,7 +8,7 @@ let font = require("./assets/timerfont.fontmeta.json");
 let imgs = ImageDetect.webpackImages({
 	bossicon: require("./assets/bossicon.data.png")
 });
- 
+
 
 export default class BossTimerReader {
 
@@ -30,7 +30,7 @@ export default class BossTimerReader {
 		if (!img) { buf = a1lib.capture(this.pos); }
 		else { buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
 
-		let timestr = OCR.findReadLine(buf, font, [[255, 255, 255]], 56, 23, 30, 1);
+		let timestr = OCR.findReadLine(buf, font, [[255, 255, 255], [200, 0, 0], [200, 20, 0], [210, 40, 0], [230, 80, 0], [250, 100, 0], [220, 60, 0]], 56, 23, 30, 1);
 		let m = timestr.text.match(/^(\d{2}):(\d{2})$/);
 		if (!m) { return null; }
 		return {
