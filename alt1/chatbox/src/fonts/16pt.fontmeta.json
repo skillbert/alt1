@@ -5,6 +5,6 @@
 	"color": [ 127, 169, 255 ],
 	"unblendmode": "removebg",
 	"shadow": true,
-	"chars": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%/+?!@#$^~&*()_-=[]{}:;\"'<>\\.,|",
+	"chars": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%/+?!@#$^~&*()_-=[]{}:;\"'<>\\.,|àáãâèéêìíîòóôõùúûçÀÁÃÂÈÉÊÌÍÎÒÓÔÕÙÚÛÇ",
 	"seconds": ",.-:;\"'"
 }
