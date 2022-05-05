@@ -4,14 +4,15 @@ import * as fs from "fs";
 import * as TerserPlugin from "terser-webpack-plugin";
 
 //these packages have outdated webpack v4 typings but still work, use require syntax to shut up typescript errors
-/*
+//*
 import * as webpackNodeExternals from "webpack-node-externals";
 import * as WebpackChain from "webpack-chain";
-declare module "webpack-chain" {
-	export interface Rule {
-		oneOf(name: string): WebpackChain.Rule;
-	}
-}
+type AllowlistOption = any;
+// declare module "webpack-chain" {
+// 	export interface Rule {
+// 		oneOf(name: string): WebpackChain.Rule;
+// 	}
+// }
 /*/
 const WebpackChain = require("webpack-chain");
 const webpackNodeExternals = require("webpack-node-externals");
@@ -32,7 +33,7 @@ export default class Alt1Chain {
 	tsOptions: any;
 	chain: WebpackChain;
 	opts!: Alt1WebpackOpts;
-	constructor(rootdir: string, env: Record<string, string | boolean>, opts?: Partial<Alt1WebpackOpts>) {
+	constructor(rootdir: string, opts: Partial<Alt1WebpackOpts>, env?: Record<string, string | boolean>) {
 		this.chain = new WebpackChain();
 		this.chain.context(rootdir);
 		this.rootdir = rootdir;
@@ -60,7 +61,7 @@ export default class Alt1Chain {
 		this.chain.node.clear().set("false", true);
 
 		this.defaultModule();
-		this.configureOpts(env, opts);
+		this.configureOpts(opts, env);
 	}
 
 	entry(name: string, filename: string, append?: boolean) {
@@ -148,8 +149,8 @@ export default class Alt1Chain {
 		}));
 	}
 
-	configureOpts(env: Record<string, string | boolean>, override?: Partial<Alt1WebpackOpts>) {
-		var opts = { ...override, ...getCmdConfig(env) };
+	configureOpts(defaults: Partial<Alt1WebpackOpts>, env?: Record<string, string | boolean>) {
+		var opts = getCmdConfig(defaults, env);
 		this.opts = opts;
 		this.production(opts.production, opts.sourcemaps, opts.hotEnable, opts.hotProxy);;
 		this.ugly(opts.ugly);
@@ -227,20 +228,31 @@ export type NpmConfig = {
 	optionalDependencies: { [name: string]: string }
 };
 
-export function getCmdConfig(env: Record<string, string | boolean>) {
-	let prod = !!(env.prod ?? env.production ?? env.mode == "prod");
-	var baseopts: Alt1WebpackOpts = {
+export function defaultCmdConfig(prod: boolean) {
+	let opts: Alt1WebpackOpts = {
 		sourcemaps: prod,
 		production: prod,
 		dropConsole: false,
-		esnext: (typeof env.esnext == "boolean" ? env.esnext : !prod),
-		ugly: (typeof env.ugly == "boolean" ? env.ugly : prod),
+		esnext: !prod,
+		ugly: prod,
 		hotEnable: false,
 		hotProxy: "",
-		nodejs: (typeof env.nodejs == "boolean" ? env.nodejs : false),
+		nodejs: false,
 		nodejsExcludeExceptions: []
-	};
-	return baseopts;
+	}
+	return opts;
+}
+
+export function getCmdConfig(defaults: Partial<Alt1WebpackOpts>, env?: Record<string, string | boolean>) {
+	let prod = !!(env?.prod ?? env?.production ?? (env?.mode ? env.mode == "prod" : defaults.production ?? false));
+	let cnf: Alt1WebpackOpts = { ...defaultCmdConfig(prod), ...defaults };
+
+	if (env) {
+		if (typeof env.esnext == "boolean") { cnf.esnext = env.esnext; }
+		if (typeof env.ugly == "boolean") { cnf.ugly = env.ugly; }
+		if (typeof env.nodejs == "boolean") { cnf.nodejs = env.nodejs; }
+	}
+	return cnf;
 }
 
 export function getPackageInfo(fileabs: string) {
