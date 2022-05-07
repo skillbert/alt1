@@ -224,6 +224,33 @@ export function simpleCompare(bigbuf: ImageData, checkbuf: ImageData, x: number,
 }
 
 /**
+* Calculates the root mean square error between the two buffers at the given coordinate, this method can be used in situations with significant blur or 
+* transparency, it does not bail early on non-matching images like simpleCompare does so it can be expected to be much slower when called often.
+* @returns The root mean square error beteen the images, high single pixel errors are penalized more than consisten low errors. return of 0 means perfect match.
+*/
+export function simpleCompareRMSE(bigbuf: ImageData, checkbuf: ImageData, x: number, y: number) {
+	if (x < 0 || y < 0) { throw new RangeError(); }
+	if (x + checkbuf.width > bigbuf.width || y + checkbuf.height > bigbuf.height) { throw new RangeError(); }
+
+	var dif = 0;
+	var numpix = 0;
+	for (var cx = 0; cx < checkbuf.width; cx++) {
+		for (var cy = 0; cy < checkbuf.height; cy++) {
+			var i1 = (x + cx) * 4 + (y + cy) * bigbuf.width * 4;
+			var i2 = cx * 4 + cy * checkbuf.width * 4;
+			var d = 0;
+			d = d + Math.abs(bigbuf.data[i1 + 0] - checkbuf.data[i2 + 0]) | 0;
+			d = d + Math.abs(bigbuf.data[i1 + 1] - checkbuf.data[i2 + 1]) | 0;
+			d = d + Math.abs(bigbuf.data[i1 + 2] - checkbuf.data[i2 + 2]) | 0;
+			var weight = checkbuf.data[i2 + 3] / 255;
+			numpix += weight;
+			dif += d * d * weight;
+		}
+	}
+	return Math.sqrt(dif / numpix);
+}
+
+/**
 * Returns the difference between two colors (scaled to the alpha of the second color)
 */
 export function coldif(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, a2: number) {

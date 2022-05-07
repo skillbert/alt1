@@ -5,17 +5,16 @@ import * as OCR from "@alt1/ocr";
 var imgs = a1lib.ImageDetect.webpackImages({
 	loot: require("./imgs/lootbutton.data.png"),
 	reset: require("./imgs/reset.data.png"),
-	droptext: require("./imgs/droptext.data.png"),
-	quantitytext: require("./imgs/quantitytext.data.png")
+	scrolltop: require("./imgs/scrolltop.data.png")
 });
-var font = require("@alt1/ocr/fonts/aa_8px_new.js");
+var font = require("@alt1/ocr/fonts/chatbox/12pt.js");
 
 
-var fontcolors:OCR.ColortTriplet[] = [
+var fontcolors: OCR.ColortTriplet[] = [
 	[255, 255, 255],//white
 	[30, 255, 0],//green
 	[102, 152, 255],//blue
-	[163, 53, 238],//purple
+	[163, 53, 238],//purple //TODO currently buggy
 	[255, 128, 0]//orange (1b+ and boss pets)
 ];
 
@@ -30,15 +29,29 @@ export default class DropsMenuReader {
 		var pos = img.findSubimage(imgs.loot);
 		if (pos.length == 0) { return null; }
 		var left = pos[0].x - 32;
-		var bot = pos[0].y - 5;
+		var bot = pos[0].y - 4;
 
-		var rpos = img.findSubimage(imgs.reset, left + 50, bot + 5, img.width - left - 50, imgs.reset.height);
+		var rpos = img.findSubimage(imgs.reset, left + 50, bot + 4, img.width - left - 50, imgs.reset.height);
 		if (rpos.length == 0) { return null; }
 		var width = rpos[0].x - left + 15;
 
-		var dropspos = img.findSubimage(imgs.droptext, left + 5, 0, imgs.droptext.width, bot - 50);
-		if (dropspos.length == 0) { return null; }
-		var top = dropspos[0].y - 4;
+		let scrollrect = img.toData(left + width, 0, 10, bot);
+		let scrolltops: { y: number, rmse: number }[] = [];
+		for (let y = bot - imgs.scrolltop.height; y >= 0; y--) {
+			let diff = a1lib.ImageDetect.simpleCompareRMSE(scrollrect, imgs.scrolltop, 0, y);
+			scrolltops.push({ y, rmse: diff });
+		}
+		scrolltops.sort((a, b) => a.rmse - b.rmse);
+		let besttop = scrolltops[0];
+
+		//the below above also tends to have a good score, hardcode this situation if the best and 2nd best are adjacent
+		if (Math.abs(scrolltops[0].rmse - scrolltops[1].rmse) < 10 && scrolltops[0].y == scrolltops[1].y + 1) { besttop = scrolltops[1]; }
+		if (besttop.rmse > 130) { return null; }
+
+		let top = besttop.y - 4;
+		let titlebar = img.toData(left, top, width, 18);
+		let quantitymatch = OCR.findReadLine(titlebar, font, [[165, 198, 214]], width - 100, 12, 70, 1);
+		if (quantitymatch.text != "Quantity") { return null; }
 
 		var p = { x: left, y: top, height: bot - top, width: width };
 		alt1.overLayRect(a1lib.mixColor(255, 255, 255), p.x, p.y, p.width, p.height, 5000, 1);
@@ -52,11 +65,11 @@ export default class DropsMenuReader {
 		if (img) { buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
 		else { buf = a1lib.capture(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
 
-		var qpos = a1lib.ImageDetect.findSubbuffer(buf, imgs.quantitytext, 20, 4, buf.width - 20, imgs.quantitytext.height);
-		if (qpos.length == 0) { return null; }
-		var right = qpos[0].x;
+		let quantitymatch = OCR.findReadLine(buf, font, [[165, 198, 214]], this.pos.width - 100, 12, 70, 1);
+		if (quantitymatch.text != "Quantity") { return null; }
+		var right = quantitymatch.debugArea.x;
 
-		for (var y = 34; y + 5 < buf.height; y += 18) {
+		for (var y = 35; y + 5 < buf.height; y += 18) {
 			var itemstr = OCR.readLine(buf, font, fontcolors, 5, y, true, false);
 			var amount = OCR.readLine(buf, font, fontcolors, right, y, true, false);
 			if (itemstr.text && amount.text) {
