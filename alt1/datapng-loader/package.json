@@ -8,12 +8,12 @@
 	"module": "./dist/index.js",
 	"types": "./dist/",
 	"author": "Skillbert",
-	"version": "1.0.0-alpha.2",
+	"version": "1.0.0-alpha.6",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
-		"@alt1/base": "^1.0.0-alpha.2"
+		"@alt1/base": "^1.0.0-alpha.6"
 	},
 	"scripts": {
 		"build": "webpack --config ../../buildutil.js"
