@@ -8,13 +8,13 @@ type FontSetting = { name: string, lineheight: number, badgey: number, dy: numbe
 let chatfont = require("@alt1/ocr/fonts/chat_8px.js");
 
 let fonts: FontSetting[] = [
-	{ name: "10pt", lineheight: 14, badgey: -9, dy: 2, def: require("./fonts/10pt.fontmeta.json") },
-	{ name: "12pt", lineheight: 16, badgey: -9, dy: -1, def: require("./fonts/12pt.fontmeta.json") },
-	{ name: "14pt", lineheight: 18, badgey: -10, dy: -3, def: require("./fonts/14pt.fontmeta.json") },
-	{ name: "16pt", lineheight: 21, badgey: -10, dy: -6, def: require("./fonts/16pt.fontmeta.json") },
-	{ name: "18pt", lineheight: 23, badgey: -11, dy: -8, def: require("./fonts/18pt.fontmeta.json") },
-	{ name: "20pt", lineheight: 25, badgey: -11, dy: -11, def: require("./fonts/20pt.fontmeta.json") },
-	{ name: "22pt", lineheight: 27, badgey: -12, dy: -13, def: require("./fonts/22pt.fontmeta.json") },
+	{ name: "10pt", lineheight: 14, badgey: -9, dy: 2, def: require("@alt1/ocr/fonts/chatbox/10pt.js") },
+	{ name: "12pt", lineheight: 16, badgey: -9, dy: -1, def: require("@alt1/ocr/fonts/chatbox/12pt.js") },
+	{ name: "14pt", lineheight: 18, badgey: -10, dy: -3, def: require("@alt1/ocr/fonts/chatbox/14pt.js") },
+	{ name: "16pt", lineheight: 21, badgey: -10, dy: -6, def: require("@alt1/ocr/fonts/chatbox/16pt.js") },
+	{ name: "18pt", lineheight: 23, badgey: -11, dy: -8, def: require("@alt1/ocr/fonts/chatbox/18pt.js") },
+	{ name: "20pt", lineheight: 25, badgey: -11, dy: -11, def: require("@alt1/ocr/fonts/chatbox/20pt.js") },
+	{ name: "22pt", lineheight: 27, badgey: -12, dy: -13, def: require("@alt1/ocr/fonts/chatbox/22pt.js") },
 ];
 
 const imgs = ImageDetect.webpackImages({

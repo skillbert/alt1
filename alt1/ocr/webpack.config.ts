@@ -1,7 +1,6 @@
 import A1webpack from "../webpack/src";
 import * as fs from "fs";
 import * as path from "path";
-import { chainAlt1Lib, addAlt1Externals } from "../../scripts/alt1webpack";
 import Alt1Chain from "../webpack/src";
 
 module.exports = (env: Record<string, string | boolean>) => {
@@ -16,23 +15,31 @@ module.exports = (env: Record<string, string | boolean>) => {
 
 	//extra builds for fonts
 	var fontdir = path.resolve(__dirname, "src/fontssrc");
-	var files = fs.readdirSync(fontdir);
-	for (var file of files) {
-		var m = file.match(/([\w-]+)\.fontmeta\.json$/i);
-		if (m) {
-			var fontname = m[1];
-			var fontcnf = new A1webpack(__dirname, env);
-			fontcnf.chain.output.path(path.resolve(__dirname, "./fonts"));
-			fontcnf.chain.output.filename("[name].js");
-			fontcnf.makeUmd(fontname, "OCR_" + fontname);
-			fontcnf.entry(fontname, path.resolve(fontdir, file));
-			fontcnf.chain.set("devtool", undefined);
-			fontcnf.chain.module.rule("jsonfile")
-				.oneOf("fontmeta")
-				.use("font-loader").loader("@alt1/font-loader/src");
-			configs.push(fontcnf);
+	var addfonts = function (relpath: string) {
+		var subdir = path.resolve(fontdir, relpath);
+		var files = fs.readdirSync(subdir);
+		for (var file of files) {
+			var m = file.match(/([\w-]+)\.fontmeta\.json$/i);
+			var fullfile = path.resolve(subdir, file);
+			if (m) {
+				var fontname = m[1];
+				var fontcnf = new A1webpack(__dirname, env);
+				fontcnf.chain.output.path(path.resolve(__dirname, "./fonts/", relpath));
+				fontcnf.chain.output.filename("[name].js");
+				fontcnf.makeUmd(fontname, "OCR_" + fontname);
+				fontcnf.entry(fontname, fullfile);
+				fontcnf.chain.set("devtool", undefined);
+				fontcnf.chain.module.rule("jsonfile")
+					.oneOf("fontmeta")
+					.use("font-loader").loader("@alt1/font-loader/src");
+				configs.push(fontcnf);
+			} else if (fs.statSync(fullfile).isDirectory()) {
+				addfonts(path.join(relpath, file));
+			}
+
 		}
 	}
+	addfonts("");
 
 	configs.forEach(c => c.chain.resolveLoader.modules.add(path.resolve(__dirname, "../../node_modules")).add(path.resolve(__dirname, "../")));
 	let configobjs = configs.map(c => c.toConfig());
