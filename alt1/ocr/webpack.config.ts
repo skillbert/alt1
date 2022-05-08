@@ -23,7 +23,7 @@ module.exports = (env: Record<string, string | boolean>) => {
 			var fullfile = path.resolve(subdir, file);
 			if (m) {
 				var fontname = m[1];
-				var fontcnf = new A1webpack(__dirname, env);
+				var fontcnf = new A1webpack(__dirname, {}, env);
 				fontcnf.chain.output.path(path.resolve(__dirname, "./fonts/", relpath));
 				fontcnf.chain.output.filename("[name].js");
 				fontcnf.makeUmd(fontname, "OCR_" + fontname);
