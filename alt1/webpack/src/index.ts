@@ -187,7 +187,7 @@ export default class Alt1Chain {
 			.use("datapng").loader("@alt1/imagedata-loader");
 		this.chain.module.rule("imagefiles")
 			.oneOf("image")
-			.test(/\.(png|jpg|gif)$/i)
+			.test(/\.(png|jpg|jpeg|gif|webp)$/i)
 			.use("url-loader").loader("url-loader").options({ limit: 8192, esModule: false, name: "[path][name].[ext]" });
 		this.chain.module.rule("jsonfiles")
 			.test(/\.json$/)
