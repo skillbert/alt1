@@ -179,14 +179,8 @@ export default class ChatBoxReader {
 		if (!box.leftfound) {
 			let found = false;
 			let extraoffset = 0;
-			//needs extra check if the "[" even exists
-			// if (ctx.text.match(/^[\w:]{,12}\]/)) {
-			// 	found = true;
-			// 	extraoffset = font.def.chars.find(q => q.chr == "[")!.width;
-			// }
-			//can no longer do this since it skips the timestamp and the timestamp can now be variable pixel size
-			// if (ctx.text.indexOf(badgemap.broadcast + "News") == 0) { found = true; }
-			if (ctx.text.match(/^(\[\w)/i)) {
+			//ignore lines with news in them since the preceeding news icon often doesn't match in backward reads
+			if (ctx.text.match(/^(\[\w)/i) && ctx.text.indexOf("News") == -1) {
 				found = true;
 			}
 			if (found) {
