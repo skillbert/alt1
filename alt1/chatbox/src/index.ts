@@ -39,7 +39,8 @@ const chatbadges = ImageDetect.webpackImages({
 	broadcast_silver: require("./imgs/badge_broadcast_silver.data.png"),
 	broadcast_bronze: require("./imgs/badge_broadcast_bronze.data.png"),
 	ironman: require("./imgs/badgeironman.data.png"),
-	hcim: require("./imgs/badgehcim.data.png")
+	hcim: require("./imgs/badgehcim.data.png"),
+	chatlink: require("./imgs/chat_link.data.png"),
 });
 
 const badgemap: { [key in keyof typeof chatbadges.raw]: string } = {
@@ -51,6 +52,7 @@ const badgemap: { [key in keyof typeof chatbadges.raw]: string } = {
 	broadcast_bronze: "\u2746",//HEAVY CHEVRON SNOWFLAKE
 	ironman: "\u26AF",//UNMARRIED PARTNERSHIP SYMBOL
 	hcim: "\u{1F480}",//SKULL
+	chatlink: "\u{1F517}",//LINK SYMBOL
 }
 
 export const defaultcolors = [
@@ -322,9 +324,9 @@ export default class ChatBoxReader {
 		var img = imgornull;
 		var toprights: BoxCorner[] = [];
 
-		img.findSubimage(imgs.plusbutton).forEach(loc => toprights.push({ x: loc.x + 2, y: loc.y + 21, type: "hidden" }));
+		img.findSubimage(imgs.plusbutton).forEach(loc => toprights.push({ x: loc.x + 5, y: loc.y + 21, type: "hidden" }));
 		img.findSubimage(imgs.filterbutton).forEach(loc => toprights.push({ x: loc.x + 19, y: loc.y + 19, type: "hidden" }));
-		img.findSubimage(imgs.minusbutton).forEach(loc => toprights.push({ x: loc.x + 2, y: loc.y + 21, type: "full" }));
+		img.findSubimage(imgs.minusbutton).forEach(loc => toprights.push({ x: loc.x + 5, y: loc.y + 21, type: "full" }));
 
 		var botlefts: a1lib.PointLike[] = [];
 		img.findSubimage(imgs.chatbubble).forEach(loc => {
