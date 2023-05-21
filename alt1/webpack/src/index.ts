@@ -33,10 +33,12 @@ export default class Alt1Chain {
 	tsOptions: any;
 	chain: WebpackChain;
 	opts!: Alt1WebpackOpts;
+	env: Record<string, string | boolean>;
 	constructor(rootdir: string, opts: Partial<Alt1WebpackOpts>, env?: Record<string, string | boolean>) {
 		this.chain = new WebpackChain();
 		this.chain.context(rootdir);
 		this.rootdir = rootdir;
+		this.env = env ?? {};
 		var dir = path.resolve(rootdir);
 		while (true) {
 			var file = path.resolve(dir, "tsconfig.json");
