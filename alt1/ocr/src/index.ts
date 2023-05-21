@@ -139,7 +139,7 @@ export function canblend(rm: number, gm: number, bm: number, r1: number, g1: num
 	var r = rm + (rm - r1) * m;
 	var g = gm + (gm - g1) * m;
 	var b = bm + (bm - b1) * m;
-	return Math.max(-r, -g, -b, r - 255, g - 255, b - 255);
+	return Math.max(0, -r, -g, -b, r - 255, g - 255, b - 255);
 }
 
 
