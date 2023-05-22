@@ -3,7 +3,7 @@ buildtemp
 dist
 types
 alt1/ocr/fonts
-.log
+*.log
 
 
 
