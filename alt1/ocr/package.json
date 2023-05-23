@@ -6,12 +6,12 @@
 	"module": "./dist/index.js",
 	"types": "./dist/",
 	"author": "Skillbert",
-	"version": "1.0.0-alpha.6",
+	"version": "1.0.0-alpha.7",
 	"publishConfig": {
 		"access": "public"
 	},
 	"dependencies": {
-		"@alt1/base": "^1.0.0-alpha.6"
+		"@alt1/base": "^1.0.0-alpha.7"
 	},
 	"scripts": {
 		"build": "node ./build.js"
