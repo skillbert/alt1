@@ -28,7 +28,7 @@ let config = {
         globalObject: "globalThis",
         chunkLoading: "require"
     },
-    externalsType: "commonjs",
+    externalsType: "umd",
     externals: [
         "sharp",
         "canvas",

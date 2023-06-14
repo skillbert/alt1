@@ -2,7 +2,7 @@ import * as a1lib from "alt1/base";
 import * as OCR from "alt1/ocr";
 import { ImgRef } from "alt1/base";
 
-var chatfont = require("alt1/ocr/fonts/aa_8px_new.js");
+var chatfont = require("../fonts/aa_8px.fontmeta.json");
 
 var imgs = a1lib.ImageDetect.webpackImages({
 	detectimg: require("./imgs/detectimg.data.png")

@@ -34,14 +34,14 @@
 		},
 		"./*": {
 			"alt1-source": [
-				"./src/*.ts",
 				"./src/*/index.ts",
-				"./src/*.tsx",
-				"./src/*/index.tsx"
+				"./src/*.ts",
+				"./src/*/index.tsx",
+				"./src/*.tsx"
 			],
 			"default": [
-				"./dist/*.js",
-				"./dist/*/index.js"
+				"./dist/*/index.js",
+				"./dist/*.js"
 			]
 		}
 	},

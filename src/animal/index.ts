@@ -4,7 +4,7 @@ import { ImgRef, RectLike } from "alt1/base";
 
 //TODO this is prabably the same as the src/fonts ones
 var stdfont = require("./imgs/aa_8px_mono_pof2.fontmeta.json");
-var namefont = require("alt1/ocr/fonts/aa_12px_mono.js");
+var namefont = require("../fonts/aa_12px_mono.fontmeta.json");
 
 
 var imgs = a1lib.ImageDetect.webpackImages({

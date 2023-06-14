@@ -2,6 +2,7 @@
 import webpack from "webpack";
 import fs from "fs";
 import baseconfig from "./scripts/webpack.mjs";
+import glob from "glob";
 
 let fontdirfiles = fs.readdirSync("./src/fonts");
 let fontentries = fontdirfiles.map(filename => {
@@ -13,35 +14,56 @@ let fontentries = fontdirfiles.map(filename => {
     }
 }).filter(q => q);
 
+let librootnames = {
+    base: "A1lib",
+    ocr: "OCR",
+}
+
+/**@type {webpack.Configuration["entry"]} */
+let libentries = {};
+let localExternals = {};
+let packages = glob.sync("./src/*/index.ts");
+for (let pack of packages) {
+    let name = pack.match(/src\/([\w-]+)\/index.tsx?/)?.[1];
+    if (name && name != "webpack" && !name.endsWith("-loader")) {
+
+        /**@type {webpack.LibraryOptions["name"]} */
+        let libname = {
+            root: librootnames[name] ?? name.replace(/(^|-)\w?/, s => s.replace("-", "").toUpperCase()),
+            commonjs: name,
+            amd: name
+        };
+
+        /**@type {webpack.EntryObject[string]} */
+        let entry = {
+            import: pack,
+            library: {
+                type: "umd",
+                name: libname
+            }
+        }
+        libentries[`${name}/index`] = entry;
+        localExternals[`alt1/${name}`] = { ...libname, commonjs2: name };
+    }
+}
+
 /**@type {webpack.Configuration} */
 let fontsconfig = {
     ...baseconfig,
     entry: Object.fromEntries(fontentries.map(q => [q.entryname, q.filename])),
     externals: [
         ...baseconfig.externals,
-        /^alt1\/.*/
+        localExternals
     ]
 }
 
 /**@type {webpack.Configuration} */
 let libsconfig = {
     ...baseconfig,
-    entry: {
-        "base/index": {
-            import: "./src/base/index.ts"
-        },
-        "ocr/index": {
-            import: "./src/ocr/index.ts",
-            // dependOn: ["base/index"]
-        },
-        "chatbox/index": {
-            import: "./src/chatbox/index.ts",
-            // dependOn: ["base/index", "ocr/index", ...fontdeps]
-        },
-    },
+    entry: libentries,
     externals: [
         ...baseconfig.externals,
-        /^alt1\/.*/
+        localExternals
     ]
 }
 

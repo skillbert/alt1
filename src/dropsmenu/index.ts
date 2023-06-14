@@ -7,7 +7,7 @@ var imgs = a1lib.ImageDetect.webpackImages({
 	reset: require("./imgs/reset.data.png"),
 	scrolltop: require("./imgs/scrolltop.data.png")
 });
-var font = require("alt1/ocr/fonts/chatbox/12pt.js");
+var font = require("../fonts/chatbox/12pt.fontmeta.json");
 
 
 var fontcolors: OCR.ColortTriplet[] = [

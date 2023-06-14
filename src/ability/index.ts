@@ -7,8 +7,8 @@ export { default as ActionbarReader } from "./actionbar";
 
 export interface AbilityInfoBare { id: string, icon: ImageData, cooldown: number };
 
-var cdfont = require("@alt1/ocr/fonts/pixel_digits_8px_shadow.js");
-var hotkeyfont = require("@alt1/ocr/fonts/aa_8px_new.js");
+var cdfont = require("../fonts/pixel_8px_digits.fontmeta.json");
+var hotkeyfont = require("../fonts/aa_8px.fontmeta.json");
 
 var imgs = a1lib.ImageDetect.webpackImages({
 	settingscog: require("./imgs/settingscog.data.png"),
