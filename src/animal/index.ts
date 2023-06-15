@@ -1,13 +1,13 @@
 import * as a1lib from "alt1/base";
 import * as OCR from "alt1/ocr";
-import { ImgRef, RectLike } from "alt1/base";
+import { webpackImages, ImgRef, RectLike } from "alt1/base";
 
 //TODO this is prabably the same as the src/fonts ones
 var stdfont = require("./imgs/aa_8px_mono_pof2.fontmeta.json");
 var namefont = require("../fonts/aa_12px_mono.fontmeta.json");
 
 
-var imgs = a1lib.ImageDetect.webpackImages({
+var imgs = webpackImages({
 	happynessicon: require("./imgs/animalhappy.data.png"),
 });
 

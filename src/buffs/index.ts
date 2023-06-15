@@ -1,8 +1,8 @@
 ﻿import * as a1lib from "alt1/base";
 import * as OCR from "alt1/ocr";
-import { ImageData, ImgRef } from "alt1/base";
+import { webpackImages, ImgRef } from "alt1/base";
 
-var imgs = a1lib.ImageDetect.webpackImages({
+var imgs = webpackImages({
 	buff: require("./imgs/buffborder.data.png"),
 	debuff: require("./imgs/debuffborder.data.png"),
 });

@@ -1,12 +1,10 @@
 import * as a1lib from "alt1/base";
 import { ImgRef, ImgRefData } from "alt1/base";
 import * as OCR from "alt1/ocr";
-import { ImageDetect } from "alt1/base";
+import { webpackImages } from "alt1/base";
 
 type FontSetting = { name: string, lineheight: number, badgey: number, dy: number, def: OCR.FontDefinition };
 
-//TODO check if this font is indeed the same
-// let chatfont = require("../fonts/chat_8px.fontmeta.json");
 let chatfont = require("../fonts/aa_8px.fontmeta.json");
 
 let fonts: FontSetting[] = [
@@ -19,7 +17,7 @@ let fonts: FontSetting[] = [
 	{ name: "22pt", lineheight: 27, badgey: -12, dy: -13, def: require("../fonts/chatbox/22pt.fontmeta.json") },
 ];
 
-const imgs = ImageDetect.webpackImages({
+const imgs = webpackImages({
 	plusbutton: require("./imgs/plusbutton.data.png"),
 	minusbutton: require("./imgs/minusbutton.data.png"),
 	filterbutton: require("./imgs/filterbutton.data.png"),
@@ -33,7 +31,7 @@ const imgs = ImageDetect.webpackImages({
 	reportbutton: require("./imgs/reportbutton.data.png"),
 });
 
-const chatbadges = ImageDetect.webpackImages({
+const chatbadges = webpackImages({
 	vip: require("./imgs/badgevip.data.png"),
 	pmod: require("./imgs/badgepmod.data.png"),
 	pmodvip: require("./imgs/badgepmodvip.data.png"),

@@ -1,8 +1,8 @@
 import * as a1lib from "alt1/base";
 import * as OCR from "alt1/ocr";
-import { ImgRef } from "alt1/base";
+import { ImgRef, webpackImages } from "alt1/base";
 
-var imgs_rs3 = a1lib.ImageDetect.webpackImages({
+var imgs_rs3 = webpackImages({
 	chatimg: require("./imgs/chatimg.data.png"),
 	chatimghover: require("./imgs/chatimghover.data.png"),
 	chatimgactive: require("./imgs/chatimgactive.data.png"),
@@ -12,7 +12,7 @@ var imgs_rs3 = a1lib.ImageDetect.webpackImages({
 	boxtr: require("./imgs/boxtr.data.png")
 });
 
-var imgs_leg = a1lib.ImageDetect.webpackImages({
+var imgs_leg = webpackImages({
 	chatimg: require("./imgs/chatimg_leg.data.png"),
 	chatimghover: require("./imgs/chatimghover_leg.data.png"),
 	chatimgactive: require("./imgs/chatimgactive_leg.data.png"),

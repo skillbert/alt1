@@ -1,11 +1,11 @@
 import * as a1lib from "alt1/base";
-import { ImgRef, ImageDetect } from "alt1/base";
+import { webpackImages, ImgRef, ImageDetect } from "alt1/base";
 import * as OCR from "alt1/ocr";
 
 
 let font = require("./assets/timerfont.fontmeta.json");
 
-let imgs = ImageDetect.webpackImages({
+let imgs = webpackImages({
 	bossicon: require("./assets/bossicon.data.png")
 });
 

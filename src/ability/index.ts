@@ -1,16 +1,16 @@
 import * as a1lib from "alt1/base";
 import * as OCR from "alt1/ocr";
 import ActionbarReader, { LifeState } from "./actionbar";
-import { Rect, ImgRef, captureAsync, ImageDetect } from "alt1/base";
+import { webpackImages, Rect, ImgRef, captureAsync, ImageDetect } from "alt1/base";
 
-export { default as ActionbarReader } from "./actionbar";
+export { default as ActionbarReader, LifeState } from "./actionbar";
 
 export interface AbilityInfoBare { id: string, icon: ImageData, cooldown: number };
 
 var cdfont = require("../fonts/pixel_8px_digits.fontmeta.json");
 var hotkeyfont = require("../fonts/aa_8px.fontmeta.json");
 
-var imgs = a1lib.ImageDetect.webpackImages({
+var imgs = webpackImages({
 	settingscog: require("./imgs/settingscog.data.png"),
 	smallbarnumber: require("./imgs/smallbarnumber.data.png"),
 	actionbarnumbers: require("./imgs/actionbarnumbers.data.png")

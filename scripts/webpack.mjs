@@ -15,8 +15,7 @@ let urlloaderOptions = {
 let config = {
     devtool: false,
     resolve: {
-        extensions: [".wasm", ".tsx", ".ts", ".mjs", ".jsx", ".js"],
-        conditionNames: ["alt1-source"]
+        extensions: [".wasm", ".tsx", ".ts", ".mjs", ".jsx", ".js"]
     },
     mode: "development",
     output: {

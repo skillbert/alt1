@@ -1,10 +1,10 @@
 import * as a1lib from "alt1/base";
-import { ImgRef } from "alt1/base";
+import { webpackImages, ImgRef } from "alt1/base";
 import * as OCR from "alt1/ocr";
 
 var chatfont = require("../fonts/aa_8px.fontmeta.json");
 
-var imgs = a1lib.ImageDetect.webpackImages({
+var imgs = webpackImages({
 	dren: require("./actionbarimgs/dren.data.png"),
 	drenretal: require("./actionbarimgs/drenretal.data.png"),
 	lifepoints: require("./actionbarimgs/lifepoints.data.png"),

@@ -1,8 +1,8 @@
 import * as a1lib from "alt1/base";
-import { ImgRef } from "alt1/base";
+import { webpackImages, ImgRef } from "alt1/base";
 import * as OCR from "alt1/ocr";
 
-var imgs = a1lib.ImageDetect.webpackImages({
+var imgs = webpackImages({
 	loot: require("./imgs/lootbutton.data.png"),
 	reset: require("./imgs/reset.data.png"),
 	scrolltop: require("./imgs/scrolltop.data.png")

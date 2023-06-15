@@ -8,3 +8,5 @@ export * as NodePolyfill from "./nodepolyfill";
 
 export * from "./imgref";
 export * from "./wrapper";
+
+export { webpackImages, findSubimage, simpleCompare, findSubbuffer, ImageDataSet } from "./imagedetect";

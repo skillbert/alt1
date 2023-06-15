@@ -12,37 +12,73 @@
 			"alt1-source": "./src/base/index.ts",
 			"default": "./dist/base/index.js"
 		},
+		"./ability": {
+			"alt1-source": "./src/ability/index.ts",
+			"default": "./dist/ability/index.js"
+		},
+		"./abilitytooltip": {
+			"alt1-source": "./src/abilitytooltip/index.ts",
+			"default": "./dist/abilitytooltip/index.js"
+		},
+		"./animal": {
+			"alt1-source": "./src/animal/index.ts",
+			"default": "./dist/animal/index.js"
+		},
+		"./base": {
+			"alt1-source": "./src/base/index.ts",
+			"default": "./dist/base/index.js"
+		},
+		"./bosstimer": {
+			"alt1-source": "./src/bosstimer/index.ts",
+			"default": "./dist/bosstimer/index.js"
+		},
+		"./buffs": {
+			"alt1-source": "./src/buffs/index.ts",
+			"default": "./dist/buffs/index.js"
+		},
 		"./chatbox": {
 			"alt1-source": "./src/chatbox/index.ts",
 			"default": "./dist/chatbox/index.js"
-		},
-		"./ocr": {
-			"alt1-source": "./src/ocr/index.ts",
-			"default": "./dist/ocr/index.js"
 		},
 		"./datapng-loader": {
 			"alt1-source": "./src/datapng-loader/index.ts",
 			"default": "./dist/datapng-loader/index.js"
 		},
-		"./imagedata-loader": {
-			"alt1-source": "./src/imagedata-loader/index.ts",
-			"default": "./dist/imagedata-loader/index.js"
+		"./dialog": {
+			"alt1-source": "./src/dialog/index.ts",
+			"default": "./dist/dialog/index.js"
+		},
+		"./dropsmenu": {
+			"alt1-source": "./src/dropsmenu/index.ts",
+			"default": "./dist/dropsmenu/index.js"
 		},
 		"./font-loader": {
 			"alt1-source": "./src/font-loader/index.ts",
 			"default": "./dist/font-loader/index.js"
 		},
-		"./*": {
-			"alt1-source": [
-				"./src/*/index.ts",
-				"./src/*.ts",
-				"./src/*/index.tsx",
-				"./src/*.tsx"
-			],
-			"default": [
-				"./dist/*/index.js",
-				"./dist/*.js"
-			]
+		"./imagedata-loader": {
+			"alt1-source": "./src/imagedata-loader/index.ts",
+			"default": "./dist/imagedata-loader/index.js"
+		},
+		"./ocr": {
+			"alt1-source": "./src/ocr/index.ts",
+			"default": "./dist/ocr/index.js"
+		},
+		"./targetmob": {
+			"alt1-source": "./src/targetmob/index.ts",
+			"default": "./dist/targetmob/index.js"
+		},
+		"./tooltip": {
+			"alt1-source": "./src/tooltip/index.ts",
+			"default": "./dist/tooltip/index.js"
+		},
+		"./webpack": {
+			"alt1-source": "./src/webpack/index.ts",
+			"default": "./dist/webpack/index.js"
+		},
+		"./fonts/*": {
+			"alt1-source": "./src/fonts/*",
+			"default": "./dist/fonts/*"
 		}
 	},
 	"type": "commonjs",

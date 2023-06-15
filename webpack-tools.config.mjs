@@ -11,19 +11,14 @@ let toolsconfig = {
         "font-loader/index": "./src/font-loader/index.ts",
         "datapng-loader/index": "./src/datapng-loader/index.ts"
     },
+    resolve: {
+        ...baseconfig.resolve,
+        conditionNames: ["alt1-source"]
+    },
     module: {
         ...baseconfig.module,
         rules: baseconfig.module.rules.slice(0, 3)
     }
-    // output: {
-    //     ...config.output,
-    //     libraryTarget: "commonjs"
-    // },
-    // externalsType: "commonjs",
-    // experiments: {
-    //     ...config.experiments,
-    //     outputModule: false
-    // }
 }
 
 

@@ -4,7 +4,7 @@ import * as OCR from "alt1/ocr";
 
 var font = require("./imgs/pixel_8px_mono.fontmeta.json");
 
-var imgs = a1lib.ImageDetect.webpackImages({
+var imgs = a1lib.webpackImages({
 	timerimg: require("./imgs/timerimg.data.png"),
 	borderBL: require("./imgs/borderBL.data.png"),
 	att: require("./imgs/att.data.png"),
