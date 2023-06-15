@@ -13,8 +13,7 @@ let tests = webpackImages({
 	legacy1: import("./imgs/legacy1.data.png"),
 });
 
-run();
-async function run() {
+export default async function run() {
 	await tests.promise;
 	for (let testid in tests.raw) {
 		let img = new ImgRefData(tests[testid]);

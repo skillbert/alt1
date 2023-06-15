@@ -14,8 +14,7 @@ let tests = webpackImages({
 });
 
 
-run();
-async function run() {
+export default async function run() {
 	await tests.promise;
 	for (let testid in tests.raw) {
 		console.log(`==== ${testid} ====`)

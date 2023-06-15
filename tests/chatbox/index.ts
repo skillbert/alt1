@@ -39,8 +39,7 @@ function testfont(font: OCR.FontDefinition) {
 	//font.chars.forEach(ch=>ch.pixels=new Float64Array(ch.pixels) as any);
 }
 
-run();
-async function run() {
+export default async function run() {
 	await tests.promise;
 	for (let testid in tests.raw) {
 		let img = new ImgRefData(tests[testid]);

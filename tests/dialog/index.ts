@@ -20,8 +20,7 @@ let tests = webpackImages({
 	test5: import("./imgs/test5.data.png")
 });
 
-run();
-async function run() {
+export default async function run() {
 	await tests.promise;
 	for (let testid in tests.raw) {
 		let img = new ImgRefData(tests[testid]);
