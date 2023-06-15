@@ -4,7 +4,8 @@
 	"scripts": {
 		"clean": "rimraf dist/",
 		"build": "webpack",
-		"build-tools": "webpack --config ./webpack-tools.config.mjs",
+		"build-tools": "webpack --config ./webpack.tools.mjs",
+		"build-tests": "webpack --config ./webpack.tests.mjs",
 		"build-full": "npm run clean && npm run build-tools && npm run build"
 	},
 	"exports": {
@@ -72,13 +73,19 @@
 			"alt1-source": "./src/tooltip/index.ts",
 			"default": "./dist/tooltip/index.js"
 		},
-		"./webpack": {
-			"alt1-source": "./src/webpack/index.ts",
-			"default": "./dist/webpack/index.js"
-		},
 		"./fonts/*": {
 			"alt1-source": "./src/fonts/*",
 			"default": "./dist/fonts/*"
+		},
+		"./*": {
+			"alt1-source": [
+				"./src/*/index.ts",
+				"./src/*.ts"
+			],
+			"default": [
+				"./dist/*/index.js",
+				"./dist/*.js"
+			]
 		}
 	},
 	"type": "commonjs",

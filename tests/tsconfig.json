@@ -1,0 +1,14 @@
+//This separate tsconfig is kinda dumb, but i need it because rootdir needs to be ./src for the
+//main project so the declaration files do not have src in their path so they match the webpack output
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "..",
+        "declarationDir": null,
+        "declaration": false,
+        "declarationMap": false
+    },
+    "exclude": [
+
+    ]
+}

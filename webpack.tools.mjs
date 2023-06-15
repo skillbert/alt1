@@ -1,6 +1,6 @@
 
 import webpack from "webpack";
-import baseconfig from "./scripts/webpack.mjs";
+import baseconfig, { alt1ExternalsFilter } from "./scripts/webpack.mjs";
 
 /**@type {webpack.Configuration} */
 let toolsconfig = {
@@ -11,13 +11,10 @@ let toolsconfig = {
         "font-loader/index": "./src/font-loader/index.ts",
         "datapng-loader/index": "./src/datapng-loader/index.ts"
     },
+    externals: baseconfig.externals.filter(q => q != alt1ExternalsFilter),
     resolve: {
         ...baseconfig.resolve,
         conditionNames: ["alt1-source"]
-    },
-    module: {
-        ...baseconfig.module,
-        rules: baseconfig.module.rules.slice(0, 3)
     }
 }
 

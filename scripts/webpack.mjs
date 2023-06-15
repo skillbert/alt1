@@ -1,15 +1,11 @@
 
+import path from "path";
 import webpack from "webpack";
 
 let tsloaderOptions = {
     //compilerOptions:{},
     onlyCompileBundledFiles: true
 };
-
-let urlloaderOptions = {
-    limit: 8192, esModule: false, name: "[path][name].[ext]"
-}
-
 
 /**@type {webpack.Configuration} */
 let config = {
@@ -19,42 +15,57 @@ let config = {
     },
     mode: "development",
     output: {
-        // chunkFormat: "module",
-        // libraryTarget: "module",
         libraryTarget: "umd",
+        path: path.resolve(process.cwd(), "dist"),
         //prevents self triggering watch mode
         compareBeforeEmit: true,
         globalObject: "globalThis",
-        chunkLoading: "require"
+        assetModuleFilename: "assets/[file]"
     },
     externalsType: "umd",
     externals: [
         "sharp",
         "canvas",
-        "electron/common"
+        "electron/common",
+        alt1ExternalsFilter
     ],
     module: {
         rules: [
             { test: /\.tsx?$/, loader: "ts-loader", options: tsloaderOptions },
             { test: /\.css$/, use: ["style-loader", "css-loader"] },
             { test: /\.scss$/, use: ["style-loader", "css-loader", "sass-loader"] },
-            { test: /\.data\.png?$/, loader: "alt1/datapng-loader", enforce: "pre" },
-            {
-                test: /\.(png|jpg|jpeg|gif|webp)$/, loader: "url-loader", options: urlloaderOptions,
-                //TODO should be able to just set type to "asset" and remove the loader
-                type: "javascript/auto"
-            },
+            { test: /\.(png|jpg|jpeg|gif|webp)$/, type: "asset" },
             { test: /\.fontmeta.json/, loader: "alt1/font-loader" },
             // { test: /\.json$/, type: "json" },
-            {
-                test: /\.html/, loader: "file-loader", options: urlloaderOptions,
-                //TODO same here
-                type: "javascript/auto"
-            }
+            { test: /\.html/, type: "asset/resource", generator: { filename: "[base]" } },
+            { test: /\.data\.png$/, loader: "alt1/imagedata-loader", type: "javascript/auto" },
         ]
     },
     experiments: {
         // outputModule: true
     }
 }
+
+export function alt1ExternalsFilter({ request }, cb) {
+    let res = getAlt1RootLibName(request);
+    cb(null, res && { root: res, commonjs2: request, commonjs: request, amd: request });
+}
+
+/**
+ * @param {string} requireid 
+ */
+export function getAlt1RootLibName(requireid) {
+    let libmatch = requireid.match(/^alt1\/([\w\-\/]+)$/);
+    if (!libmatch) { return undefined; }
+    let libname = libmatch[1];
+
+    let librootnames = {
+        base: "A1lib",
+        ocr: "OCR",
+    }
+
+    let rootname = librootnames[libname] ?? libname.replace(/(^|-)\w?/, s => s.replace("-", "").replace(/\//g, "_").toUpperCase());
+    return rootname;
+}
+
 export default config;

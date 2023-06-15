@@ -1,18 +1,13 @@
 
 import webpack from "webpack";
 import fs from "fs";
-import baseconfig from "./scripts/webpack.mjs";
+import baseconfig, { getAlt1RootLibName } from "./scripts/webpack.mjs";
 import glob from "glob";
 
 /**
  * @param {Record<string,string|boolean>} env
  */
 export default (env) => {
-
-    let librootnames = {
-        base: "A1lib",
-        ocr: "OCR",
-    }
 
     let fontdirfiles = fs.readdirSync("./src/fonts");
     let fontentries = fontdirfiles.map(filename => {
@@ -39,9 +34,8 @@ export default (env) => {
     for (let pack of packages) {
         let name = pack.match(/src\/([\w-]+)\/index.tsx?/)?.[1];
         if (name) {
-
-            let rootname = librootnames[name] ?? name.replace(/(^|-)\w?/, s => s.replace("-", "").toUpperCase())
             let requireid = `alt1/${name}`;
+            let rootname = getAlt1RootLibName(requireid);
 
             if (name != "webpack" && !name.endsWith("-loader")) {
                 /**@type {webpack.EntryObject[string]} */
@@ -116,10 +110,10 @@ export default (env) => {
     /**@type {webpack.Configuration} */
     let improvedbase = {
         ...baseconfig,
-        externals: [
-            ...baseconfig.externals,
-            localExternals
-        ],
+        // externals: [
+        //     ...baseconfig.externals,
+        //     localExternals
+        // ],
         resolve: {
             ...baseconfig.resolve,
             conditionNames: ["alt1-source"]

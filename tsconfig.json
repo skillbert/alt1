@@ -13,6 +13,10 @@
 				"./src/*"
 			]
 		},
+		//currently doesn't work for intellisense
+		// "customConditions": [
+		// 	"alt1-source"
+		// ],
 		"target": "ES2017",
 		"alwaysStrict": true,
 		"jsx": "react",
@@ -31,7 +35,8 @@
 		"./types/*",
 		"./scripts/**",
 		"**/webpack.config.ts",
-		"./dist/**"
+		"./dist/**",
+		"tests"
 	],
 	"compileOnSave": false
 }
