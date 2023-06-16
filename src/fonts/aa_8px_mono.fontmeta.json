@@ -1,10 +1,10 @@
 {
-	"basey": 8,
+	"basey": 10,
 	"spacewidth": 3,
 	"treshold": 0.6,
-	"color": [ 255, 255, 255 ],
-	"unblendmode": "raw",
+	"color": [ 127, 169, 255 ],
+	"unblendmode": "blackbg",
 	"shadow": false,
-	"chars": "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_abcdefghijklmnopqrstuvwxyz{|}~",
+	"chars": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%/+?!@#$^~&*()_-=[]{}:;\"'<>\\.,|",
 	"seconds": ",.-:;\"'"
 }
