@@ -8,7 +8,8 @@
         "declaration": false,
         "declarationMap": false
     },
-    "exclude": [
-
-    ]
+    "include": [
+        "."
+    ],
+    "exclude": []
 }

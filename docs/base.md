@@ -3,12 +3,12 @@ The base library for Alt1 apps to communicate with the Alt1 API. For intellisens
 
 ## Installation
 ```sh
-npm i @alt1/base -s
+npm install alt1
 ```
 
 # Usage
 ```js
-import * as a1lib from "@alt1/base";
+import * as a1lib from "alt1/base";
 
 // Captures a 400x400 rectangle starting at position 100,100 from the top-left of the game area
 // imgref now contains a reference to the image (in this case still in Alt1 memory)

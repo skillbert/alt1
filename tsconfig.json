@@ -28,8 +28,13 @@
 		"sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
-		"declarationDir": "./dist"
+		"declarationDir": "./dist",
+		"outDir": "./dist",
+		"esModuleInterop": true
 	},
+	"include": [
+		"./src"
+	],
 	"exclude": [
 		"node_modules",
 		"./types/*",

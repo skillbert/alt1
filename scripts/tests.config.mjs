@@ -1,7 +1,6 @@
 
-import path from "path";
-import webpack from "webpack";
-import baseconfig, { alt1ExternalsFilter, getAlt1RootLibName } from "./scripts/webpack.mjs";
+import path from "node:path";
+import { baseconfig } from "./common.mjs";
 
 /**@type {webpack.Configuration} */
 let toolsconfig = {

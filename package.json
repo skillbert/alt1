@@ -1,14 +1,22 @@
 {
 	"name": "alt1",
-	"private": true,
+	"version": "0.0.0",
+	"private": false,
+	"author": {
+		"name": "Skillbert",
+		"url": "https://runeapps.org"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skillbert/alt1.git"
+	},
 	"scripts": {
 		"clean": "rimraf dist/",
-		"build": "webpack",
-		"watch": "webpack --watch",
-		"build-tools": "webpack --config ./webpack.tools.mjs",
-		"build-tests": "webpack --config ./webpack.tests.mjs",
+		"build": "webpack --config scripts/main.config.mjs",
+		"watch": "webpack --config scripts/main.config.mjs --watch",
+		"build-tools": "webpack --config ./scripts/tools.config.mjs",
 		"build-full": "npm run clean && npm run build-tools && npm run build",
-		"tests": "webpack serve --config ./webpack.tests.mjs"
+		"tests": "webpack serve --config ./scripts/tests.config.mjs"
 	},
 	"exports": {
 		".": {
@@ -92,40 +100,24 @@
 	},
 	"type": "commonjs",
 	"devDependencies": {
-		"@types/acorn": "^4.0.6",
 		"@types/glob": "^5.0.35",
 		"@types/node": "^20.3.1",
 		"@types/react": "^16.9.2",
 		"@types/react-dom": "^16.9.0",
 		"@types/sharp": "^0.27.1",
-		"@types/terser-webpack-plugin": "^4.0.0",
 		"@types/webpack": "^5.28.0",
 		"@types/webpack-env": "^1.16.2",
-		"@types/webpack-node-externals": "^2.5.0",
-		"acorn": "^8.5.0",
-		"acorn-walk": "^8.2.0",
 		"canvas": "^2.11.2",
 		"css-loader": "^6.2.0",
 		"glob": "^7.1.2",
-		"json-loader": "^0.5.7",
-		"lerna": "^6.6.2",
 		"rimraf": "^5.0.1",
 		"sharp": "^0.31.3",
-		"source-map-loader": "^3.0.0",
 		"style-loader": "^3.2.1",
 		"ts-loader": "^9.2.5",
-		"ts-node": "^10.2.1",
-		"tsconfig-paths": "^3.6.0",
-		"tsconfig-paths-webpack-plugin": "^3.2.0",
 		"typescript": "^5.1.3",
-		"url-loader": "^4.1.1",
 		"webpack": "^5.86.0",
-		"webpack-chain": "^6.5.1",
 		"webpack-cli": "^4.8.0",
-		"webpack-dev-middleware": "^3.1.3",
-		"webpack-dev-server": "^4.2.0",
-		"webpack-hot-middleware": "^2.22.3",
-		"webpack-node-externals": "^2.5.2"
+		"webpack-dev-server": "^4.15.1"
 	},
 	"sideEffects": [
 		"./src/base/imagedata-extensions.ts"

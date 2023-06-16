@@ -1,8 +1,8 @@
 
 import webpack from "webpack";
-import fs from "fs";
-import baseconfig, { getAlt1RootLibName } from "./scripts/webpack.mjs";
+import fs from "node:fs";
 import glob from "glob";
+import { baseconfig, getAlt1RootLibName } from "./common.mjs";
 
 /**
  * @param {Record<string,string|boolean>} env
@@ -110,10 +110,6 @@ export default (env) => {
     /**@type {webpack.Configuration} */
     let improvedbase = {
         ...baseconfig,
-        // externals: [
-        //     ...baseconfig.externals,
-        //     localExternals
-        // ],
         resolve: {
             ...baseconfig.resolve,
             conditionNames: ["alt1-source"]

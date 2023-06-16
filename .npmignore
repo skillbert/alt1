@@ -1,5 +1,14 @@
+
+
+#tests can become quite large because of the images
+/tests
+/dist/tests
+
+
+################ copied from gitignore ################
 node_modules
-dist
+#don't ignore dist of course
+#dist
 *.log
 
 

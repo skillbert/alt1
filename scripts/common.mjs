@@ -1,14 +1,40 @@
 
 import path from "path";
-import webpack from "webpack";
 
 let tsloaderOptions = {
-    //compilerOptions:{},
     onlyCompileBundledFiles: true
 };
 
-/**@type {webpack.Configuration} */
-let config = {
+/**
+ * @param {string} requireid
+ * @returns {string} 
+ */
+export function getAlt1RootLibName(requireid) {
+    let libmatch = requireid.match(/^alt1\/([\w\-\/]+)$/);
+    if (!libmatch) { return undefined; }
+    let libname = libmatch[1];
+
+    let librootnames = {
+        base: "A1lib",
+        ocr: "OCR",
+    }
+
+    let rootname = librootnames[libname] ?? libname.replace(/(^|-)\w?/, s => s.replace("-", "").replace(/\//g, "_").toUpperCase());
+    return rootname;
+}
+
+/**
+ * @type {import("webpack").Externals & Function}
+ */
+export const alt1ExternalsFilter = function (req, cb) {
+    let res = getAlt1RootLibName(req.request);
+    cb(undefined, res && { root: res, commonjs2: req.request, commonjs: req.request, amd: req.request });
+}
+
+/**
+ * @type {import("webpack").Configuration}
+ */
+export const baseconfig = {
     devtool: false,
     resolve: {
         extensions: [".wasm", ".tsx", ".ts", ".mjs", ".jsx", ".js"]
@@ -27,6 +53,7 @@ let config = {
         "sharp",
         "canvas",
         "electron/common",
+        /^node:/,
         alt1ExternalsFilter
     ],
     module: {
@@ -35,37 +62,10 @@ let config = {
             { test: /\.css$/, use: ["style-loader", "css-loader"] },
             { test: /\.scss$/, use: ["style-loader", "css-loader", "sass-loader"] },
             { test: /\.(png|jpg|jpeg|gif|webp)$/, type: "asset" },
-            { test: /\.fontmeta.json/, loader: "alt1/font-loader" },
+            { test: /\.html$/, type: "asset/resource", generator: { filename: "[base]" } },
             // { test: /\.json$/, type: "json" },
-            { test: /\.html/, type: "asset/resource", generator: { filename: "[base]" } },
             { test: /\.data\.png$/, loader: "alt1/imagedata-loader", type: "javascript/auto" },
+            { test: /\.fontmeta.json/, loader: "alt1/font-loader" }
         ]
-    },
-    experiments: {
-        // outputModule: true
     }
 }
-
-export function alt1ExternalsFilter({ request }, cb) {
-    let res = getAlt1RootLibName(request);
-    cb(null, res && { root: res, commonjs2: request, commonjs: request, amd: request });
-}
-
-/**
- * @param {string} requireid 
- */
-export function getAlt1RootLibName(requireid) {
-    let libmatch = requireid.match(/^alt1\/([\w\-\/]+)$/);
-    if (!libmatch) { return undefined; }
-    let libname = libmatch[1];
-
-    let librootnames = {
-        base: "A1lib",
-        ocr: "OCR",
-    }
-
-    let rootname = librootnames[libname] ?? libname.replace(/(^|-)\w?/, s => s.replace("-", "").replace(/\//g, "_").toUpperCase());
-    return rootname;
-}
-
-export default config;

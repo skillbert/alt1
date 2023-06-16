@@ -1,8 +1,7 @@
 
-import webpack from "webpack";
-import baseconfig, { alt1ExternalsFilter } from "./scripts/webpack.mjs";
+import { baseconfig, alt1ExternalsFilter } from "./common.mjs";
 
-/**@type {webpack.Configuration} */
+/**@type {import("webpack").Configuration} */
 let toolsconfig = {
     ...baseconfig,
     target: "node",
