@@ -10,14 +10,15 @@ let toolsconfig = {
     output: {
         ...baseconfig.output,
         path: path.resolve(process.cwd(), "dist/tests"),
+        publicPath: "/tests/"
     },
     entry: {
         "tests": "./index.ts",
     },
-    // externals: [
-    //     ...baseconfig.externals,
-    //     alt1ExternalsFilter
-    // ]
+    devServer: {
+        static: "./dist",
+        open: "/tests/index.html"
+    }
 }
 
 

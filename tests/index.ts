@@ -6,8 +6,7 @@ import chatbox from "./chatbox";
 import buffs from "./buffs";
 import bosstimer from "./bosstimer";
 
-let tests = { dialog, chatbox, buffs, bosstimer }
-
+let tests = { dialog, chatbox, buffs, bosstimer };
 
 async function runtest(run: () => Promise<void>) {
     await run();
