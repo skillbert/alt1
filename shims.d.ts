@@ -4,7 +4,7 @@ declare module "*.data.png" {
 }
 
 declare module "*.fontmeta.json" {
-	import * as OCR from "@alt1/ocr";
+	import * as OCR from "alt1/ocr";
 	var t: OCR.FontDefinition;
 	export default t;
 }

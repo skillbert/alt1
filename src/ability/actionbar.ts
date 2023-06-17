@@ -1,8 +1,8 @@
-import * as a1lib from "@alt1/base";
-import { ImgRef } from "@alt1/base";
-import * as OCR from "@alt1/ocr";
+import * as a1lib from "alt1/base";
+import { ImgRef } from "alt1/base";
+import * as OCR from "alt1/ocr";
 
-var chatfont = require("@alt1/ocr/fonts/aa_8px_new.js");
+var chatfont = require("alt1/ocr/fonts/aa_8px_new.js");
 
 var imgs = a1lib.ImageDetect.webpackImages({
 	dren: require("./actionbarimgs/dren.data.png"),

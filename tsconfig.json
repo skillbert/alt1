@@ -1,10 +1,19 @@
 {
 	"compilerOptions": {
-		"rootDir": "./",
-		"moduleResolution": "node",
-		"module": "commonjs",
-		"lib": [ "es6", "dom" ],
-		"target": "es6",
+		"rootDir": "./src",
+		"moduleResolution": "node16",
+		"module": "Node16",
+		"lib": [
+			"es6",
+			"dom"
+		],
+		"paths": {
+			//somehow can't get typescript to pick up on export of our own package.json
+			"alt1/*": [
+				"./src/*"
+			]
+		},
+		"target": "ES2017",
 		"alwaysStrict": true,
 		"jsx": "react",
 		"allowJs": false,
@@ -14,8 +23,15 @@
 		"experimentalDecorators": true,
 		"sourceMap": true,
 		"declaration": true,
-		"declarationMap": true
+		"declarationMap": true,
+		"declarationDir": "./dist"
 	},
-	"exclude": [ "node_modules", "./types/*", "./scripts/**", "**/webpack.config.ts" ],
+	"exclude": [
+		"node_modules",
+		"./types/*",
+		"./scripts/**",
+		"**/webpack.config.ts",
+		"./dist/**"
+	],
 	"compileOnSave": false
 }

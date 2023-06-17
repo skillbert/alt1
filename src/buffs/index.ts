@@ -1,17 +1,18 @@
-﻿import * as a1lib from "@alt1/base";
-import * as OCR from "@alt1/ocr";
-import { ImageData, ImgRef } from "@alt1/base";
+﻿import * as a1lib from "alt1/base";
+import * as OCR from "alt1/ocr";
+import { ImageData, ImgRef } from "alt1/base";
 
 var imgs = a1lib.ImageDetect.webpackImages({
 	buff: require("./imgs/buffborder.data.png"),
 	debuff: require("./imgs/debuffborder.data.png"),
 });
 
-var font = require("@alt1/ocr/fonts/pixel_digits_8px_shadow.js");
+var font = require("alt1/ocr/fonts/pixel_8px_digits.js");
 
 function negmod(a: number, b: number) {
 	return ((a % b) + b) % b;
 }
+
 
 export type BuffTextTypes = "time" | "timearg" | "arg";
 

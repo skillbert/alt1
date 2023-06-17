@@ -1,4 +1,4 @@
-import { ImageData, RectLike, Rect } from "@alt1/base";
+import { ImageData, RectLike, Rect } from "alt1/base";
 
 export type TextFragment = {
 	text: string,

@@ -1,7 +1,7 @@
-import * as a1lib from "@alt1/base";
-import * as OCR from "@alt1/ocr";
+import * as a1lib from "alt1/base";
+import * as OCR from "alt1/ocr";
 import ActionbarReader, { LifeState } from "./actionbar";
-import { Rect, ImgRef, captureAsync, ImageDetect } from "@alt1/base";
+import { Rect, ImgRef, captureAsync, ImageDetect } from "alt1/base";
 
 export { default as ActionbarReader } from "./actionbar";
 

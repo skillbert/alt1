@@ -1,9 +1,0 @@
-{
-  "packages": [
-    "alt1/*"
-  ],
-  "version": "1.0.0-alpha.7",
-  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
-  "useNx": false,
-  "useWorkspaces": false
-}

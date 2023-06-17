@@ -1,9 +1,10 @@
-import * as a1lib from "@alt1/base";
-import * as OCR from "@alt1/ocr";
-import { ImgRef, RectLike } from "@alt1/base";
+import * as a1lib from "alt1/base";
+import * as OCR from "alt1/ocr";
+import { ImgRef, RectLike } from "alt1/base";
 
-var stdfont = require("@alt1/ocr/fonts/aa_8px_mono_pof2.js");
-var namefont = require("@alt1/ocr/fonts/aa_12px_mono.js");
+//TODO this is prabably the same as the src/fonts ones
+var stdfont = require("./imgs/aa_8px_mono_pof2.fontmeta.json");
+var namefont = require("alt1/ocr/fonts/aa_12px_mono.js");
 
 
 var imgs = a1lib.ImageDetect.webpackImages({

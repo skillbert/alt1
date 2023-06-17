@@ -1,13 +1,13 @@
-import * as a1lib from "@alt1/base";
-import { ImgRef } from "@alt1/base";
-import * as OCR from "@alt1/ocr";
+import * as a1lib from "alt1/base";
+import { ImgRef } from "alt1/base";
+import * as OCR from "alt1/ocr";
 
 var imgs = a1lib.ImageDetect.webpackImages({
 	loot: require("./imgs/lootbutton.data.png"),
 	reset: require("./imgs/reset.data.png"),
 	scrolltop: require("./imgs/scrolltop.data.png")
 });
-var font = require("@alt1/ocr/fonts/chatbox/12pt.js");
+var font = require("alt1/ocr/fonts/chatbox/12pt.js");
 
 
 var fontcolors: OCR.ColortTriplet[] = [

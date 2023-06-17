@@ -328,7 +328,7 @@ export interface Alt1EventType {
  */
 export class ImageStreamReader {
 	private framebuffer: ImageData | null = null;
-	private streamreader: ReadableStreamReader<Uint8Array>;
+	private streamreader: ReadableStreamDefaultReader<Uint8Array>;
 	private pos = 0;
 	private reading = false;
 	closed = false;
@@ -337,10 +337,10 @@ export class ImageStreamReader {
 	private pausedindex = -1;
 	private pausedbuffer: Uint8Array | null = null;
 
-	constructor(reader: ReadableStreamReader<Uint8Array>, width: number, height: number);
-	constructor(reader: ReadableStreamReader<Uint8Array>, framebuffer: ImageData);
-	constructor(reader: ReadableStreamReader<Uint8Array>);
-	constructor(reader: ReadableStreamReader<Uint8Array>, ...args: any[]) {
+	constructor(reader: ReadableStreamDefaultReader<Uint8Array>, width: number, height: number);
+	constructor(reader: ReadableStreamDefaultReader<Uint8Array>, framebuffer: ImageData);
+	constructor(reader: ReadableStreamDefaultReader<Uint8Array>);
+	constructor(reader: ReadableStreamDefaultReader<Uint8Array>, ...args: any[]) {
 		this.streamreader = reader;
 		if (args[0] instanceof ImageData) { this.setFrameBuffer(args[0]); }
 		else if (typeof args[0] == "number") { this.setFrameBuffer(new ImageData(args[0], args[1])); }

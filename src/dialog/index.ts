@@ -1,6 +1,6 @@
-import * as a1lib from "@alt1/base";
-import * as OCR from "@alt1/ocr";
-import { ImgRef } from "@alt1/base";
+import * as a1lib from "alt1/base";
+import * as OCR from "alt1/ocr";
+import { ImgRef } from "alt1/base";
 
 var imgs_rs3 = a1lib.ImageDetect.webpackImages({
 	chatimg: require("./imgs/chatimg.data.png"),
@@ -22,8 +22,8 @@ var imgs_leg = a1lib.ImageDetect.webpackImages({
 	boxtr: require("./imgs/boxtr_leg.data.png")
 });
 
-var fontmono = require("@alt1/ocr/fonts/aa_8px_mono_new.js");
-var fontheavy = require("@alt1/ocr/fonts/aa_8px_mono_allcaps.js");
+var fontmono = require("alt1/ocr/fonts/aa_8px_mono_new.js");
+var fontheavy = require("alt1/ocr/fonts/aa_8px_mono_allcaps.js");
 
 type DialogButtonLocation = { x: number, y: number, hover: boolean, active: boolean };
 export type DialogButton = DialogButtonLocation & { text: string, width: number, buttonx: number };

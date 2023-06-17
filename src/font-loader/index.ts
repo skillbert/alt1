@@ -1,6 +1,6 @@
-﻿import * as sharp from "sharp";
-import * as OCR from "@alt1/ocr";
-import * as a1lib from "@alt1/base";
+﻿import sharp from "sharp";
+import * as OCR from "alt1/ocr";
+import * as a1lib from "alt1/base";
 import { LoaderContext } from "webpack";
 
 type FontMeta = {
@@ -23,9 +23,10 @@ function cloneImage(img: ImageData, x, y, w, h) {
 	return clone;
 }
 
-declare var __non_webpack_require__: any;
-
-a1lib.NodePolyfill.polyfillRequire(typeof __non_webpack_require__ != "undefined" ? __non_webpack_require__ : require);
+a1lib.NodePolyfill.polyfillRequire((mod: string) => {
+	if (mod == "sharp") { return sharp; }
+	throw new Error("module not in require list");
+});
 
 export default function (this: LoaderContext<void>, source: string) {
 	this.cacheable(true);

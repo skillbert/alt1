@@ -1,24 +1,55 @@
 {
-	"name": "@runeapps/alt1",
-	"runeappsRootPackage": true,
+	"name": "alt1",
 	"private": true,
 	"scripts": {
-		"build": "lerna run build -- -- --env prod",
-		"pretty-build": "lerna run build -- -- --env nougly",
-		"start": "lerna run build -- -- --watch",
-		"typesold": "tsc -p tsconfig-types.json & node -r ./scripts/ts ./scripts/copytypes",
-		"clean": "node -r ./scripts/ts ./scripts/clean",
-		"build-release": "npm run clean & npm run build",
-		"publish": "lerna publish"
+		"clean": "rimraf dist/",
+		"build": "webpack",
+		"build-tools": "webpack --config ./webpack-tools.config.mjs",
+		"build-full": "npm run clean && npm run build-tools && npm run build"
 	},
+	"exports": {
+		".": {
+			"alt1-source": "./src/base/index.ts",
+			"default": "./dist/base/index.js"
+		},
+		"./chatbox": {
+			"alt1-source": "./src/chatbox/index.ts",
+			"default": "./dist/chatbox/index.js"
+		},
+		"./ocr": {
+			"alt1-source": "./src/ocr/index.ts",
+			"default": "./dist/ocr/index.js"
+		},
+		"./datapng-loader": {
+			"alt1-source": "./src/datapng-loader/index.ts",
+			"default": "./dist/datapng-loader/index.js"
+		},
+		"./imagedata-loader": {
+			"alt1-source": "./src/imagedata-loader/index.ts",
+			"default": "./dist/imagedata-loader/index.js"
+		},
+		"./font-loader": {
+			"alt1-source": "./src/font-loader/index.ts",
+			"default": "./dist/font-loader/index.js"
+		},
+		"./*": {
+			"alt1-source": [
+				"./src/*.ts",
+				"./src/*/index.ts",
+				"./src/*.tsx",
+				"./src/*/index.tsx"
+			],
+			"default": [
+				"./dist/*.js",
+				"./dist/*/index.js"
+			]
+		}
+	},
+	"type": "commonjs",
 	"devDependencies": {
-		"@alt1/base": "file:./alt1/base",
-		"@alt1/font-loader": "file:./alt1/font-loader",
-		"@alt1/imagedata-loader": "file:./alt1/imagedata-loader",
-		"@alt1/ocr": "file:./alt1/ocr",
 		"@types/acorn": "^4.0.6",
 		"@types/glob": "^5.0.35",
-		"@types/node": "^8.10.66",
+		"@types/node": "^20.3.1",
 		"@types/react": "^16.9.2",
 		"@types/react-dom": "^16.9.0",
 		"@types/sharp": "^0.27.1",
@@ -28,19 +59,22 @@
 		"@types/webpack-node-externals": "^2.5.0",
 		"acorn": "^8.5.0",
 		"acorn-walk": "^8.2.0",
+		"canvas": "^2.11.2",
 		"css-loader": "^6.2.0",
 		"glob": "^7.1.2",
 		"json-loader": "^0.5.7",
 		"lerna": "^6.6.2",
+		"rimraf": "^5.0.1",
+		"sharp": "^0.31.3",
 		"source-map-loader": "^3.0.0",
 		"style-loader": "^3.2.1",
 		"ts-loader": "^9.2.5",
 		"ts-node": "^10.2.1",
 		"tsconfig-paths": "^3.6.0",
 		"tsconfig-paths-webpack-plugin": "^3.2.0",
-		"typescript": "^4.2.3",
+		"typescript": "^5.1.3",
 		"url-loader": "^4.1.1",
-		"webpack": "^5.83.1",
+		"webpack": "^5.86.0",
 		"webpack-chain": "^6.5.1",
 		"webpack-cli": "^4.8.0",
 		"webpack-dev-middleware": "^3.1.3",
@@ -49,10 +83,20 @@
 		"webpack-node-externals": "^2.5.2"
 	},
 	"sideEffects": [
-		"./alt1/base/imagedata-extensions.ts"
+		"./src/base/imagedata-extensions.ts"
 	],
-	"dependencies": {
+	"peerDependencies": {
 		"canvas": "^2.11.2",
 		"sharp": "^0.31.3"
+	},
+	"peerDependenciesMeta": {
+		"canvas": {
+			"//reason": "Polyfill for canvas actions when running outside the browser",
+			"optional": true
+		},
+		"sharp": {
+			"//reason": "Needed for image compression/decompression when running outside the browser and during webpack compilation",
+			"optional": true
+		}
 	}
 }

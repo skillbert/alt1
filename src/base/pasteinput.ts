@@ -92,10 +92,12 @@ export function start() {
 		for (var a = 0; a < e.clipboardData.items.length; a++) {//loop all data types
 			if (e.clipboardData.items[a].type.indexOf("image") != -1) {
 				var file = e.clipboardData.items[a].getAsFile();
-				var img = new Image();
-				img.src = (window.URL || (window as any).webkitURL).createObjectURL(file);
-				if (img.width > 0) { pasted(img); }
-				else { img.onload = function () { pasted(img); } }
+				if (file) {
+					var img = new Image();
+					img.src = (window.URL || (window as any).webkitURL).createObjectURL(file);
+					if (img.width > 0) { pasted(img); }
+					else { img.onload = function () { pasted(img); } }
+				}
 			}
 		}
 	};

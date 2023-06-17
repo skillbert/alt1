@@ -1,8 +1,8 @@
 
-import * as a1lib from "@alt1/base";
-import * as OCR from "@alt1/ocr";
+import * as a1lib from "alt1/base";
+import * as OCR from "alt1/ocr";
 
-var font = require("@alt1/ocr/fonts/pixel_8px_mono.js");
+var font = require("alt1/ocr/fonts/pixel_8px_mono.js");
 
 var imgs = a1lib.ImageDetect.webpackImages({
 	timerimg: require("./imgs/timerimg.data.png"),
