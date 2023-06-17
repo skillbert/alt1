@@ -1,4 +1,4 @@
-import { ImgRef, ImgRefBind } from "./imgref";
+import { ImgRef, ImgRefBind, ImgRefCtx } from "./imgref";
 import * as wapper from "./wrapper";
 import * as nodeimports from "./nodepolyfill";
 import { RectLike, Rect } from ".";
@@ -13,7 +13,7 @@ export async function imageDataFromUrl(url: string): Promise<ImageData> {
 		var img = new Image();
 		img.crossOrigin = "crossorigin";
 		return await new Promise((done, fail) => {
-			img.onload = function () { done(img.toBuffer()); };
+			img.onload = function () { done(new ImgRefCtx(img).toData()); };
 			img.onerror = fail;
 			img.src = url;
 		}) as ImageData;

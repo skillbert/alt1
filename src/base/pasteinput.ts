@@ -35,8 +35,7 @@ export function triggerPaste(img: ImgRef) {
 
 function pasted(img: HTMLImageElement | HTMLCanvasElement) {
 	pasting = false;
-	let cnv = img instanceof HTMLCanvasElement ? img : img.toCanvas();
-	triggerPaste(new ImgRefCtx(cnv));
+	triggerPaste(new ImgRefCtx(img));
 }
 
 function error(error: ErrorCode, mes: string) {
@@ -156,11 +155,21 @@ function fromFile(file: File | null) {
 		}
 		var blob = new Blob([bytearray], { type: "image/png" });
 		var img = new Image();
-		img.onerror = () => error("invalidfile", "The file you uploaded could not be opened as an image.",);
 		var bloburl = URL.createObjectURL(blob);
+		img.onerror = () => {
+			URL.revokeObjectURL(bloburl);
+			error("invalidfile", "The file you uploaded could not be opened as an image.");
+		}
 		img.src = bloburl;
-		if (img.width > 0) { pasted(img); URL.revokeObjectURL(bloburl); }
-		else { img.onload = function () { pasted(img); URL.revokeObjectURL(bloburl); }; }
+		if (img.width > 0) {
+			pasted(img);
+			URL.revokeObjectURL(bloburl);
+		} else {
+			img.onload = function () {
+				pasted(img);
+				URL.revokeObjectURL(bloburl);
+			};
+		}
 	};
 
 	reader.readAsArrayBuffer(file);

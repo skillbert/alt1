@@ -238,7 +238,7 @@ export function findReadLine(buffer: ImageData, font: FontDefinition, cols: Colo
 	var chr: ReturnType<typeof findChar> = null;
 	if (cols.length > 1) {
 		//TODO use getChatColor() instead for non-mono?
-		var sorted = GetChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols);
+		var sorted = getChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols);
 		//loop until we have a match (max 2 cols)
 		for (var a = 0; a < 2 && a < sorted.length && chr == null; a++) {
 			chr = findChar(buffer, font, sorted[a].col, x, y, w, h);
@@ -251,7 +251,7 @@ export function findReadLine(buffer: ImageData, font: FontDefinition, cols: Colo
 	return readLine(buffer, font, cols, chr.x, chr.y, true, true);
 }
 
-export function GetChatColorMono(buf: ImageData, rect: RectLike, colors: ColortTriplet[]) {
+export function getChatColorMono(buf: ImageData, rect: RectLike, colors: ColortTriplet[]) {
 	var colormap = colors.map(c => ({ col: c, score: 0 }));
 	if (rect.x < 0 || rect.y < 0 || rect.x + rect.width > buf.width || rect.y + rect.height > buf.height) { return colormap; }
 	var data = buf.data;
@@ -427,7 +427,7 @@ export function readSmallCapsBackwards(buffer: ImageData, font: FontDefinition, 
 	if (w == -1) { w = font.width + font.spacewidth; x -= Math.ceil(w / 2); }
 	if (h == -1) { h = 7; y -= 1; }
 	var matchedchar: ReadCharInfo | null = null;
-	var sorted = (cols.length == 1 ? [{ col: cols[0], score: 1 }] : GetChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols));
+	var sorted = (cols.length == 1 ? [{ col: cols[0], score: 1 }] : getChatColorMono(buffer, new Rect(x, y - font.basey, w, h), cols));
 	//loop until we have a match (max 2 cols)
 	for (var a = 0; a < 2 && a < sorted.length && matchedchar == null; a++) {
 		for (var cx = x + w - 1; cx >= x; cx--) {
@@ -523,6 +523,43 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 }
 export type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: number, score: number, sizescore: number };
 
+export type GenerateFontMeta = {
+	basey: number,
+	spacewidth: number,
+	treshold: number,
+	color: [number, number, number],
+	shadow: boolean,
+	chars: string,
+	seconds: string
+	bonus?: { [char: string]: number },
+	unblendmode: "removebg" | "raw" | "blackbg"
+};
+
+export function loadFontImage(img: ImageData, meta: GenerateFontMeta) {
+	var bg: ImageData | null = null;
+	var pxheight = img.height - 1;
+	if (meta.unblendmode == "removebg") { pxheight /= 2; }
+
+
+	var inimg = img.clone({ x: 0, y: 0, width: img.width, height: pxheight });
+	var outimg: ImageData;
+	if (meta.unblendmode == "removebg") {
+		bg = img.clone({ x: 0, y: pxheight + 1, width: img.width, height: pxheight });
+		outimg = unblendKnownBg(inimg, bg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
+	} else if (meta.unblendmode == "raw") {
+		outimg = unblendTrans(inimg, meta.shadow, meta.color[0], meta.color[1], meta.color[2]);
+	} else if (meta.unblendmode == "blackbg") {
+		outimg = unblendBlackBackground(inimg, meta.color[0], meta.color[1], meta.color[2])
+	} else {
+		throw new Error("no unblend mode");
+	}
+	var unblended = new ImageData(img.width, pxheight + 1);
+	outimg.copyTo(unblended, 0, 0, outimg.width, outimg.height, 0, 0);
+	img.copyTo(unblended, 0, pxheight, img.width, 1, 0, pxheight);
+
+	return generateFont(unblended, meta.chars, meta.seconds, meta.bonus || {}, meta.basey, meta.spacewidth, meta.treshold, meta.shadow);
+}
+
 /**
  * Generates a font json description to use in reader functions
  * @param unblended A source image with all characters lined up. The image should be unblended into components using the unblend functions
@@ -537,7 +574,7 @@ export type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: numb
  * @param shadow whether this font also uses the black shadow some fonts have. The "unblended" image should be unblended correspondingly
  * @returns a javascript object describing the font which is used as input for the different read functions
  */
-export function generatefont(unblended: ImageData, chars: string, seconds: string, bonusses: { [char: string]: number }, basey: number, spacewidth: number, treshold: number, shadow: boolean): FontDefinition {
+export function generateFont(unblended: ImageData, chars: string, seconds: string, bonusses: { [char: string]: number }, basey: number, spacewidth: number, treshold: number, shadow: boolean): FontDefinition {
 	//settings vars
 	treshold *= 255;
 

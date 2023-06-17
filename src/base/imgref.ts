@@ -47,8 +47,15 @@ export class ImgRefCtx extends ImgRef {
 			this.ctx = img;
 		} else {
 			super(x, y, img.width, img.height);
-			var cnv = (img instanceof HTMLCanvasElement ? img : img.toCanvas());
-			this.ctx = cnv.getContext("2d")!;
+			if (img instanceof HTMLCanvasElement) {
+				this.ctx = img.getContext("2d", { willReadFrequently: true })!;
+			} else {
+				var cnv = document.createElement("canvas");
+				cnv.width = img.width;
+				cnv.height = img.height;
+				this.ctx = cnv.getContext("2d", { willReadFrequently: true })!;
+				this.ctx.drawImage(img, 0, 0);
+			}
 		}
 		this.t = "ctx";
 	}

@@ -35,11 +35,6 @@ declare global {
 
 		copyTo(target: ImageData, sourcex: number, sourcey: number, width: number, height: number, targetx: number, targety: number): void;
 	}
-
-	interface HTMLImageElement {
-		toBuffer(x?: number, y?: number, w?: number, h?: number): ImageData;
-		toCanvas(x?: number, y?: number, w?: number, h?: number): HTMLCanvasElement;
-	}
 }
 
 type ImageDataConstr = {
@@ -202,8 +197,10 @@ ImageData.prototype.getPixelHash = function (rect) {
 	return hash;
 }
 
-ImageData.prototype.clone = function (rect) {
-	return this.toImage(rect).getContext("2d")!.getImageData(0, 0, rect.width, rect.height);
+ImageData.prototype.clone = function (this: ImageData, rect) {
+	let res = new ImageData(rect.width, rect.height);
+	this.copyTo(res, rect.x, rect.y, rect.width, rect.height, 0, 0);
+	return res;
 }
 
 ImageData.prototype.show = function (this: ImageData, x = 5, y = 5, zoom = 1) {
@@ -336,25 +333,5 @@ ImageData.prototype.copyTo = function (target: ImageData, sourcex: number, sourc
 			it += 1;
 			is += 1;
 		}
-	}
-}
-
-if (typeof HTMLImageElement != "undefined") {
-	HTMLImageElement.prototype.toBuffer = function (this: HTMLImageElement, x = 0, y = 0, w = this.width, h = this.height) {
-		var cnv = document.createElement("canvas");
-		cnv.width = w;
-		cnv.height = h;
-		var ctx = cnv.getContext("2d")!;
-		ctx.drawImage(this, -x, -y);
-		return ctx.getImageData(0, 0, w, h);
-	}
-
-	HTMLImageElement.prototype.toCanvas = function (this: HTMLImageElement, x = 0, y = 0, w = this.width, h = this.height) {
-		var cnv = document.createElement("canvas");
-		cnv.width = w;
-		cnv.height = h;
-		var ctx = cnv.getContext("2d")!;
-		ctx.drawImage(this, -x, -y);
-		return cnv;
 	}
 }

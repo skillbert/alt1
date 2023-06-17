@@ -139,7 +139,7 @@ export function captureHoldScreen(x: number, y: number, w: number, h: number) {
 }
 
 /**
- * bind the full rs window if the rs window can be detected by alt1, otherwise return the full screen
+ * bind the full rs window
  */
 export function captureHoldFullRs() {
 	return captureHold(0, 0, alt1.rsWidth, alt1.rsHeight);
@@ -172,7 +172,7 @@ export function transferImageData(handle: number, x: number, y: number, w: numbe
 }
 
 /**
- * decodes a returned string from alt1 to an imagebuffer
+ * decodes a returned string from alt1 to an imagebuffer. You generally never have to do this yourself
  */
 export function decodeImageString(imagestring: string, target: ImageData, x: number, y: number, w: number, h: number) {
 	var bin = atob(imagestring);

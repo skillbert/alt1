@@ -43,7 +43,7 @@ export function requireElectronCommon() {
 	try {
 		if (requirefunction) {
 			return requirefunction("electron/common");
-		}else {
+		} else {
 			return require(/* webpackIgnore: true */ "electron/common");
 		}
 	} catch (e) { }
