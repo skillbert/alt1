@@ -61,9 +61,11 @@ export const baseconfig = {
             { test: /\.tsx?$/, loader: "ts-loader", options: tsloaderOptions },
             { test: /\.css$/, use: ["style-loader", "css-loader"] },
             { test: /\.scss$/, use: ["style-loader", "css-loader", "sass-loader"] },
-            { test: /\.(png|jpg|jpeg|gif|webp)$/, type: "asset" },
-            { test: /\.html$/, type: "asset/resource", generator: { filename: "[base]" } },
-            // { test: /\.json$/, type: "json" },
+            { test: /\.(png|jpg|jpeg|gif|webp)$/, type: "asset", generator: { filename: "[file]" } },
+            { test: /\.(glb|gltf)$/, type: "asset", generator: { filename: "[file]" } },
+            { test: /\.html$/, type: "asset/resource", generator: { filename: "[file]" } },
+            { test: /\.json$/, exclude: /\.fontmeta\.json$/, type: "asset/resource", generator: { filename: "[file]" } },
+
             { test: /\.data\.png$/, loader: "alt1/imagedata-loader", type: "javascript/auto" },
             { test: /\.fontmeta.json/, loader: "alt1/font-loader" }
         ]

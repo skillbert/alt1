@@ -524,15 +524,49 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 export type ReadCharInfo = { chr: string, basechar: Charinfo, x: number, y: number, score: number, sizescore: number };
 
 export type GenerateFontMeta = {
+	/**
+	 * The y-coord inside the sprite that is used as y-coord later when reading, usually the lowest pixel that that all characters have in common
+	 */
 	basey: number,
+	/**
+	 * Number of pixels to skip when reading a space character
+	 */
 	spacewidth: number,
+	/**
+	 * number between 0 and 1 that indicates how close to the text color a pixels needs to be before being used in detection, 1 means it needs to match perfectly. usually ~0.6 when there is good contrast with the text background and up to 0.8 when contrast is bad.
+	 */
 	treshold: number,
+	/**
+	 * Text color in the template image, can usually be found by looking for the brightest pixel or the text pixel corresponding to a pure black shadow pixel
+	 */
 	color: [number, number, number],
+	/**
+	 * Whether the text has a black drop-shadow in the template image. Shadowed fonts are way more robust to detect when background contrast is bad
+	 */
 	shadow: boolean,
+	/**
+	 * The characters in the template image typed out as a string in the same order as the template
+	 */
 	chars: string,
+	/**
+	 * a string containing "secondary" characters, usually small characters like `,.;'"`. Secondary characters will only get matched when nothing else matches and won't get used to find the position of text 
+	 */
 	seconds: string
+	/**
+	 * You can make some characters slightly more or less likely to match over other using this map. a nudge of +50 is usually enough to fix problems between n and r for example. Set OCR.debug to true to see internal characters scores when reading text
+	 */
 	bonus?: { [char: string]: number },
-	unblendmode: "removebg" | "raw" | "blackbg"
+	/**
+	 * How to interpret and remove the background from the template image.
+	 * - `removebg`: Template image height is 2n+1 pixels arranged as: n pixels character screenshots, 1 pixel black/white character boundary followed by n pixels of best estimate of the background behind the characters in the first n pixels
+	 * - `raw`: The background is already removed and applying standard alpha blending to the template gives identical results as in-game. The last row of pixels is black/white corresponding to character boundaries again
+	 * - `blackbg`: Only works when shadow=false, the template text is placed on a black background. Last row of pixels indicated character boundaries again.
+	 */
+	unblendmode: "removebg" | "raw" | "blackbg",
+	/**
+	 * unused, for later reference
+	 */
+	spriteid?: number
 };
 
 export function loadFontImage(img: ImageData, meta: GenerateFontMeta) {

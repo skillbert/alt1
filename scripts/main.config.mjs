@@ -3,19 +3,23 @@ import webpack from "webpack";
 import fs from "node:fs";
 import glob from "glob";
 import { baseconfig, getAlt1RootLibName } from "./common.mjs";
+import path from "path";
 
 /**
  * @param {Record<string,string|boolean>} env
  */
 export default (env) => {
 
-    let fontdirfiles = fs.readdirSync("./src/fonts");
+    let fontdir = path.resolve("./src/fonts");
+    let fontdirfiles = glob.sync(fontdir + "/**/*.fontmeta.json");
     let fontentries = fontdirfiles.map(filename => {
-        let m = filename.match(/(\w+)\.fontmeta\.json/);
+        let relpath = path.relative(fontdir, filename);
+        let m = relpath.match(/([\w\/\\]+)\.fontmeta\.json/);
+        let fontname = m[1].replace(/\\/g, "/");
         return m && {
-            filename: `./src/fonts/${filename}`,
-            name: m[1],
-            entryname: `fonts/${m[1]}`
+            filename: filename,
+            name: fontname,
+            entryname: `fonts/${fontname}`
         }
     }).filter(q => q);
 
@@ -119,9 +123,18 @@ export default (env) => {
     /**@type {webpack.Configuration} */
     let fontsconfig = {
         ...improvedbase,
-        entry: Object.fromEntries(fontentries.map(q => [q.entryname, q.filename]))
+        entry: Object.fromEntries(fontentries.map(q => [q.entryname, {
+            import: q.filename,
+            library: {
+                type: "umd",
+                name: {
+                    root: ["Alt1Fonts", ...q.name.split("/")],
+                    commonjs: q.name,
+                    amd: q.name
+                }
+            }
+        }]))
     }
-
     /**@type {webpack.Configuration} */
     let libsconfig = {
         ...improvedbase,
