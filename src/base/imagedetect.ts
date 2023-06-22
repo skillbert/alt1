@@ -4,26 +4,41 @@ import * as nodeimports from "./nodepolyfill";
 import { RectLike, Rect } from ".";
 
 /**
-* Downloads an image and returns the ImageData
-* Make sure the png image does not have a sRGB chunk or the resulting pixels will differ for different users!!!
+* Downloads an image and returns the ImageData.
+* Cleans sRGB headers from downloaded png images. Assumes that data url's are already cleaned from sRGB and other headers
 * @param url http(s) or data url to the image
 */
 export async function imageDataFromUrl(url: string): Promise<ImageData> {
+	var hdr = "data:image/png;base64,";
+	var isdataurl = url.startsWith(hdr);
 	if (typeof Image != "undefined") {
-		var img = new Image();
-		img.crossOrigin = "crossorigin";
-		return await new Promise((done, fail) => {
-			img.onload = function () { done(new ImgRefCtx(img).toData()); };
-			img.onerror = fail;
-			img.src = url;
-		}) as ImageData;
+		if (isdataurl) {
+			return loadImageDataFromUrl(url);
+		} else {
+			let res = await fetch(url);
+			if (!res.ok) { throw new Error("failed to load image: " + url); }
+			let file = new Uint8Array(await res.arrayBuffer());
+			return imageDataFromFileBuffer(file);
+		}
 	} else {
-		var hdr = "data:image/png;base64,";
-		if (url.startsWith(hdr)) {
+		if (isdataurl) {
 			return imageDataFromBase64(url.slice(hdr.length));
 		}
 		throw new Error("loading remote images in nodejs has been disabled, load the raw bytes and use imageDataFromNodeBuffer instead");
 	}
+}
+
+function loadImageDataFromUrl(url: string) {
+	if (typeof Image == "undefined") {
+		throw new Error("Browser environment expected");
+	}
+	return new Promise<ImageData>((done, fail) => {
+		var img = new Image();
+		img.crossOrigin = "crossorigin";
+		img.onload = function () { done(new ImgRefCtx(img).toData()); };
+		img.onerror = fail;
+		img.src = url;
+	});
 }
 
 /**
@@ -45,11 +60,13 @@ export async function imageDataFromBase64(data: string) {
  * @param data The bytes of a png file
  */
 export async function imageDataFromFileBuffer(data: Uint8Array) {
-	clearPngColorspace(data);
+	if (isPngBuffer(data)) {
+		clearPngColorspace(data);
+	}
 	if (typeof Image != "undefined") {
 		let blob = new Blob([data], { type: "image/png" });
 		let url = URL.createObjectURL(blob);
-		let r = await imageDataFromUrl(url);
+		let r = await loadImageDataFromUrl(url);
 		URL.revokeObjectURL(url);
 		return r;
 	} else {
