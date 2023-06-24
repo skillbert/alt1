@@ -29,6 +29,7 @@ export default (env) => {
     let localExternals = {};
     let packagejsonexports = {};
     let packages = glob.sync("./src/*/index.ts");
+    let windowexports = [];
 
     //redirects "alt1" to alt1/base
     packagejsonexports["."] = {
@@ -61,6 +62,7 @@ export default (env) => {
                 "alt1-source": pack,
                 "default": `./dist/${name}/index.js`
             };
+            windowexports.push(`declare const ${rootname}: typeof import("./${name}");`);
         }
     }
     //explicitly mention fonts to help intellisense
@@ -98,6 +100,7 @@ export default (env) => {
         return "";
     }
 
+    //make sure package.json exports are correct
     let exportsdiff = compareobj(packagejson.exports, packagejsonexports);
     if (exportsdiff) {
         if (env.fixexports) {
@@ -110,6 +113,10 @@ export default (env) => {
             console.log(JSON.stringify(packagejsonexports, undefined, "\t"))
         }
     }
+
+    //add some typings for ppl that import from root
+    fs.writeFileSync(path.resolve("./dist/windowexports.d.ts"), windowexports.join("\n"));
+
 
     /**@type {webpack.Configuration} */
     let improvedbase = {

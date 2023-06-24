@@ -19,7 +19,7 @@ export function getAlt1RootLibName(requireid) {
         ocr: "OCR",
     }
 
-    let rootname = librootnames[libname] ?? libname.replace(/(^|-)\w?/, s => s.replace("-", "").replace(/\//g, "_").toUpperCase());
+    let rootname = librootnames[libname] ?? libname.replace(/(^|-)\w?/g, s => s.replace("-", "").replace(/\//g, "_").toUpperCase());
     return rootname;
 }
 
