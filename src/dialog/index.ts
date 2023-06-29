@@ -23,6 +23,7 @@ var imgs_leg = webpackImages({
 });
 
 var fontmono = require("../fonts/aa_8px_mono.fontmeta.json");
+var fontmono2 = require("./imgs/12pt.fontmeta.json");
 var fontheavy = require("../fonts/aa_8px_mono_allcaps.fontmeta.json");
 
 type DialogButtonLocation = { x: number, y: number, hover: boolean, active: boolean };
@@ -125,11 +126,11 @@ export default class DialogReader {
 			}
 			if (hastext) {
 				var chr: OCR.ReadCharInfo | null = null;
-				chr = chr || OCR.findChar(buf, fontmono, [0, 0, 0], 192, y + 5, 12, 3);
-				chr = chr || OCR.findChar(buf, fontmono, [0, 0, 0], 246, y + 5, 12, 3);
-				chr = chr || OCR.findChar(buf, fontmono, [0, 0, 0], 310, y + 5, 12, 3);
+				chr = chr || OCR.findChar(buf, fontmono2, [0, 0, 0], 192, y + 5, 12, 3);
+				chr = chr || OCR.findChar(buf, fontmono2, [0, 0, 0], 246, y + 5, 12, 3);
+				chr = chr || OCR.findChar(buf, fontmono2, [0, 0, 0], 310, y + 5, 12, 3);
 				if (chr) {
-					var read = OCR.readLine(buf, fontmono, [0, 0, 0], chr.x, chr.y, true, true);
+					var read = OCR.readLine(buf, fontmono2, [0, 0, 0], chr.x, chr.y, true, true);
 					if (read.text.length >= 3) {
 						lines.push(read.text);
 					}
