@@ -18,7 +18,8 @@ let tests = webpackImages({
 	pt22: import("./imgs/default22pt.data.png"),
 
 	bugged: import("./imgs/buggedmode.data.png"),
-	mini: import("./imgs/minimized.data.png")
+	mini: import("./imgs/minimized.data.png"),
+	bronzebroadcast_aug2023: import("./imgs/bronzebroadcast_aug2023.data.png")
 });
 
 globalThis.testfont = testfont;
