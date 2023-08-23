@@ -50,7 +50,7 @@ export default class DropsMenuReader {
 
 		let top = besttop.y - 4;
 		let titlebar = img.toData(left, top, width, 18);
-		let quantitymatch = OCR.findReadLine(titlebar, font, [[165, 198, 214]], width - 100, 12, 70, 1);
+		let quantitymatch = OCR.findReadLine(titlebar, font, [[143, 172, 187]], width - 100, 12, 70, 1);
 		if (quantitymatch.text != "Quantity") { return null; }
 
 		var p = { x: left, y: top, height: bot - top, width: width };
@@ -65,7 +65,7 @@ export default class DropsMenuReader {
 		if (img) { buf = img.toData(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
 		else { buf = a1lib.capture(this.pos.x, this.pos.y, this.pos.width, this.pos.height); }
 
-		let quantitymatch = OCR.findReadLine(buf, font, [[165, 198, 214]], this.pos.width - 100, 12, 70, 1);
+		let quantitymatch = OCR.findReadLine(buf, font, [[143, 172, 187]], this.pos.width - 100, 12, 70, 1);
 		if (quantitymatch.text != "Quantity") { return null; }
 		var right = quantitymatch.debugArea.x;
 
