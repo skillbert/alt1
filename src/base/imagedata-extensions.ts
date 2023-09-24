@@ -47,61 +47,10 @@ type ImageDataConstr = {
 //export this so node.js can also use it
 export var ImageData: ImageDataConstr;
 
-// //TODO revamp this madness a bit?
-// (function () {
-// 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
-// 	//use the node-canvas version when on node
-// 	if (typeof globalvar.ImageData == "undefined") {
-// 		let nodecnv = requireNodeCanvas();
-// 		globalvar.ImageData = nodecnv.ImageData;
-// 	}
-// 	var fill = typeof globalvar.ImageData == "undefined";
-
-// 	//should never be reach anymore
-// 	var constr = function (this: any) {
-// 		var i = 0;
-// 		var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
-// 		var width = arguments[i++];
-// 		var height = arguments[i++];
-
-// 		if (fill) {
-// 			if (!data) { data = new Uint8ClampedArray(width * height * 4); }
-// 			this.width = width;
-// 			this.height = height;
-// 			this.data = data;
-// 		}
-// 		else if (oldconstr) {
-// 			return (data ? new oldconstr(data, width, height) : new oldconstr(width, height));
-// 		} else {
-// 			var canvas = document.createElement('canvas');
-// 			canvas.width = width;
-// 			canvas.height = height;
-// 			var ctx = canvas.getContext("2d")!;
-// 			var imageData = ctx.createImageData(width, height);
-// 			if (data) { imageData.data.set(data); }
-// 			return imageData;
-// 		}
-// 	}
-
-// 	var oldconstr = globalvar.ImageData;
-// 	if (typeof document != "undefined") {
-// 		try {
-// 			new oldconstr(1, 1);
-// 		} catch (e) {
-// 			//direct constructor call not allowed in ie
-// 			oldconstr = null;
-// 		}
-// 	}
-
-// 	if (!fill) { constr.prototype = globalvar.ImageData.prototype; }
-// 	globalvar.ImageData = constr;
-// 	ImageData = constr as any;
-// })();
-
 
 (function () {
 	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
-	var filltype = typeof globalvar.ImageData == "undefined" || typeof globalvar.document == "undefined";
+	var filltype = typeof globalvar.ImageData == "undefined";
 	var fillconstr = filltype;
 	if (!filltype) {
 		var oldconstr = globalvar.ImageData;
