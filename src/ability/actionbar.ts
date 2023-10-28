@@ -25,14 +25,6 @@ export type LifeState = {
 	exactdren: { cur: number, max: number } | null,
 }
 
-/*
-function makelayout(){
-	var img=a1lib.bindfullrs();
-	var qq={ hp: a1lib.findsubimg(img, ActionbarReader.lifepoints)[0], dren: a1lib.findsubimg(img, ActionbarReader.dren)[0], pray: a1lib.findsubimg(img, ActionbarReader.prayer)[0], sum: a1lib.findsubimg(img, ActionbarReader.sumpoints)[0]}
-	var qqq={hp:{x:qq.hp.x-qq.hp.x,y:qq.hp.y-qq.hp.y},dren:{x:qq.dren.x-qq.hp.x,y:qq.dren.y-qq.hp.y},pray:{x:qq.pray.x-qq.hp.x,y:qq.pray.y-qq.hp.y},sum:{x:qq.sum.x-qq.hp.x,y:qq.sum.y-qq.hp.y}}
-	return jsonEncode(qqq);
-}*/
-
 type Layout = {
 	hp: a1lib.PointLike,
 	dren: a1lib.PointLike,
@@ -51,7 +43,7 @@ export default class ActionbarReader {
 	pos: { x: number, y: number, layout: Layout } | null = null;
 
 	static layouts: { [name: string]: Layout } = {
-		mainflat: { hp: { x: 0, y: 0 }, dren: { x: 118, y: 0 }, pray: { x: 236, y: 0 }, sum: { x: 354, y: 0 }, width: 465, height: 25, hor: true, barlength: 80, type: "mainflat" },
+		mainflat: { hp: { x: 0, y: 0 }, dren: { x: 119, y: 0 }, pray: { x: 238, y: 0 }, sum: { x: 357, y: 0 }, width: 470, height: 25, hor: true, barlength: 80, type: "mainflat" },
 		mainhor: { hp: { x: 0, y: 0 }, dren: { x: 100, y: 0 }, pray: { x: 16, y: 22 }, sum: { x: 116, y: 22 }, width: 210, height: 45, hor: true, barlength: 62, type: "mainhor" },
 		mainver: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 100 }, pray: { x: 22, y: 16 }, sum: { x: 22, y: 116 }, width: 35, height: 210, hor: false, barlength: 62, type: "mainver" },
 		maintower: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 119 }, pray: { x: 0, y: 238 }, sum: { x: 0, y: 357 }, width: 20, height: 465, hor: false, barlength: 80, type: "maintower" }
@@ -140,5 +132,22 @@ export default class ActionbarReader {
 			}
 		}
 		return b / width;
+	}
+
+	static getCurrentLayoutData(img: ImgRef) {
+		img ??= a1lib.captureHoldFullRs();
+		var matches = {
+			hp: a1lib.findSubimage(img, imgs.lifepoints)[0],
+			dren: a1lib.findSubimage(img, imgs.dren)[0],
+			pray: a1lib.findSubimage(img, imgs.prayer)[0],
+			sum: a1lib.findSubimage(img, imgs.sumpoints)[0]
+		};
+		var layout = {
+			hp: { x: matches.hp.x - matches.hp.x, y: matches.hp.y - matches.hp.y },
+			dren: { x: matches.dren.x - matches.hp.x, y: matches.dren.y - matches.hp.y },
+			pray: { x: matches.pray.x - matches.hp.x, y: matches.pray.y - matches.hp.y },
+			sum: { x: matches.sum.x - matches.hp.x, y: matches.sum.y - matches.hp.y }
+		}
+		return JSON.stringify(layout);
 	}
 }
