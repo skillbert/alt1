@@ -44,7 +44,7 @@ export default class ActionbarReader {
 
 	static layouts: { [name: string]: Layout } = {
 		mainflat: { hp: { x: 0, y: 0 }, dren: { x: 119, y: 0 }, pray: { x: 238, y: 0 }, sum: { x: 357, y: 0 }, width: 470, height: 25, hor: true, barlength: 80, type: "mainflat" },
-		mainhor: { hp: { x: 0, y: 0 }, dren: { x: 100, y: 0 }, pray: { x: 16, y: 22 }, sum: { x: 116, y: 22 }, width: 210, height: 45, hor: true, barlength: 62, type: "mainhor" },
+		mainhor: { hp: { x: 0, y: 0 }, dren: { x: 102, y: 0 }, pray: { x: 16, y: 22 }, sum: { x: 118, y: 22 }, width: 210, height: 45, hor: true, barlength: 62, type: "mainhor" },
 		mainver: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 100 }, pray: { x: 22, y: 16 }, sum: { x: 22, y: 116 }, width: 35, height: 210, hor: false, barlength: 62, type: "mainver" },
 		maintower: { hp: { x: 0, y: 0 }, dren: { x: 0, y: 119 }, pray: { x: 0, y: 238 }, sum: { x: 0, y: 357 }, width: 20, height: 465, hor: false, barlength: 80, type: "maintower" }
 	};
