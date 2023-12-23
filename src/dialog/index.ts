@@ -67,7 +67,7 @@ export default class DialogReader {
 		let title = this.readTitle(imgref);
 		var r = {
 			text: null as null | string[],
-			opts: null as ReturnType<InstanceType<typeof DialogReader>["readOptions"]>,
+			opts: null as ReturnType<DialogReader["readOptions"]>,
 			title
 		};
 		if (this.checkDialog(imgref)) {
@@ -159,7 +159,7 @@ export default class DialogReader {
 		return locs;
 	}
 
-	readOptions(imgref: ImgRef | null | undefined, locs: ReturnType<InstanceType<typeof DialogReader>["findOptions"]>) {
+	readOptions(imgref: ImgRef | null | undefined, locs: ReturnType<DialogReader["findOptions"]>) {
 		imgref = this.ensureimg(imgref);
 		if (!imgref) { return null; }
 		if (!this.pos) { throw new Error("interface not found"); }

@@ -11,8 +11,7 @@ var imgs = webpackImages({
 	happynessicon: require("./imgs/animalhappy.data.png"),
 });
 
-var animalReaderInstance: InstanceType<typeof AnimalReader>;//can't find a way to do this without var
-export type AnimalData = NonNullable<ReturnType<typeof animalReaderInstance.read>>;
+export type AnimalData = NonNullable<ReturnType<AnimalReader["read"]>>;
 export var growtStages = {
 	Egg: 0,
 	Baby: 1,
