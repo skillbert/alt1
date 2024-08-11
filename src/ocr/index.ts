@@ -518,7 +518,7 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 		scores.slice(0, 5).forEach(q => console.log(q.chr.chr, q.score.toFixed(3), q.sizescore.toFixed(3)));
 	}
 
-	let winchr: (typeof candidate_scores)[number] | null = null
+	let winchr: (typeof scores)[number] | null = null
 
 	for (const chrscore of scores) {
 		if (!winchr || (chrscore && chrscore.sizescore < winchr.sizescore)) winchr = chrscore
