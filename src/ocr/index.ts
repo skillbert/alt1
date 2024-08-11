@@ -503,6 +503,9 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 				a += 4;
 			}
 			scores[chr].score += Math.max(0, penalty);
+
+			if(!debugobj && scores[chr].score > 400) break // Short circuit the loop as soon as the penalty threshold (400) is reached
+
 			//TODO add compiler flag to this to remove it for performance
 			if (debugimg) { debugimg.setPixel(chrobj.pixels[a], chrobj.pixels[a + 1], [penalty, penalty, penalty, 255]); }
 		}
