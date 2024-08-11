@@ -513,13 +513,17 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 		if (debugobj) { debugobj.push({ chr: chrobj.chr, score: scores[chr].sizescore, rawscore: scores[chr].score, img: debugimg! }); }
 	}
 
-	scores.sort((a, b) => a.sizescore - b.sizescore);
-
 	if (debug.printcharscores) {
+		scores.sort((a, b) => a.sizescore - b.sizescore);
 		scores.slice(0, 5).forEach(q => console.log(q.chr.chr, q.score.toFixed(3), q.sizescore.toFixed(3)));
 	}
 
-	var winchr = scores[0];
+	let winchr: (typeof candidate_scores)[number] | null = null
+
+	for (const chrscore of scores) {
+		if(!winchr || chrscore.sizescore < winchr.sizescore) winchr = chrscore
+	}
+	
 	if (!winchr || winchr.score > 400) { return null; }
 
 	return { chr: winchr.chr.chr, basechar: winchr.chr, x: x + shiftx, y: y + shifty, score: winchr.score, sizescore: winchr.sizescore };
