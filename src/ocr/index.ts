@@ -521,9 +521,9 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 	let winchr: (typeof candidate_scores)[number] | null = null
 
 	for (const chrscore of scores) {
-		if(!winchr || chrscore.sizescore < winchr.sizescore) winchr = chrscore
+		if (!winchr || (chrscore && chrscore.sizescore < winchr.sizescore)) winchr = chrscore
 	}
-	
+
 	if (!winchr || winchr.score > 400) { return null; }
 
 	return { chr: winchr.chr.chr, basechar: winchr.chr, x: x + shiftx, y: y + shifty, score: winchr.score, sizescore: winchr.sizescore };
