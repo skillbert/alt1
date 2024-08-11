@@ -502,7 +502,7 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 				penalty = canblend(buffer.data[i], buffer.data[i + 1], buffer.data[i + 2], col[0] * lum, col[1] * lum, col[2] * lum, chrobj.pixels[a + 2] / 255);
 				a += 4;
 			}
-			scores[chr].score += Math.max(0, penalty);
+			scores[chr].score += penalty;
 
 			if(!debugobj && scores[chr].score > 400) break // Short circuit the loop as soon as the penalty threshold (400) is reached
 
