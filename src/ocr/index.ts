@@ -479,10 +479,10 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 
 	//====== start reading the char ======
 	var scores: { score: number, sizescore: number, chr: Charinfo }[] = [];
-	for (var chr = 0; chr < font.chars.length; chr++) {
+	charloop: for (var chr = 0; chr < font.chars.length; chr++) {
 		var chrobj = font.chars[chr];
 		if (chrobj.secondary && !allowSecondary) { continue; }
-		scores[chr] = { score: 0, sizescore: 0, chr: chrobj };
+		const scoreobj = { score: 0, sizescore: 0, chr: chrobj };
 		var chrx = (backwards ? x - chrobj.width : x);
 
 
@@ -502,21 +502,32 @@ export function readChar(buffer: ImageData, font: FontDefinition, col: ColortTri
 				penalty = canblend(buffer.data[i], buffer.data[i + 1], buffer.data[i + 2], col[0] * lum, col[1] * lum, col[2] * lum, chrobj.pixels[a + 2] / 255);
 				a += 4;
 			}
-			scores[chr].score += Math.max(0, penalty);
+			scoreobj.score += penalty;
+
+			// Short circuit the loop as soon as the penalty threshold (400) is reached
+			if (!debugobj && scoreobj.score > 400) {
+				continue charloop; 
+			}
+
 			//TODO add compiler flag to this to remove it for performance
 			if (debugimg) { debugimg.setPixel(chrobj.pixels[a], chrobj.pixels[a + 1], [penalty, penalty, penalty, 255]); }
 		}
-		scores[chr].sizescore = scores[chr].score - chrobj.bonus;
-		if (debugobj) { debugobj.push({ chr: chrobj.chr, score: scores[chr].sizescore, rawscore: scores[chr].score, img: debugimg! }); }
+		scoreobj.sizescore = scoreobj.score - chrobj.bonus;
+		if (debugobj) { debugobj.push({ chr: chrobj.chr, score: scoreobj.sizescore, rawscore: scoreobj.score, img: debugimg! }); }
+		scores.push(scoreobj)
 	}
 
-	scores.sort((a, b) => a.sizescore - b.sizescore);
-
 	if (debug.printcharscores) {
+		scores.sort((a, b) => a.sizescore - b.sizescore);
 		scores.slice(0, 5).forEach(q => console.log(q.chr.chr, q.score.toFixed(3), q.sizescore.toFixed(3)));
 	}
 
-	var winchr = scores[0];
+	let winchr: (typeof scores)[number] | null = null
+
+	for (const chrscore of scores) {
+		if (!winchr || (chrscore && chrscore.sizescore < winchr.sizescore)) winchr = chrscore
+	}
+
 	if (!winchr || winchr.score > 400) { return null; }
 
 	return { chr: winchr.chr.chr, basechar: winchr.chr, x: x + shiftx, y: y + shifty, score: winchr.score, sizescore: winchr.sizescore };
