@@ -326,7 +326,7 @@ export default class ChatBoxReader {
 		img.findSubimage(imgs.chatbubble).forEach(loc => {
 			//107,2 press enter to chat
 			//102,2 click here to chat
-			var data = img.toData(loc.x + 102, loc.y + 1, 28 + (107 - 102), 10);
+			var data = img.toData(loc.x + 62, loc.y + 1 - 1, 28 + (107 - 102), 10);
 			if (data.pixelCompare(imgs.entertochat, 0, 1) != Infinity || data.pixelCompare(imgs.entertochat, (107 - 102), 1) != Infinity) {
 				botlefts.push(loc);
 			}
