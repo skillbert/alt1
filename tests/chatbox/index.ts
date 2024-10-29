@@ -9,19 +9,16 @@ globalThis.ImageDetect = a1lib.ImageDetect;
 globalThis.a1lib = a1lib;
 
 let tests = webpackImages({
-	// pt10: import("./imgs/default10pt.data.png"),
-	// pt12: import("./imgs/default12pt.data.png"),
-	// pt14: import("./imgs/default14pt.data.png"),
-	// pt16: import("./imgs/default16pt.data.png"),
-	// pt18: import("./imgs/default18pt.data.png"),
-	// pt20: import("./imgs/default20pt.data.png"),
-	// pt22: import("./imgs/default22pt.data.png"),
-	
-	// bugged: import("./imgs/buggedmode.data.png"),
-	// mini: import("./imgs/minimized.data.png"),
-	// bronzebroadcast_aug2023: import("./imgs/bronzebroadcast_aug2023.data.png")
+	pt10: import("./imgs/default10pt.data.png"),
+	pt12: import("./imgs/default12pt.data.png"),
+	pt14: import("./imgs/default14pt.data.png"),
+	pt16: import("./imgs/default16pt.data.png"),
+	pt18: import("./imgs/default18pt.data.png"),
+	pt20: import("./imgs/default20pt.data.png"),
+
+	mini: import("./imgs/minimized.data.png"),
 	activeborder: import("./imgs/activeborder.data.png"),
-	clanentertochat: import("./imgs/clanentertochat.data.png"),
+	pmod: import("./imgs/pmod.data.png"),
 });
 
 globalThis.testfont = testfont;

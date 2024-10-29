@@ -40,6 +40,8 @@ const chatbadges = webpackImages({
 	broadcast_bronze: require("./imgs/badge_broadcast_bronze.data.png"),
 	ironman: require("./imgs/badgeironman.data.png"),
 	hcim: require("./imgs/badgehcim.data.png"),
+	rgim: require("./imgs/badgergim.data.png"),
+	// gim: require("./imgs/badgergim"),
 	chatlink: require("./imgs/chat_link.data.png"),
 });
 
@@ -52,6 +54,8 @@ const badgemap: { [key in keyof typeof chatbadges.raw]: string } = {
 	broadcast_bronze: "\u2746",//HEAVY CHEVRON SNOWFLAKE
 	ironman: "\u26AF",//UNMARRIED PARTNERSHIP SYMBOL
 	hcim: "\u{1F480}",//SKULL
+	rgim: "\u328F",//CIRCLED IDEOGRAPH EARTH
+	// gim: "\u3289",//CIRCLED IDEOGRAPH TEN
 	chatlink: "\u{1F517}",//LINK SYMBOL
 }
 
@@ -326,7 +330,7 @@ export default class ChatBoxReader {
 		img.findSubimage(imgs.chatbubble).forEach(loc => {
 			//107,2 press enter to chat
 			//102,2 click here to chat
-			var data = img.toData(loc.x + 62, loc.y + 1 - 1, 28 + (107 - 102), 10);
+			var data = img.toData(loc.x + 62, loc.y, 28 + (107 - 102), 10);
 			if (data.pixelCompare(imgs.entertochat, 0, 1) != Infinity || data.pixelCompare(imgs.entertochat, (107 - 102), 1) != Infinity) {
 				botlefts.push(loc);
 			}
@@ -336,8 +340,8 @@ export default class ChatBoxReader {
 				botlefts.push(loc);
 			}
 			else {
-				var pixel = img.toData(loc.x, loc.y - 6, 1, 1);
-				var pixel2 = img.toData(loc.x, loc.y - 5, 1, 1);
+				var pixel = img.toData(loc.x, loc.y - 5, 1, 1);
+				var pixel2 = img.toData(loc.x, loc.y - 4, 1, 1);
 				if (pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255) {
 					botlefts.push(loc);
 				}
@@ -424,7 +428,7 @@ export default class ChatBoxReader {
 
 
 			group.line0x = 0;
-			group.line0y = group.rect.height - 15;//12;//- 15;//-11//- 9;//-10 before mobile interface update
+			group.line0y = group.rect.height - 16;//15;//12;//- 15;//-11//- 9;//-10 before mobile interface update
 
 			if (group.leftfound) { group.timestamp = this.checkTimestamp(img, group); }
 			if (mainbox == null || group.type == "main") { mainbox = group; }
