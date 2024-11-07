@@ -23,6 +23,7 @@ const imgs = webpackImages({
 	filterbutton: require("./imgs/filterbutton.data.png"),
 	chatbubble: require("./imgs/chatbubble.data.png"),
 	chatLegacyBorder: require("./imgs/chatLegacyBorder.data.png"),
+	chatBorder: require("./imgs/chatBorder.data.png"),
 	entertochat: require("./imgs/entertochat.data.png"),
 	gameoff: require("./imgs/gameoff.data.png"),
 	gamefilter: require("./imgs/gamefilter.data.png"),
@@ -31,6 +32,28 @@ const imgs = webpackImages({
 	reportbutton: require("./imgs/reportbutton.data.png"),
 });
 
+const chatimgs = webpackImages({
+	public: require("./imgs/public.data.png"),
+	private: require("./imgs/private.data.png"),
+	privateRecent: require("./imgs/privateRecent.data.png"),
+	clan: require("./imgs/clan.data.png"),
+	guestclan: require("./imgs/guestclan.data.png"),
+	friends: require("./imgs/friends.data.png"),
+	group: require("./imgs/group.data.png"),
+	groupironman: require("./imgs/groupironman.data.png"),
+});
+
+const chatmap: { [key in keyof typeof chatimgs.raw]: string } = {
+	public: "main",
+	private: "pc",
+	clan: "cc",
+	guestclan: "gcc",
+	friends: "fc",
+	group: "gc",
+	groupironman: "gimc",
+	privateRecent: "pc", // needs to be last to not mess with the buff
+	
+}
 const chatbadges = webpackImages({
 	vip: require("./imgs/badgevip.data.png"),
 	pmod: require("./imgs/badgepmod.data.png"),
@@ -41,7 +64,7 @@ const chatbadges = webpackImages({
 	ironman: require("./imgs/badgeironman.data.png"),
 	hcim: require("./imgs/badgehcim.data.png"),
 	rgim: require("./imgs/badgergim.data.png"),
-	// gim: require("./imgs/badgergim"),
+	gim: require("./imgs/badgegim.data.png"),
 	chatlink: require("./imgs/chat_link.data.png"),
 });
 
@@ -55,7 +78,7 @@ const badgemap: { [key in keyof typeof chatbadges.raw]: string } = {
 	ironman: "\u26AF",//UNMARRIED PARTNERSHIP SYMBOL
 	hcim: "\u{1F480}",//SKULL
 	rgim: "\u328F",//CIRCLED IDEOGRAPH EARTH
-	// gim: "\u3289",//CIRCLED IDEOGRAPH TEN
+	gim: "\u3289",//CIRCLED IDEOGRAPH TEN
 	chatlink: "\u{1F517}",//LINK SYMBOL
 }
 
@@ -85,14 +108,15 @@ export const defaultcolors = [
 	[255, 0, 0], //red achievement world message
 	[69, 178, 71], //blueish green friend broadcast
 	[164, 153, 125], //brownish gray friends/fc/cc list name
-	[215, 195, 119] //interface preset color
+	[215, 195, 119], //interface preset color
+	[255, 255, 176], //gim exclusive?
 ];
 
 type BoxCorner = a1lib.PointLike & { type: "hidden" | "full" | "legacy" }
 export type Chatbox = {
 	rect: a1lib.Rect,
 	timestamp: boolean,
-	type: "main" | "cc" | "fc" | "gc" | "gcc",
+	type: "main" | "cc" | "fc" | "gc" | "gcc" | "pc" | "gimc",
 	leftfound: boolean,
 	topright: BoxCorner,
 	botleft: a1lib.PointLike,
@@ -330,35 +354,33 @@ export default class ChatBoxReader {
 		img.findSubimage(imgs.chatbubble).forEach(loc => {
 			//107,2 press enter to chat
 			//102,2 click here to chat
-			var data = img.toData(loc.x + 62, loc.y, 28 + (107 - 102), 10);
-			if (data.pixelCompare(imgs.entertochat, 0, 1) != Infinity || data.pixelCompare(imgs.entertochat, (107 - 102), 1) != Infinity) {
+			// biggest chat size is 83 + 4 pixels
+			var data = img.toData(loc.x + 21, loc.y, 87 + (107 - 102), 10);
+			for (let chat in chatimgs.raw) {
+				let cimg = chatimgs.raw[chat];
+	
+				if (data.pixelCompare(cimg, 0, 1) != Infinity || data.pixelCompare(cimg, (107 - 102), 1) != Infinity) {
 				botlefts.push(loc);
 			}
 			//i don't even know anymore some times the bubble is 1px higher (i think it might be java related)
-			else if (data.pixelCompare(imgs.entertochat, 0, 0) != Infinity || data.pixelCompare(imgs.entertochat, (107 - 102), 0) != Infinity) {
+			else if (data.pixelCompare(cimg, 0, 0) != Infinity || data.pixelCompare(cimg, (107 - 102), 0) != Infinity) {
 				loc.y -= 1;
 				botlefts.push(loc);
 			}
-			else {
-				var pixel = img.toData(loc.x, loc.y - 5, 1, 1);
-				var pixel2 = img.toData(loc.x, loc.y - 4, 1, 1);
-				if (pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255) {
-					botlefts.push(loc);
-				}
-				//the weird offset again
-				else if (pixel2.data[0] == 255 && pixel2.data[1] == 255 && pixel2.data[2] == 255) {
-					loc.y -= 1;
-					botlefts.push(loc);
-				}
-				else {
-					//console.log("unlinked quickchat bubble " + JSON.stringify(loc));
-				}
-			}
+		}
+
 		});
 		img.findSubimage(imgs.chatLegacyBorder).forEach(loc => {
 			botlefts.push({ x: loc.x, y: loc.y - 1 });
 		});
-
+		// previously activated private chat showing "To"
+		img.findSubimage(chatimgs.privateRecent).forEach(loc => {
+			botlefts.push({ x: loc.x, y: loc.y - 1 });
+		});
+		// active chat
+		img.findSubimage(imgs.chatBorder).forEach(loc => {
+			botlefts.push({ x: loc.x, y: loc.y + 5 }); // offset for the chat border
+		});
 		//check if we're in full-on legacy
 		if (botlefts.length == 1 && toprights.length == 0) {
 			//cheat in a topright without knowing it's actual height
@@ -396,18 +418,18 @@ export default class ChatBoxReader {
 		if (!groupcorners()) { return null; }
 		var mainbox: Chatbox | null = null;
 		groups.forEach(group => {
-			let buf = img.toData(group.rect.x - 110, group.rect.y + group.rect.height - 5, 150, 20);
-			let nameread = OCR.readLine(buf, chatfont, [255, 255, 255], 110, 14, false, true);
-			if (nameread) {
-				var d = 0;
-				if (nameread.text == "Clan Chat") { group.type = "cc"; d = 62; }
-				else if (nameread.text == "Friends Chat") { group.type = "fc"; d = 76; }
-				else if (nameread.text == "Group Chat") { group.type = "gc"; d = 69; }
-				else if (nameread.text == "Guest Clan Chat") { group.type = "gcc"; d = 98; }
-				if (d != 0) {
-					group.rect.x -= d;
-					group.rect.width += d;
-					group.leftfound = true;
+			// rect.x + 21 is the offset after chat bubble
+			// buff & comp needs to be different for recent private chat as it doesn't have the chat bubble
+			let buf = img.toData(group.rect.x + 21, group.rect.y + group.rect.height, 150, 10);
+			let pbuf = img.toData(group.rect.x, group.rect.y + group.rect.height, 150, 10);
+
+			for (let chat in chatmap) {
+				let cimg = chatimgs.raw[chat];
+				let comp = buf.pixelCompare(cimg, 0, 1);
+				let pcomp = pbuf.pixelCompare(cimg, 0, 1);
+				if (comp != Infinity || pcomp != Infinity) {
+					group.type = chatmap[chat];
+					break;
 				}
 			}
 
