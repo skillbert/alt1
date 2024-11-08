@@ -184,9 +184,9 @@ export default class DialogReader {
 						row.width = x + 20;
 						break;
 					}
-				} else if (coldiff(checkline.data[i], checkline.data[i + 1], checkline.data[i + 2], fontcol[0], fontcol[1], fontcol[2]) < 100) {
+				} else if (coldiff(checkline.data[i], checkline.data[i + 1], checkline.data[i + 2], fontcol[0], fontcol[1], fontcol[2]) < 380) {
 					var text = "";
-					var chr = OCR.findChar(buf, fontmono, fontcol, dx + x + 2 - imgref.x, dy + 3 - imgref.y, 30, 1);
+					var chr = OCR.findChar(buf, fontmono, fontcol, dx + x - 5 - imgref.x, dy + 3 - imgref.y, 30, 1);
 					if (chr) {
 						var read = OCR.readLine(buf, fontmono, fontcol, chr.x, chr.y, true, true);
 						var text = read.text;
