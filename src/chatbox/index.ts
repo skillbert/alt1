@@ -23,7 +23,6 @@ const imgs = webpackImages({
 	filterbutton: require("./imgs/filterbutton.data.png"),
 	chatbubble: require("./imgs/chatbubble.data.png"),
 	chatLegacyBorder: require("./imgs/chatLegacyBorder.data.png"),
-	chatBorder: require("./imgs/chatBorder.data.png"),
 	entertochat: require("./imgs/entertochat.data.png"),
 	gameoff: require("./imgs/gameoff.data.png"),
 	gamefilter: require("./imgs/gamefilter.data.png"),
@@ -51,7 +50,7 @@ const chatmap: { [key in keyof typeof chatimgs.raw]: string } = {
 	friends: "fc",
 	group: "gc",
 	groupironman: "gimc",
-	privateRecent: "pc", // needs to be last to not mess with the buff
+	privateRecent: "pc", // needs to be last to not mess with the buf
 	
 }
 const chatbadges = webpackImages({
@@ -361,14 +360,29 @@ export default class ChatBoxReader {
 	
 				if (data.pixelCompare(cimg, 0, 1) != Infinity || data.pixelCompare(cimg, (107 - 102), 1) != Infinity) {
 				botlefts.push(loc);
+				}
+				//i don't even know anymore some times the bubble is 1px higher (i think it might be java related)
+				else if (data.pixelCompare(cimg, 0, 0) != Infinity || data.pixelCompare(cimg, (107 - 102), 0) != Infinity) {
+					loc.y -= 1;
+					botlefts.push(loc);
+				}
+				//active chat
+				else {
+					var pixel = img.toData(loc.x, loc.y - 5, 1, 1);
+					var pixel2 = img.toData(loc.x, loc.y - 4, 1, 1);
+					if (pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255) {
+						botlefts.push(loc);
+					}
+					//the weird offset again
+					else if (pixel2.data[0] == 255 && pixel2.data[1] == 255 && pixel2.data[2] == 255) {
+						loc.y -= 1;
+						botlefts.push(loc);
+					}
+					else {
+						//console.log("unlinked quickchat bubble " + JSON.stringify(loc));
+					}
+				}
 			}
-			//i don't even know anymore some times the bubble is 1px higher (i think it might be java related)
-			else if (data.pixelCompare(cimg, 0, 0) != Infinity || data.pixelCompare(cimg, (107 - 102), 0) != Infinity) {
-				loc.y -= 1;
-				botlefts.push(loc);
-			}
-		}
-
 		});
 		img.findSubimage(imgs.chatLegacyBorder).forEach(loc => {
 			botlefts.push({ x: loc.x, y: loc.y - 1 });
@@ -377,10 +391,7 @@ export default class ChatBoxReader {
 		img.findSubimage(chatimgs.privateRecent).forEach(loc => {
 			botlefts.push({ x: loc.x, y: loc.y - 1 });
 		});
-		// active chat
-		img.findSubimage(imgs.chatBorder).forEach(loc => {
-			botlefts.push({ x: loc.x, y: loc.y + 5 }); // offset for the chat border
-		});
+
 		//check if we're in full-on legacy
 		if (botlefts.length == 1 && toprights.length == 0) {
 			//cheat in a topright without knowing it's actual height
