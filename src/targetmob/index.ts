@@ -5,7 +5,8 @@ import { webpackImages, ImgRef } from "alt1/base";
 var chatfont = require("../fonts/aa_8px.fontmeta.json");
 
 var imgs = webpackImages({
-	detectimg: require("./imgs/detectimg.data.png")
+	detectimg: require("./imgs/detectimg.data.png"),
+	detectleg: require("./imgs/detectimgLegacy.data.png")
 });
 
 export default class TargetMobReader {
@@ -15,7 +16,8 @@ export default class TargetMobReader {
 
 	read(img?: ImgRef) {
 		if (!img) { img = a1lib.captureHoldFullRs(); }
-		var pos = img.findSubimage(imgs.detectimg);
+		var pos = img.findSubimage(imgs.detectimg)
+		if (pos.length == 0) { pos = img.findSubimage(imgs.detectleg); }
 		if (pos.length != 0) {
 			var data = img.toData(pos[0].x - 151, pos[0].y - 16, 220, 44);
 			var mobname = OCR.findReadLine(data, chatfont, [[255, 255, 255]], 62, 18, 20, 1);
