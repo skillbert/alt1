@@ -23,7 +23,7 @@ export default class TargetMobReader {
 			this.lastpos = pos[0];
 			this.state = {
 				name: mobname.text,
-				hp: +mobhp.text
+				hp: +mobhp.text.replace(",", "")
 			};
 		} else {
 			this.state = null;
