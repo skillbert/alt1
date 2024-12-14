@@ -19,6 +19,13 @@ let tests = webpackImages({
 	mini: import("./imgs/minimized.data.png"),
 	activeborder: import("./imgs/activeborder.data.png"),
 	pmod: import("./imgs/pmod.data.png"),
+	friendschat: import("./imgs/friendschat.data.png"),
+	groupchat: import("./imgs/groupchat.data.png"),
+	clanchat: import("./imgs/clanchat.data.png"),
+	guestclanchat: import("./imgs/guestclanchat.data.png"),
+	privatechat: import("./imgs/privatechat.data.png"),
+	privatechat2: import("./imgs/privatechat2.data.png"),
+	groupironmanchat: import("./imgs/groupironmanchat.data.png"),
 });
 
 globalThis.testfont = testfont;
