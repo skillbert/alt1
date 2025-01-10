@@ -89,10 +89,11 @@ export default class DialogReader {
 	readTitle(imgref: ImgRef) {
 		if (!this.pos) { throw new Error("position not found yet"); }
 		var buf = imgref.toData(this.pos.x, this.pos.y, this.pos.width, 32);
+		var titlecol: OCR.ColortTriplet = this.pos.legacy ? [255, 152, 31] : [255, 203, 5];
 		//somehow y coord can change, 19 for "choose and option:" 18 for npc names
-		var pos = OCR.findChar(buf, fontheavy, [255, 203, 5], Math.round(this.pos.width / 2) - 10, 16, 20, 4);
+		var pos = OCR.findChar(buf, fontheavy, titlecol, Math.round(this.pos.width / 2) - 10, 16, 20, 4);
 		if (!pos) { return ""; }
-		var read = OCR.readSmallCapsBackwards(buf, fontheavy, [[255, 203, 5]], Math.round(this.pos.width / 2) - 10, pos.y, 150, 1);
+		var read = OCR.readSmallCapsBackwards(buf, fontheavy, [titlecol], Math.round(this.pos.width / 2) - 10, pos.y, 150, 1);
 		return read.text.toLowerCase();//normalize case since we don't actually know the original
 	}
 
