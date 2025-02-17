@@ -60,6 +60,7 @@ const chatbadges = webpackImages({
 	broadcast_gold: require("./imgs/badge_broadcast_gold.data.png"),
 	broadcast_silver: require("./imgs/badge_broadcast_silver.data.png"),
 	broadcast_bronze: require("./imgs/badge_broadcast_bronze.data.png"),
+	broadcast_death: require("./imgs/badge_broadcast_death.data.png"),
 	ironman: require("./imgs/badgeironman.data.png"),
 	hcim: require("./imgs/badgehcim.data.png"),
 	rgim: require("./imgs/badgergim.data.png"),
@@ -74,6 +75,7 @@ const badgemap: { [key in keyof typeof chatbadges.raw]: string } = {
 	broadcast_gold: "\u2746",//HEAVY CHEVRON SNOWFLAKE
 	broadcast_silver: "\u2746",//HEAVY CHEVRON SNOWFLAKE
 	broadcast_bronze: "\u2746",//HEAVY CHEVRON SNOWFLAKE
+	broadcast_death: "\u{1F480}",//SKULL
 	ironman: "\u26AF",//UNMARRIED PARTNERSHIP SYMBOL
 	hcim: "\u{1F480}",//SKULL
 	rgim: "\u328F",//CIRCLED IDEOGRAPH EARTH
@@ -354,7 +356,7 @@ export default class ChatBoxReader {
 			//107,2 press enter to chat
 			//102,2 click here to chat
 			// biggest chat size is 83 + 4 pixels
-			var data = img.toData(loc.x + 21, loc.y, 87 + (107 - 102), 10);
+			var data = img.toData(loc.x + 19, loc.y, 87 + (107 - 102), 10);
 			for (let chat in chatimgs.raw) {
 				let cimg = chatimgs.raw[chat];
 	
@@ -431,7 +433,7 @@ export default class ChatBoxReader {
 		groups.forEach(group => {
 			// rect.x + 21 is the offset after chat bubble
 			// buff & comp needs to be different for recent private chat as it doesn't have the chat bubble
-			let buf = img.toData(group.rect.x + 21, group.rect.y + group.rect.height, 150, 10);
+			let buf = img.toData(group.rect.x + 19, group.rect.y + group.rect.height, 150, 10);
 			let pbuf = img.toData(group.rect.x, group.rect.y + group.rect.height, 150, 10);
 
 			for (let chat in chatmap) {

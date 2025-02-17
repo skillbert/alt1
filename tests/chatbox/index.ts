@@ -15,7 +15,7 @@ let tests = webpackImages({
 	pt16: import("./imgs/default16pt.data.png"),
 	pt18: import("./imgs/default18pt.data.png"),
 	pt20: import("./imgs/default20pt.data.png"),
-
+	pt22: import("./imgs/default22pt.data.png"),
 	mini: import("./imgs/minimized.data.png"),
 	activeborder: import("./imgs/activeborder.data.png"),
 	pmod: import("./imgs/pmod.data.png"),
