@@ -354,7 +354,7 @@ export default class ChatBoxReader {
 			//107,2 press enter to chat
 			//102,2 click here to chat
 			// biggest chat size is 83 + 4 pixels
-			var data = img.toData(loc.x + 21, loc.y, 87 + (107 - 102), 10);
+			var data = img.toData(loc.x + 19, loc.y, 87 + (107 - 102), 10);
 			for (let chat in chatimgs.raw) {
 				let cimg = chatimgs.raw[chat];
 	
@@ -431,7 +431,7 @@ export default class ChatBoxReader {
 		groups.forEach(group => {
 			// rect.x + 21 is the offset after chat bubble
 			// buff & comp needs to be different for recent private chat as it doesn't have the chat bubble
-			let buf = img.toData(group.rect.x + 21, group.rect.y + group.rect.height, 150, 10);
+			let buf = img.toData(group.rect.x + 19, group.rect.y + group.rect.height, 150, 10);
 			let pbuf = img.toData(group.rect.x, group.rect.y + group.rect.height, 150, 10);
 
 			for (let chat in chatmap) {
