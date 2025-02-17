@@ -60,6 +60,7 @@ const chatbadges = webpackImages({
 	broadcast_gold: require("./imgs/badge_broadcast_gold.data.png"),
 	broadcast_silver: require("./imgs/badge_broadcast_silver.data.png"),
 	broadcast_bronze: require("./imgs/badge_broadcast_bronze.data.png"),
+	broadcast_death: require("./imgs/badge_broadcast_death.data.png"),
 	ironman: require("./imgs/badgeironman.data.png"),
 	hcim: require("./imgs/badgehcim.data.png"),
 	rgim: require("./imgs/badgergim.data.png"),
@@ -74,6 +75,7 @@ const badgemap: { [key in keyof typeof chatbadges.raw]: string } = {
 	broadcast_gold: "\u2746",//HEAVY CHEVRON SNOWFLAKE
 	broadcast_silver: "\u2746",//HEAVY CHEVRON SNOWFLAKE
 	broadcast_bronze: "\u2746",//HEAVY CHEVRON SNOWFLAKE
+	broadcast_death: "\u{1F480}",//SKULL
 	ironman: "\u26AF",//UNMARRIED PARTNERSHIP SYMBOL
 	hcim: "\u{1F480}",//SKULL
 	rgim: "\u328F",//CIRCLED IDEOGRAPH EARTH
