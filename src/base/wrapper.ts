@@ -3,6 +3,7 @@ import Rect, { RectLike } from "./rect";
 import { ImgRefBind, ImgRefCtx, ImgRefData, ImgRef } from "./imgref";
 import { ImageData } from "./imagedata-extensions";
 import "./alt1api";
+import {base64ToBytes} from "byte-base64";
 
 declare global {
 	namespace alt1 {
@@ -151,42 +152,81 @@ export function captureHoldFullRs() {
  * @deprecated This should be handled internall by the imgrefbind.toData method
  */
 export function transferImageData(handle: number, x: number, y: number, w: number, h: number) {
-	x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
-	requireAlt1();
+  x = Math.round(x);
+  y = Math.round(y);
+  w = Math.round(w);
+  h = Math.round(h);
+  requireAlt1();
 
-	if (alt1.bindGetRegionBuffer) {
-		return new ImageData(alt1.bindGetRegionBuffer(handle, x, y, w, h), w, h);
-	}
-	var r = new ImageData(w, h);
+  console.log("transferImageData");
 
-	var x1 = x;
-	while (true) {//split up the request to to exceed the single transfer limit (for now)
-		var x2 = Math.min(x + w, Math.floor(x1 + (maxtransfer / 4 / h)));
-		var a = alt1.bindGetRegion(handle, x1, y, x2 - x1, h);
-		if (!a) { throw new Alt1Error(); }
-		decodeImageString(a, r, x1 - x, 0, x2 - x1, h);
-		x1 = x2;
-		if (x1 == x + w) { break; };
-	}
-	return r;
+  if (alt1.bindGetRegionBuffer) {
+    return new ImageData(alt1.bindGetRegionBuffer(handle, x, y, w, h), w, h);
+  }
+
+  const data_per_row = w * 4;
+  const rows_per_transfer = Math.floor(maxtransfer / data_per_row);
+
+  const transfers = Math.ceil(h / rows_per_transfer);
+
+  const buffers: Uint8Array[] = [];
+
+  for (let i = 0; i < transfers; i++) {
+    const remaining_rows = h - i * rows_per_transfer;
+
+    const y2 = i * rows_per_transfer + y;
+
+    const section = alt1.bindGetRegion(handle, x, y2, w, Math.min(remaining_rows, rows_per_transfer));
+    if (!section) { throw new Alt1Error(); }
+
+    // base64ToBytes is around 40% faster than Buffer.from(section, "base64")
+    buffers.push(base64ToBytes(section));
+  }
+
+  if (buffers.length == 1) {
+    return bgraToRgbaInPlace(new ImageData(new Uint8ClampedArray(buffers[0]), w, h))
+  } else {
+    const r = new ImageData(w, h);
+
+    //Copy buffers from the individual reads into the full image
+    for (let i = 0; i < transfers; i++) {
+      const row = buffers[i];
+      r.data.set(row, i * rows_per_transfer * data_per_row);
+    }
+    return bgraToRgbaInPlace(r);
+  }
+}
+
+/**
+ * Fixes pixel data from gbra format to rgba format.
+ * Alt1 supplies images as gbra, but typescript needs it in rgba
+ * @param data The image to fix.
+ */
+function bgraToRgbaInPlace(data: ImageData): ImageData {
+  for (let i = 0; i < data.data.length; i += 4) {
+    const tmp = data.data[i];
+    data.data[i] = data.data[i + 2];
+    data.data[i + 2] = tmp;
+  }
+  return data
 }
 
 /**
  * decodes a returned string from alt1 to an imagebuffer. You generally never have to do this yourself
  */
 export function decodeImageString(imagestring: string, target: ImageData, x: number, y: number, w: number, h: number) {
-	var bin = atob(imagestring);
+	const bin = btoa(imagestring)
 
-	var bytes = target.data;
+	const bytes = target.data;
 
 	w |= 0;
 	h |= 0;
-	var offset = 4 * x + 4 * y * target.width;
-	var target_width = target.width | 0;
-	for (var a = 0; a < w; a++) {
-		for (var b = 0; b < h; b++) {
-			var i1 = (offset + (a * 4 | 0) + (b * target_width * 4 | 0)) | 0;
-			var i2 = ((a * 4 | 0) + (b * 4 * w | 0)) | 0;
+	const offset = 4 * x + 4 * y * target.width;
+	const target_width = target.width | 0;
+	for (let a = 0; a < w; a++) {
+		for (let b = 0; b < h; b++) {
+			const i1 = (offset + (a * 4 | 0) + (b * target_width * 4 | 0)) | 0;
+			const i2 = ((a * 4 | 0) + (b * 4 * w | 0)) | 0;
 			bytes[i1 + 0 | 0] = bin.charCodeAt(i2 + 2 | 0);//fix weird red/blue swap in c#
 			bytes[i1 + 1 | 0] = bin.charCodeAt(i2 + 1 | 0);
 			bytes[i1 + 2 | 0] = bin.charCodeAt(i2 + 0 | 0);
@@ -347,7 +387,7 @@ export class ImageStreamReader {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	setFrameBuffer(buffer: ImageData) {
 		if (this.reading) { throw new Error("can't change framebuffer while reading"); }
@@ -487,7 +527,7 @@ export async function captureAsync(...args: [rect: RectLike] | [x: number, y: nu
 
 /**
  * Asynchronously captures multple area's. This method captures the images in the same render frame if possible
- * @param areas 
+ * @param areas
  */
 export async function captureMultiAsync<T extends { [id: string]: RectLike | null | undefined }>(areas: T) {
 	requireAlt1();
