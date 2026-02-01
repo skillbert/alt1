@@ -149,7 +149,7 @@ export function captureHoldFullRs() {
 /**
  * returns a subregion from a bound image
  * used internally in imgreftobuf if imgref is a bound image
- * @deprecated This should be handled internall by the imgrefbind.toData method
+ * @deprecated This should be handled internally by the imgrefbind.toData method
  */
 export function transferImageData(handle: number, x: number, y: number, w: number, h: number) {
   x = Math.round(x);
@@ -157,8 +157,6 @@ export function transferImageData(handle: number, x: number, y: number, w: numbe
   w = Math.round(w);
   h = Math.round(h);
   requireAlt1();
-
-  console.log("transferImageData");
 
   if (alt1.bindGetRegionBuffer) {
     return new ImageData(alt1.bindGetRegionBuffer(handle, x, y, w, h), w, h);
