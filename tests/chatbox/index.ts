@@ -25,7 +25,7 @@ let tests = webpackImages({
 	// guestclanchat: import("./imgs/guestclanchat.data.png"),
 	privatechat: import("./imgs/privatechat.data.png"),
 	// privatechat2: import("./imgs/privatechat2.data.png"),
-	// groupironmanchat: import("./imgs/groupironmanchat.data.png")
+	groupironmanchat: import("./imgs/gimchat.data.png")
 });
 
 globalThis.testfont = testfont;

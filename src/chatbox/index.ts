@@ -39,7 +39,7 @@ const chatimgs = webpackImages({
 	privateRecent: require("./imgs/privateRecent.data.png"),
 	friends: require("./imgs/friendschat.data.png"),
 	group: require("./imgs/groupchat.data.png"),
-	// groupironman missing since mtx removal
+	groupironman: require("./imgs/gimchat.data.png"),
 });
 
 const chatmap: { [key in keyof typeof chatimgs.raw]: string } = {
@@ -49,7 +49,7 @@ const chatmap: { [key in keyof typeof chatimgs.raw]: string } = {
 	guestclan: "gcc",
 	friends: "fc",
 	group: "gc",
-	// groupironman: "gimc",
+	groupironman: "gimc",
 	privateRecent: "pc", // needs to be last to not mess with the buf
 }
 const chatbadges = webpackImages({
