@@ -62,7 +62,7 @@ function dotest(testid: string, reader: ChatBoxReader, img: ImgRef) {
 	let pos = reader.find(img);
 	globalThis.font = reader.font?.def;
 	//testfont(reader.font.def);
-	console.log(performance.now() - t, pos);
+	console.log(performance.now() - t, pos?.mainbox, pos);
 
 	if (!pos) {
 		console.log("couldn't find pos " + testid);

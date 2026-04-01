@@ -42,16 +42,16 @@ const chatimgs = webpackImages({
 	groupironman: require("./imgs/gimchat.data.png"),
 });
 
-const chatmap: { [key in keyof typeof chatimgs.raw]: string } = {
+const chatmap: { [key in keyof typeof chatimgs.raw]: ChatboxType } = {
 	public: "main",
-	private: "pc",
+	private: "private",
 	clan: "cc",
 	guestclan: "gcc",
 	friends: "fc",
 	group: "gc",
 	groupironman: "gimc",
-	privateRecent: "pc", // needs to be last to not mess with the buf
-}
+	privateRecent: "private", // needs to be last to not mess with the buf
+};
 const chatbadges = webpackImages({
 	vip: require("./imgs/badges/vip.data.png"),
 	pmod: require("./imgs/badges/pmod.data.png"),
@@ -123,14 +123,16 @@ export const defaultcolors = [
 	[255, 255, 176], //gim exclusive?
 ];
 
-type BoxCorner = a1lib.PointLike & { type: "hidden" | "full" | "legacy" }
+type ChatboxType = "main" | "cc" | "fc" | "gc" | "gcc" | "private" | "gimc" | "unknown";
+type TopRight = a1lib.PointLike & { type: "hidden" | "full" | "legacy" }
+type BotLeft = a1lib.PointLike & { type: ChatboxType }
 export type Chatbox = {
 	rect: a1lib.Rect,
 	timestamp: boolean,
-	type: "main" | "cc" | "fc" | "gc" | "gcc" | "pc" | "gimc",
+	type: ChatboxType,
 	leftfound: boolean,
-	topright: BoxCorner,
-	botleft: a1lib.PointLike,
+	topright: TopRight,
+	botleft: BotLeft,
 	line0x: number,
 	line0y: number
 };
@@ -355,13 +357,13 @@ export default class ChatBoxReader {
 		if (!imgornull) { imgornull = a1lib.captureHoldFullRs(); }
 		if (!imgornull) { return null; }
 		var img = imgornull;
-		var toprights: BoxCorner[] = [];
+		var toprights: TopRight[] = [];
 
 		img.findSubimage(imgs.plusbutton).forEach(loc => toprights.push({ x: loc.x + 5, y: loc.y + 21, type: "hidden" }));
 		img.findSubimage(imgs.filterbutton).forEach(loc => toprights.push({ x: loc.x + 19, y: loc.y + 19, type: "hidden" }));
 		img.findSubimage(imgs.minusbutton).forEach(loc => toprights.push({ x: loc.x + 5, y: loc.y + 21, type: "full" }));
 
-		var botlefts: a1lib.PointLike[] = [];
+		var botlefts: BotLeft[] = [];
 		img.findSubimage(imgs.chatbubble).forEach(loc => {
 			//107,2 press enter to chat
 			//102,2 click here to chat
@@ -372,13 +374,13 @@ export default class ChatBoxReader {
 				let cimg = chatimgs.raw[chat];
 
 				if (data.pixelCompare(cimg, 0, 1) != Infinity || data.pixelCompare(cimg, (107 - 102), 1) != Infinity) {
-					botlefts.push(loc);
+					botlefts.push({ x: loc.x, y: loc.y - 1, type: chatmap[chat] });
 					matched = true;
 				}
 				//i don't even know anymore some times the bubble is 1px higher (i think it might be java related)
 				else if (data.pixelCompare(cimg, 0, 0) != Infinity || data.pixelCompare(cimg, (107 - 102), 0) != Infinity) {
 					loc.y -= 1;
-					botlefts.push(loc);
+					botlefts.push({ x: loc.x, y: loc.y, type: chatmap[chat] });
 					matched = true;
 				}
 			}
@@ -388,12 +390,12 @@ export default class ChatBoxReader {
 				var pixel2 = img.toData(loc.x, loc.y - 4, 1, 1);
 				if (pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255) {
 					loc.y -= 1;
-					botlefts.push(loc);
+					botlefts.push({ x: loc.x, y: loc.y, type: "unknown" });
 				}
 				//the weird offset again
 				else if (pixel2.data[0] == 255 && pixel2.data[1] == 255 && pixel2.data[2] == 255) {
 					loc.y -= 2;
-					botlefts.push(loc);
+					botlefts.push({ x: loc.x, y: loc.y, type: "unknown" });
 				}
 				else {
 					//console.log("unlinked quickchat bubble " + JSON.stringify(loc));
@@ -401,11 +403,11 @@ export default class ChatBoxReader {
 			}
 		});
 		img.findSubimage(imgs.chatLegacyBorder).forEach(loc => {
-			botlefts.push({ x: loc.x, y: loc.y - 1 });
+			botlefts.push({ x: loc.x, y: loc.y - 1, type: "main" });
 		});
 		// previously activated private chat showing "To"
 		img.findSubimage(chatimgs.privateRecent).forEach(loc => {
-			botlefts.push({ x: loc.x, y: loc.y - 1 });
+			botlefts.push({ x: loc.x, y: loc.y - 1, type: "private" });
 		});
 
 		//check if we're in full-on legacy
@@ -445,20 +447,7 @@ export default class ChatBoxReader {
 		if (!groupcorners()) { return null; }
 		var mainbox: Chatbox | null = null;
 		groups.forEach(group => {
-			// rect.x + 21 is the offset after chat bubble
-			// buff & comp needs to be different for recent private chat as it doesn't have the chat bubble
-			let buf = img.toData(group.rect.x + 19, group.rect.y + group.rect.height, 150, 12);
-			let pbuf = img.toData(group.rect.x, group.rect.y + group.rect.height, 150, 12);
-
-			for (let chat in chatmap) {
-				let cimg = chatimgs.raw[chat];
-				let comp = buf.pixelCompare(cimg, 0, 1);
-				let pcomp = pbuf.pixelCompare(cimg, 0, 1);
-				if (comp != Infinity || pcomp != Infinity) {
-					group.type = chatmap[chat];
-					break;
-				}
-			}
+			group.type = group.botleft.type;
 
 			if (!group.leftfound && group.topright.type == "full") {
 				var pos: a1lib.PointLike[] = [];
@@ -474,7 +463,6 @@ export default class ChatBoxReader {
 			}
 			//alt1.overLayRect(a1lib.mixcolor(255, 255, 255), group.rect.x, group.rect.y, group.rect.width, group.rect.height, 10000, 2);
 			//alt1.overLayTextEx(group.type, a1lib.mixcolor(255, 255, 255), 20, group.rect.x + group.rect.width / 2 | 0, group.rect.y + group.rect.height / 2 | 0, 10000, "", true, true);
-
 
 			group.line0x = 0;
 			group.line0y = group.rect.height - 12;// 16;//15;//12;//- 15;//-11//- 9;//-10 before mobile interface update
