@@ -231,7 +231,7 @@ ImageData.prototype.setPixelInt = function (x, y, color) {
 
 ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png" | "image/webp", quality?: any) {
 	if (typeof HTMLCanvasElement != "undefined") {
-		return new Promise<ArrayBuffer>(d => this.toImage().toBlob(b => {
+		return new Promise<Uint8Array>(d => this.toImage().toBlob(b => {
 			var r = new FileReader();
 			r.readAsArrayBuffer(b!);
 			r.onload = () => d(new Uint8Array(r.result as ArrayBuffer));

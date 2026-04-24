@@ -64,7 +64,7 @@ export async function imageDataFromFileBuffer(data: Uint8Array) {
 		clearPngColorspace(data);
 	}
 	if (typeof Image != "undefined") {
-		let blob = new Blob([data], { type: "image/png" });
+		let blob = new Blob([data as unknown as BlobPart], { type: "image/png" });
 		let url = URL.createObjectURL(blob);
 		let r = await loadImageDataFromUrl(url);
 		URL.revokeObjectURL(url);
