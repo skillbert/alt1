@@ -679,7 +679,6 @@ export default class BuffReader {
 				if (mi > 0) {
 					var prevEnd = matches[mi - 1].endX;
 					var currStart = matches[mi].x;
-					// Check for an ISOLATED dot pixel between characters
 					var dotCheckStart = Math.max(0, prevEnd - 3);
 					var dotCheckEnd = Math.min(clean.width - 1, currStart + 2);
 					var dotFound = false;
@@ -688,8 +687,7 @@ export default class BuffReader {
 						for (var dy2 = -1; dy2 <= 0; dy2++) {
 							var checkY = readY + dy2;
 							if (checkY >= 0 && checkY < clean.height) {
-								var dpi = (checkY * clean.width + dotX) * 4;
-								if (clean.data[dpi] > 200) { hasBright = true; break; }
+								if (clean.data[(checkY * clean.width + dotX) << 2] > 200) { hasBright = true; break; }
 							}
 						}
 						if (!hasBright) continue;
@@ -698,8 +696,7 @@ export default class BuffReader {
 							for (var dy3 = -1; dy3 <= 0; dy3++) {
 								var ly = readY + dy3;
 								if (ly >= 0 && ly < clean.height) {
-									var lpi = (ly * clean.width + (dotX - 1)) * 4;
-									if (clean.data[lpi] > 200) { leftDark = false; break; }
+									if (clean.data[(ly * clean.width + (dotX - 1)) << 2] > 200) { leftDark = false; break; }
 								}
 							}
 						}
@@ -708,16 +705,14 @@ export default class BuffReader {
 							for (var dy3 = -1; dy3 <= 0; dy3++) {
 								var ry = readY + dy3;
 								if (ry >= 0 && ry < clean.height) {
-									var rpi = (ry * clean.width + (dotX + 1)) * 4;
-									if (clean.data[rpi] > 200) { rightDark = false; break; }
+									if (clean.data[(ry * clean.width + (dotX + 1)) << 2] > 200) { rightDark = false; break; }
 								}
 							}
 						}
 						var aboveDark = true;
 						var aboveY = readY - 3;
 						if (aboveY >= 0) {
-							var api = (aboveY * clean.width + dotX) * 4;
-							if (clean.data[api] > 200) aboveDark = false;
+							if (clean.data[(aboveY * clean.width + dotX) << 2] > 200) aboveDark = false;
 						}
 						if (leftDark && rightDark && aboveDark) {
 							dotFound = true;
@@ -787,11 +782,11 @@ export default class BuffReader {
 						for (var ddy = -1; ddy <= 0; ddy++) {
 							var cy2 = readY + ddy;
 							if (cy2 >= 0 && cy2 < clean.height && dx2 >= 0 && dx2 < clean.width) {
-								if (clean.data[(cy2 * clean.width + dx2) * 4] > 200) {
+								if (clean.data[(cy2 * clean.width + dx2) << 2] > 200) {
 									var ld = true, rd = true, ad = true;
-									if (dx2 > 0) { for (var d3=-1;d3<=0;d3++){var ly2=readY+d3;if(ly2>=0&&ly2<clean.height){if(clean.data[(ly2*clean.width+(dx2-1))*4]>200){ld=false;break;}}}}
-									if (dx2+1<clean.width) { for (var d4=-1;d4<=0;d4++){var ry2=readY+d4;if(ry2>=0&&ry2<clean.height){if(clean.data[(ry2*clean.width+(dx2+1))*4]>200){rd=false;break;}}}}
-									var ay = readY - 3; if (ay>=0 && clean.data[(ay*clean.width+dx2)*4]>200) ad=false;
+									if (dx2 > 0) { for (var d3=-1;d3<=0;d3++){var ly2=readY+d3;if(ly2>=0&&ly2<clean.height){if(clean.data[(ly2*clean.width+(dx2-1))<<2]>200){ld=false;break;}}}}
+									if (dx2+1<clean.width) { for (var d4=-1;d4<=0;d4++){var ry2=readY+d4;if(ry2>=0&&ry2<clean.height){if(clean.data[(ry2*clean.width+(dx2+1))<<2]>200){rd=false;break;}}}}
+									var ay = readY - 3; if (ay>=0 && clean.data[(ay*clean.width+dx2)<<2]>200) ad=false;
 									if (ld && rd && ad) { hasDot = true; break; }
 								}
 							}
