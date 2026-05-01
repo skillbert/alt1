@@ -1,0 +1,15 @@
+{
+    "appName": "Buff Reader",
+    "description": "Reads buff and debuff timers from the game screen",
+    "appUrl": "index.html",
+    "configUrl": "",
+    "iconUrl": "",
+    "defaultWidth": 300,
+    "defaultHeight": 200,
+    "minWidth": 200,
+    "minHeight": 100,
+    "maxWidth": 600,
+    "maxHeight": 400,
+    "permissions": ["pixel", "overlay", "gamestate"],
+    "apiVersion": 1
+}

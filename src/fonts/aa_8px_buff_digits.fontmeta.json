@@ -1,0 +1,14 @@
+{
+	"basey": 9,
+	"spacewidth": 2,
+	"treshold": 0.65,
+	"color": [
+		210,
+		210,
+		210
+	],
+	"unblendmode": "raw",
+	"shadow": false,
+	"chars": "0123456789.mhrK%",
+	"seconds": ".rh"
+}

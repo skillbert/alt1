@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Buff Reader</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1a1a2e; color: #eee; font-family: 'Segoe UI', sans-serif; padding: 12px; }
+        h1 { font-size: 16px; margin-bottom: 8px; color: #0f3460; background: #e94560; padding: 6px 12px; border-radius: 4px; }
+        .controls { margin-bottom: 10px; }
+        button { background: #0f3460; color: #eee; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; margin-right: 6px; }
+        button:hover { background: #16213e; }
+        button.active { background: #e94560; }
+        .status { font-size: 12px; color: #888; margin-bottom: 8px; }
+        .buff-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .buff-item { background: #16213e; border: 2px solid #0f3460; border-radius: 6px; padding: 8px 12px; min-width: 60px; text-align: center; }
+        .buff-item.debuff { border-color: #b40000; }
+        .buff-item .timer { font-size: 18px; font-weight: bold; color: #00ff88; }
+        .buff-item.debuff .timer { color: #ff4444; }
+        .buff-item .label { font-size: 10px; color: #888; }
+        .error { color: #ff4444; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>Alt1 Buff Reader</h1>
+    <div class="controls">
+        <button id="btnFind">Find Buffs</button>
+        <button id="btnRead">Read Once</button>
+        <button id="btnAuto" class="">Auto Read</button>
+        <button id="btnStop" style="display:none">Stop</button>
+    </div>
+    <div class="status" id="status">Click "Find Buffs" to locate the buff bar</div>
+    <div class="error" id="error"></div>
+    <div class="buff-list" id="buffList"></div>
+    <div class="buff-list" id="debuffList" style="margin-top: 8px;"></div>
+
+    <script src="../base/index.js"></script>
+    <script src="../ocr/index.js"></script>
+    <script src="../buffs/index.js"></script>
+    <script>
+        var BuffReader = (window.Buffs && window.Buffs.default) || (typeof require !== 'undefined' ? require('alt1/buffs').default : null);
+
+        var buffReader = null;
+        var debuffReader = null;
+        var autoInterval = null;
+
+        function setStatus(msg) { document.getElementById('status').textContent = msg; }
+        function setError(msg) { document.getElementById('error').textContent = msg; }
+
+        function findBuffs() {
+            setError('');
+            if (typeof alt1 === 'undefined') {
+                setError('Alt1 not detected. Run this inside Alt1 Toolkit.');
+                return;
+            }
+
+            buffReader = new BuffReader();
+            buffReader.debuffs = false;
+            var found = buffReader.find();
+
+            debuffReader = new BuffReader();
+            debuffReader.debuffs = true;
+            var dFound = debuffReader.find();
+
+            var msg = '';
+            if (found) msg += 'Buffs found at [' + buffReader.pos.x + ',' + buffReader.pos.y + '] ' + buffReader.buffsize + 'px';
+            else msg += 'No buff bar found';
+            if (dFound) msg += ' | Debuffs at [' + debuffReader.pos.x + ',' + debuffReader.pos.y + ']';
+            setStatus(msg);
+        }
+
+        function readBuffs() {
+            setError('');
+            var html = '';
+            var dhtml = '';
+
+            if (buffReader && buffReader.pos) {
+                try {
+                    var buffs = buffReader.read();
+                    if (buffs) {
+                        for (var i = 0; i < buffs.length; i++) {
+                            var arg = buffs[i].readArg('arg');
+                            var time = buffs[i].readArg('time');
+                            var text = arg.arg || '';
+                            var timeVal = time.time;
+                            if (text || timeVal > 0) {
+                                html += '<div class="buff-item"><div class="timer">' + (text || timeVal + 's') + '</div><div class="label">Buff ' + i + '</div></div>';
+                            } else {
+                                html += '<div class="buff-item"><div class="timer">-</div><div class="label">Buff ' + i + '</div></div>';
+                            }
+                        }
+                        setStatus('Read ' + buffs.length + ' buffs');
+                    }
+                } catch (e) {
+                    setError('Buff read error: ' + e.message);
+                }
+            }
+
+            if (debuffReader && debuffReader.pos) {
+                try {
+                    var debuffs = debuffReader.read();
+                    if (debuffs) {
+                        for (var i = 0; i < debuffs.length; i++) {
+                            var arg = debuffs[i].readArg('arg');
+                            var time = debuffs[i].readArg('time');
+                            var text = arg.arg || '';
+                            var timeVal = time.time;
+                            if (text || timeVal > 0) {
+                                dhtml += '<div class="buff-item debuff"><div class="timer">' + (text || timeVal + 's') + '</div><div class="label">Debuff ' + i + '</div></div>';
+                            } else {
+                                dhtml += '<div class="buff-item debuff"><div class="timer">-</div><div class="label">Debuff ' + i + '</div></div>';
+                            }
+                        }
+                        setStatus('Read ' + buffs.length + ' buffs, ' + debuffs.length + ' debuffs');
+                    }
+                } catch (e) {
+                    setError('Debuff read error: ' + e.message);
+                }
+            }
+
+            document.getElementById('buffList').innerHTML = html || '<div class="buff-item"><div class="timer">No buffs</div></div>';
+            document.getElementById('debuffList').innerHTML = dhtml || (debuffReader && debuffReader.pos ? '<div class="buff-item debuff"><div class="timer">No debuffs</div></div>' : '');
+        }
+
+        function startAuto() {
+            if (!buffReader || !buffReader.pos) {
+                findBuffs();
+                if (!buffReader || !buffReader.pos) return;
+            }
+            document.getElementById('btnAuto').classList.add('active');
+            document.getElementById('btnStop').style.display = '';
+            autoInterval = setInterval(function() {
+                readBuffs();
+            }, 300);
+        }
+
+        function stopAuto() {
+            if (autoInterval) clearInterval(autoInterval);
+            autoInterval = null;
+            document.getElementById('btnAuto').classList.remove('active');
+            document.getElementById('btnStop').style.display = 'none';
+        }
+
+        document.getElementById('btnFind').onclick = findBuffs;
+        document.getElementById('btnRead').onclick = function() { if (!buffReader) findBuffs(); readBuffs(); };
+        document.getElementById('btnAuto').onclick = startAuto;
+        document.getElementById('btnStop').onclick = stopAuto;
+    </script>
+</body>
+</html>
