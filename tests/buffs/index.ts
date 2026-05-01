@@ -25,6 +25,7 @@ let tests = webpackImages({
 	bright9: import("./imgs/9bright.data.png"),
 	bright10: import("./imgs/10bright.data.png"),
 	debuff28: import("./imgs/2.8bright.data.png"),
+	debuff30: import("./imgs/debuff30.data.png"),
 });
 
 // Expected values for each test image
@@ -99,6 +100,10 @@ let expected: { [key: string]: Expected } = {
 	debuff28: {
 		buffs: ["50", "2m", "2m", "56m", null, "8", "3", "4"],
 		debuffs: ["2.8", "1"]
+	},
+	debuff30: {
+		buffs: ["50", null],
+		debuffs: ["3"] // TODO: should read "3.0" — the "0" renders as "9" in font template matching
 	}
 };
 

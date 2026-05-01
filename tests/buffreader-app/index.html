@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="alt1:configurl" content="appconfig.json">
     <title>Buff Reader</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,6 +40,11 @@
     <script src="../buffs/index.js"></script>
     <script>
         var BuffReader = (window.Buffs && window.Buffs.default) || (typeof require !== 'undefined' ? require('alt1/buffs').default : null);
+
+        // Register with Alt1
+        if (window.alt1) {
+            alt1.identifyAppUrl("./appconfig.json");
+        }
 
         var buffReader = null;
         var debuffReader = null;

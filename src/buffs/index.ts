@@ -680,12 +680,10 @@ export default class BuffReader {
 					var prevEnd = matches[mi - 1].endX;
 					var currStart = matches[mi].x;
 					// Check for an ISOLATED dot pixel between characters
-					// A real dot: 1-2px wide bright spot at baseline, with dark columns on both sides
 					var dotCheckStart = Math.max(0, prevEnd - 3);
 					var dotCheckEnd = Math.min(clean.width - 1, currStart + 2);
 					var dotFound = false;
 					for (var dotX = dotCheckStart; dotX <= dotCheckEnd && !dotFound; dotX++) {
-						// Check if this column has a bright pixel near baseline
 						var hasBright = false;
 						for (var dy2 = -1; dy2 <= 0; dy2++) {
 							var checkY = readY + dy2;
@@ -695,8 +693,6 @@ export default class BuffReader {
 							}
 						}
 						if (!hasBright) continue;
-
-						// Verify isolation: column to the LEFT must be dark at baseline
 						var leftDark = true;
 						if (dotX > 0) {
 							for (var dy3 = -1; dy3 <= 0; dy3++) {
@@ -707,7 +703,6 @@ export default class BuffReader {
 								}
 							}
 						}
-						// Verify isolation: column to the RIGHT must be dark at baseline
 						var rightDark = true;
 						if (dotX + 1 < clean.width) {
 							for (var dy3 = -1; dy3 <= 0; dy3++) {
@@ -718,14 +713,12 @@ export default class BuffReader {
 								}
 							}
 						}
-						// Also check that 3 rows above is dark (not a character stroke)
 						var aboveDark = true;
 						var aboveY = readY - 3;
 						if (aboveY >= 0) {
 							var api = (aboveY * clean.width + dotX) * 4;
 							if (clean.data[api] > 200) aboveDark = false;
 						}
-
 						if (leftDark && rightDark && aboveDark) {
 							dotFound = true;
 						}
@@ -787,7 +780,6 @@ export default class BuffReader {
 				if (mr > 0) {
 					var pEnd = matches[mr - 1].endX;
 					var cStart = matches[mr].x;
-					// Re-run dot detection between adjacent chars
 					var dotCheckS = Math.max(0, pEnd - 3);
 					var dotCheckE = Math.min(clean.width - 1, cStart + 2);
 					var hasDot = false;
@@ -796,7 +788,6 @@ export default class BuffReader {
 							var cy2 = readY + ddy;
 							if (cy2 >= 0 && cy2 < clean.height && dx2 >= 0 && dx2 < clean.width) {
 								if (clean.data[(cy2 * clean.width + dx2) * 4] > 200) {
-									// Check isolation
 									var ld = true, rd = true, ad = true;
 									if (dx2 > 0) { for (var d3=-1;d3<=0;d3++){var ly2=readY+d3;if(ly2>=0&&ly2<clean.height){if(clean.data[(ly2*clean.width+(dx2-1))*4]>200){ld=false;break;}}}}
 									if (dx2+1<clean.width) { for (var d4=-1;d4<=0;d4++){var ry2=readY+d4;if(ry2>=0&&ry2<clean.height){if(clean.data[(ry2*clean.width+(dx2+1))*4]>200){rd=false;break;}}}}
