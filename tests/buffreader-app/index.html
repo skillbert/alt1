@@ -3,45 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="alt1:configurl" content="appconfig.json">
-    <title>Buff Reader</title>
+    <title>Buff Reader Live Test</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #1a1a2e; color: #eee; font-family: 'Segoe UI', sans-serif; padding: 12px; }
+        body { background: #1a1a2e; color: #eee; font-family: 'Segoe UI', monospace; padding: 12px; font-size: 13px; }
         h1 { font-size: 16px; margin-bottom: 8px; color: #0f3460; background: #e94560; padding: 6px 12px; border-radius: 4px; }
-        .controls { margin-bottom: 10px; }
-        button { background: #0f3460; color: #eee; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; margin-right: 6px; }
+        .controls { margin-bottom: 10px; display: flex; gap: 6px; align-items: center; }
+        button { background: #0f3460; color: #eee; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; }
         button:hover { background: #16213e; }
         button.active { background: #e94560; }
         .status { font-size: 12px; color: #888; margin-bottom: 8px; }
-        .buff-list { display: flex; flex-wrap: wrap; gap: 6px; }
-        .buff-item { background: #16213e; border: 2px solid #0f3460; border-radius: 6px; padding: 8px 12px; min-width: 60px; text-align: center; }
-        .buff-item.debuff { border-color: #b40000; }
-        .buff-item .timer { font-size: 18px; font-weight: bold; color: #00ff88; }
-        .buff-item.debuff .timer { color: #ff4444; }
-        .buff-item .label { font-size: 10px; color: #888; }
         .error { color: #ff4444; font-size: 12px; }
+        .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; margin-bottom: 12px; }
+        .slot { background: #16213e; border: 2px solid #0f3460; border-radius: 6px; padding: 6px 8px; }
+        .slot.debuff { border-color: #b40000; }
+        .slot .current { font-size: 20px; font-weight: bold; color: #00ff88; }
+        .slot.debuff .current { color: #ff4444; }
+        .slot .label { font-size: 10px; color: #666; }
+        .slot .history { font-size: 10px; color: #555; margin-top: 2px; word-break: break-all; }
+        .slot .history .changed { color: #ff8800; }
+        .slot .history .stable { color: #00aa44; }
+        .slot.flickering { border-color: #ff8800; }
+        .stats { font-size: 11px; color: #888; margin-top: 8px; }
+        .stats span { margin-right: 12px; }
+        .stats .bad { color: #ff4444; }
+        .stats .good { color: #00ff88; }
+        label { font-size: 12px; color: #aaa; }
+        select, input { background: #0f3460; color: #eee; border: 1px solid #333; padding: 3px 6px; border-radius: 3px; }
     </style>
 </head>
 <body>
-    <h1>Alt1 Buff Reader</h1>
+    <h1>Buff Reader Live Test</h1>
     <div class="controls">
         <button id="btnFind">Find Buffs</button>
-        <button id="btnRead">Read Once</button>
-        <button id="btnAuto" class="">Auto Read</button>
+        <button id="btnAuto">Start</button>
         <button id="btnStop" style="display:none">Stop</button>
+        <label>Interval: <select id="interval">
+            <option value="100">100ms</option>
+            <option value="200">200ms</option>
+            <option value="300" selected>300ms</option>
+            <option value="500">500ms</option>
+        </select></label>
+        <button id="btnClear">Clear History</button>
+        <button id="btnCapture" style="background:#e94560">📸 Capture</button>
     </div>
     <div class="status" id="status">Click "Find Buffs" to locate the buff bar</div>
     <div class="error" id="error"></div>
-    <div class="buff-list" id="buffList"></div>
-    <div class="buff-list" id="debuffList" style="margin-top: 8px;"></div>
+    <div id="buffSection"><b style="color:#4a8">Buffs</b><div class="slot-grid" id="buffGrid"></div></div>
+    <div id="debuffSection"><b style="color:#a44">Debuffs</b><div class="slot-grid" id="debuffGrid"></div></div>
+    <div class="stats" id="stats"></div>
+    <div id="captures" style="margin-top:12px;"></div>
 
-    <script src="../base/index.js"></script>
-    <script src="../ocr/index.js"></script>
-    <script src="../buffs/index.js"></script>
+    <script src="../../dist/base/index.js"></script>
+    <script src="../../dist/ocr/index.js"></script>
+    <script src="../../dist/buffs/index.js"></script>
     <script>
         var BuffReader = (window.Buffs && window.Buffs.default) || (typeof require !== 'undefined' ? require('alt1/buffs').default : null);
 
-        // Register with Alt1
         if (window.alt1) {
             alt1.identifyAppUrl("./appconfig.json");
         }
@@ -49,6 +67,13 @@
         var buffReader = null;
         var debuffReader = null;
         var autoInterval = null;
+        var frameCount = 0;
+        var flickerCount = 0;
+
+        // History per slot: { reads: string[], lastValue: string }
+        var buffHistory = [];
+        var debuffHistory = [];
+        var HISTORY_LEN = 20;
 
         function setStatus(msg) { document.getElementById('status').textContent = msg; }
         function setError(msg) { document.getElementById('error').textContent = msg; }
@@ -69,63 +94,117 @@
             var dFound = debuffReader.find();
 
             var msg = '';
-            if (found) msg += 'Buffs found at [' + buffReader.pos.x + ',' + buffReader.pos.y + '] ' + buffReader.buffsize + 'px';
-            else msg += 'No buff bar found';
-            if (dFound) msg += ' | Debuffs at [' + debuffReader.pos.x + ',' + debuffReader.pos.y + ']';
+            if (found) msg += 'Buffs: [' + buffReader.pos.x + ',' + buffReader.pos.y + '] ' + buffReader.buffsize + 'px scale=' + buffReader.scale.toFixed(2);
+            else msg += 'No buff bar';
+            if (dFound) msg += ' | Debuffs: [' + debuffReader.pos.x + ',' + debuffReader.pos.y + ']';
             setStatus(msg);
+            buffHistory = [];
+            debuffHistory = [];
         }
+
+        function readSlot(buff, slotIdx, historyArr, isDebuff) {
+            var raw = '';
+            try {
+                var arg = buff.readArg('arg');
+                raw = arg.arg || '';
+            } catch (e) { raw = 'ERR'; }
+
+            // Ensure history slot exists
+            while (historyArr.length <= slotIdx) {
+                historyArr.push({ reads: [], lastValue: '', stableValue: '', confirmCount: 0 });
+            }
+
+            var h = historyArr[slotIdx];
+
+            // Temporal smoothing: require 2 consecutive identical reads to change displayed value.
+            // Single-frame glitches (dot loss, digit misread) are suppressed.
+            var text = raw;
+            if (raw === h.stableValue) {
+                // Same as stable — keep it, reset confirm
+                h.confirmCount = 0;
+            } else if (raw === h.lastRaw) {
+                // Same as previous raw — confirming a change
+                h.confirmCount++;
+                if (h.confirmCount >= 1) {
+                    h.stableValue = raw; // confirmed: adopt new value
+                }
+            } else {
+                // New value, not yet confirmed — hold stable
+                h.confirmCount = 0;
+            }
+            h.lastRaw = raw;
+            text = h.stableValue || raw;
+
+            var changed = text !== h.lastValue && h.lastValue !== '';
+            if (changed) flickerCount++;
+            h.lastValue = text;
+            h.reads.push(raw); // show raw in history for debugging
+            if (h.reads.length > HISTORY_LEN) h.reads.shift();
+
+            return { text: text, changed: changed, history: h.reads };
+        }
+
+        function renderSlot(data, idx, isDebuff) {
+            var uniqueVals = [...new Set(data.history)];
+            var isFlickering = uniqueVals.length > 2;
+            var cls = 'slot' + (isDebuff ? ' debuff' : '') + (isFlickering ? ' flickering' : '');
+            var histHtml = data.history.map(function(v, i) {
+                var prev = i > 0 ? data.history[i-1] : v;
+                var cls2 = v !== prev ? 'changed' : 'stable';
+                return '<span class="' + cls2 + '">' + (v || '-') + '</span>';
+            }).join(' ');
+            return '<div class="' + cls + '">' +
+                '<div class="current">' + (data.text || '-') + '</div>' +
+                '<div class="label">' + (isDebuff ? 'Debuff' : 'Buff') + ' ' + idx + '</div>' +
+                '<div class="history">' + histHtml + '</div>' +
+                '</div>';
+        }
+
+        var lastBuffs = null, lastDebuffs = null, lastBuffBuffer = null, lastDebuffBuffer = null;
 
         function readBuffs() {
             setError('');
-            var html = '';
-            var dhtml = '';
+            frameCount++;
+            var buffHtml = '', debuffHtml = '';
 
             if (buffReader && buffReader.pos) {
                 try {
-                    var buffs = buffReader.read();
+                    var rect = buffReader.getCaptRect();
+                    if (rect) lastBuffBuffer = A1lib.capture(rect.x, rect.y, rect.width, rect.height);
+                    var buffs = buffReader.read(lastBuffBuffer);
+                    lastBuffs = buffs;
                     if (buffs) {
                         for (var i = 0; i < buffs.length; i++) {
-                            var arg = buffs[i].readArg('arg');
-                            var time = buffs[i].readArg('time');
-                            var text = arg.arg || '';
-                            var timeVal = time.time;
-                            if (text || timeVal > 0) {
-                                html += '<div class="buff-item"><div class="timer">' + (text || timeVal + 's') + '</div><div class="label">Buff ' + i + '</div></div>';
-                            } else {
-                                html += '<div class="buff-item"><div class="timer">-</div><div class="label">Buff ' + i + '</div></div>';
-                            }
+                            var data = readSlot(buffs[i], i, buffHistory, false);
+                            buffHtml += renderSlot(data, i, false);
                         }
-                        setStatus('Read ' + buffs.length + ' buffs');
                     }
-                } catch (e) {
-                    setError('Buff read error: ' + e.message);
-                }
+                } catch (e) { setError('Buff: ' + e.message); }
             }
 
             if (debuffReader && debuffReader.pos) {
                 try {
-                    var debuffs = debuffReader.read();
+                    var rect2 = debuffReader.getCaptRect();
+                    if (rect2) lastDebuffBuffer = A1lib.capture(rect2.x, rect2.y, rect2.width, rect2.height);
+                    var debuffs = debuffReader.read(lastDebuffBuffer);
+                    lastDebuffs = debuffs;
                     if (debuffs) {
                         for (var i = 0; i < debuffs.length; i++) {
-                            var arg = debuffs[i].readArg('arg');
-                            var time = debuffs[i].readArg('time');
-                            var text = arg.arg || '';
-                            var timeVal = time.time;
-                            if (text || timeVal > 0) {
-                                dhtml += '<div class="buff-item debuff"><div class="timer">' + (text || timeVal + 's') + '</div><div class="label">Debuff ' + i + '</div></div>';
-                            } else {
-                                dhtml += '<div class="buff-item debuff"><div class="timer">-</div><div class="label">Debuff ' + i + '</div></div>';
-                            }
+                            var data = readSlot(debuffs[i], i, debuffHistory, true);
+                            debuffHtml += renderSlot(data, i, true);
                         }
-                        setStatus('Read ' + buffs.length + ' buffs, ' + debuffs.length + ' debuffs');
                     }
-                } catch (e) {
-                    setError('Debuff read error: ' + e.message);
-                }
+                } catch (e) { setError('Debuff: ' + e.message); }
             }
 
-            document.getElementById('buffList').innerHTML = html || '<div class="buff-item"><div class="timer">No buffs</div></div>';
-            document.getElementById('debuffList').innerHTML = dhtml || (debuffReader && debuffReader.pos ? '<div class="buff-item debuff"><div class="timer">No debuffs</div></div>' : '');
+            document.getElementById('buffGrid').innerHTML = buffHtml || '<div class="slot"><div class="current">-</div></div>';
+            document.getElementById('debuffGrid').innerHTML = debuffHtml || '';
+
+            var rate = frameCount > 0 ? (flickerCount / frameCount * 100).toFixed(1) : 0;
+            var cls = flickerCount > frameCount * 0.1 ? 'bad' : 'good';
+            document.getElementById('stats').innerHTML =
+                '<span>Frames: ' + frameCount + '</span>' +
+                '<span>Flickers: <span class="' + cls + '">' + flickerCount + ' (' + rate + '%)</span></span>';
         }
 
         function startAuto() {
@@ -133,11 +212,10 @@
                 findBuffs();
                 if (!buffReader || !buffReader.pos) return;
             }
+            var ms = parseInt(document.getElementById('interval').value);
             document.getElementById('btnAuto').classList.add('active');
             document.getElementById('btnStop').style.display = '';
-            autoInterval = setInterval(function() {
-                readBuffs();
-            }, 300);
+            autoInterval = setInterval(readBuffs, ms);
         }
 
         function stopAuto() {
@@ -148,9 +226,50 @@
         }
 
         document.getElementById('btnFind').onclick = findBuffs;
-        document.getElementById('btnRead').onclick = function() { if (!buffReader) findBuffs(); readBuffs(); };
         document.getElementById('btnAuto').onclick = startAuto;
         document.getElementById('btnStop').onclick = stopAuto;
+        document.getElementById('btnClear').onclick = function() {
+            buffHistory = []; debuffHistory = []; frameCount = 0; flickerCount = 0;
+            document.getElementById('buffGrid').innerHTML = '';
+            document.getElementById('debuffGrid').innerHTML = '';
+            document.getElementById('stats').innerHTML = '';
+        };
+
+        var captureCount = 0;
+        document.getElementById('btnCapture').onclick = function() {
+            var captures = [];
+
+            if (lastBuffBuffer) captures.push({ label: 'buff', buf: lastBuffBuffer });
+            if (lastDebuffBuffer) captures.push({ label: 'debuff', buf: lastDebuffBuffer });
+
+            if (captures.length === 0) { setError('No buffers yet — click Start first'); return; }
+
+            captureCount++;
+            var html = '<div style="margin-top:8px;border:1px solid #444;padding:8px;border-radius:4px;">';
+            html += '<b>Capture #' + captureCount + '</b><br>';
+
+            for (var c = 0; c < captures.length; c++) {
+                var cap = captures[c];
+                // Draw to canvas and get data URL
+                var canvas = document.createElement('canvas');
+                canvas.width = cap.buf.width;
+                canvas.height = cap.buf.height;
+                var ctx = canvas.getContext('2d');
+                var imgData = ctx.createImageData(cap.buf.width, cap.buf.height);
+                imgData.data.set(cap.buf.data);
+                ctx.putImageData(imgData, 0, 0);
+                var dataUrl = canvas.toDataURL('image/png');
+
+                html += '<div style="display:inline-block;margin:4px;vertical-align:top;">';
+                html += '<div style="font-size:10px;color:#888">' + cap.label + ' (' + cap.buf.width + 'x' + cap.buf.height + ')</div>';
+                html += '<img src="' + dataUrl + '" style="image-rendering:pixelated;width:' + (cap.buf.width * 3) + 'px;border:1px solid #555;">';
+                html += '<br><a href="' + dataUrl + '" download="capture_' + captureCount + '_' + cap.label + '.png" style="font-size:10px;color:#4af;">Download PNG</a>';
+                html += '</div>';
+            }
+            html += '</div>';
+            document.getElementById('captures').innerHTML = html + document.getElementById('captures').innerHTML;
+            setStatus('Captured #' + captureCount);
+        };
     </script>
 </body>
 </html>

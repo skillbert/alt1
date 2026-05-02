@@ -69,12 +69,12 @@ export class AntiAlias {
 	 * while keeping text (~200-210 luminance).
 	 * Also rejects highly saturated pixels (colored backgrounds).
 	 */
-	static cleanBuffer(buffer: ImageData): ImageData {
+	static cleanBuffer(buffer: ImageData, threshold?: number): ImageData {
 		var clean = new ImageData(buffer.width, buffer.height);
 		var src = buffer.data;
 		var dst = clean.data;
 		// Threshold * 3 to avoid division: (r+g+b)/3 > T  ⟹  r+g+b > T*3
-		var lumThresh3 = AntiAlias.LUM_THRESHOLD * 3;
+		var lumThresh3 = (threshold != null ? threshold : AntiAlias.LUM_THRESHOLD) * 3;
 		// Use Uint32Array view for fast 4-byte pixel writes
 		var dst32 = new Uint32Array(dst.buffer);
 		var white = 0xFFFFFFFF; // RGBA all 255
@@ -90,62 +90,47 @@ export class AntiAlias {
 	}
 
 	/**
-	 * Adaptive cleaning for a specific icon region.
-	 * Finds the brightest gray pixels (text) and sets threshold relative to them.
-	 * This handles icons with bright backgrounds that contaminate fixed-threshold cleaning.
+	 * Computes an adaptive luminance threshold for a specific icon.
+	 * Samples the artwork area (non-text, non-border portion) to estimate
+	 * background brightness. For dark backgrounds the standard threshold works;
+	 * for medium-bright backgrounds we raise the threshold above the background
+	 * so gray artwork pixels don't leak through as false text.
 	 */
-	static cleanIconRegion(buffer: ImageData, ox: number, oy: number, iconSize: number, gridSize: number): ImageData {
-		var clean = new ImageData(buffer.width, buffer.height);
+	static getIconThreshold(buffer: ImageData, iconX: number, iconY: number, iconSize: number): number {
 		var src = buffer.data;
-		var dst = clean.data;
+		var w = buffer.width;
+		var h = buffer.height;
 
-		// First pass: find the peak gray luminance in the text area of this icon
-		var textTop = oy - 10;
-		var textBot = oy + 1;
-		var textLeft = ox;
-		var textRight = Math.min(ox + iconSize - 2, buffer.width);
-		if (textTop < 0) textTop = 0;
+		// Artwork region: skip 1px border, scan top ~50% of icon (well above text zone)
+		var y0 = iconY + 1; if (y0 < 0) y0 = 0;
+		var y1 = iconY + Math.round(iconSize * 0.50); if (y1 > h) y1 = h;
+		var x0 = iconX + 1; if (x0 < 0) x0 = 0;
+		var x1 = iconX + iconSize - 1; if (x1 > w) x1 = w;
 
-		var lumValues: number[] = [];
-		for (var py = textTop; py < textBot; py++) {
-			for (var px = textLeft; px < textRight; px++) {
-				if (px < 0 || px >= buffer.width || py < 0 || py >= buffer.height) continue;
-				var si = (py * buffer.width + px) * 4;
-				var r = src[si], g = src[si + 1], b = src[si + 2];
-				var lum = (r + g + b) / 3;
-				var sat = Math.max(r, g, b) - Math.min(r, g, b);
-				if (sat < 60 && lum > 130) {
-					lumValues.push(lum);
+		var bgLums: number[] = [];
+		for (var py = y0; py < y1; py++) {
+			var rowOff = py * w;
+			for (var px = x0; px < x1; px++) {
+				var i = (rowOff + px) << 2;
+				var r = src[i], g = src[i + 1], b = src[i + 2];
+				var maxC = r > g ? (r > b ? r : b) : (g > b ? g : b);
+				var minC = r < g ? (r < b ? r : b) : (g < b ? g : b);
+				if (maxC - minC < 60) {
+					bgLums.push((r + g + b) / 3);
 				}
 			}
 		}
 
-		// Determine adaptive threshold: 75% of peak brightness
-		var adaptiveThreshold = AntiAlias.LUM_THRESHOLD;
-		if (lumValues.length > 3) {
-			lumValues.sort((a, b) => b - a);
-			// Use median of top 30% for stable peak estimate (avoids pure-white outliers)
-			var topIdx = Math.max(0, Math.floor(lumValues.length * 0.3));
-			var peakLum = lumValues[topIdx];
-			// Threshold at 78% of peak, capped at 175 to avoid over-filtering
-			adaptiveThreshold = Math.min(175, Math.max(AntiAlias.LUM_THRESHOLD, peakLum * 0.78));
-		}
+		if (bgLums.length < 5) return AntiAlias.LUM_THRESHOLD;
 
-		// Second pass: apply adaptive threshold to the full buffer
-		for (var i = 0; i < src.length; i += 4) {
-			var r = src[i], g = src[i + 1], b = src[i + 2];
-			var lum = (r + g + b) / 3;
-			var maxC = Math.max(r, g, b);
-			var minC = Math.min(r, g, b);
-			var saturation = maxC - minC;
-			if (lum > adaptiveThreshold && saturation < 60) {
-				dst[i] = dst[i + 1] = dst[i + 2] = 255;
-			} else {
-				dst[i] = dst[i + 1] = dst[i + 2] = 0;
-			}
-			dst[i + 3] = 255;
-		}
-		return clean;
+		bgLums.sort((a, b) => a - b);
+		// Use median (P50) — robust to text pixel outliers that leak into the scan area.
+		// Only a genuinely bright background (median > 130) triggers adaptation.
+		var bgMedian = bgLums[Math.floor(bgLums.length * 0.50)];
+
+		if (bgMedian < 130) return AntiAlias.LUM_THRESHOLD;
+
+		return Math.min(190, Math.max(AntiAlias.LUM_THRESHOLD, bgMedian + 20));
 	}
 
 	/**
@@ -575,6 +560,68 @@ export default class BuffReader {
 	}
 
 	/**
+	 * Match a character using canblend() on the raw (uncleaned) buffer.
+	 * Uses the font's actual alpha values (from PNG transparency) to provide
+	 * per-pixel tolerance: edge pixels with low alpha accept more background
+	 * blending, while core pixels with high alpha demand near-white.
+	 */
+	static matchCharAtRaw(buffer: ImageData, x: number, y: number, maxPenalty = 3000, charScale = 1.0): { chr: string, score: number, width: number } | null {
+		var d = buffer.data;
+		var w = buffer.width;
+		var h = buffer.height;
+		var bestChr = "";
+		var bestPenalty = maxPenalty;
+		var bestWidth = 0;
+		var step = font.shadow ? 4 : 3;
+		var baseY = y - Math.round(font.basey * charScale);
+		var isUnit = charScale === 1.0;
+
+		for (var ci = 0; ci < font.chars.length; ci++) {
+			var fc = font.chars[ci];
+			if (fc.secondary) continue;
+
+			var penalty = 0;
+			var pixels = fc.pixels;
+			var tested = 0;
+			var aborted = false;
+
+			for (var pi = 0; pi < pixels.length; pi += step) {
+				var bx = isUnit ? x + pixels[pi] : x + Math.round(pixels[pi] * charScale);
+				var by = isUnit ? baseY + pixels[pi + 1] : baseY + Math.round(pixels[pi + 1] * charScale);
+
+				if (bx < 0 || bx >= w || by < 0 || by >= h) continue;
+
+				var idx = (by * w + bx) << 2;
+				var alpha = pixels[pi + 2] / 255;
+
+				// Use 255 as expected color: the grayscale clean buffer has white (255)
+				// for core text pixels and intermediate values for edge pixels.
+				if (font.shadow) {
+					var lum = pixels[pi + 3] / 255;
+					penalty += OCR.canblend(d[idx], d[idx + 1], d[idx + 2], 255 * lum, 255 * lum, 255 * lum, alpha);
+				} else {
+					penalty += OCR.canblend(d[idx], d[idx + 1], d[idx + 2], 255, 255, 255, alpha);
+				}
+				tested++;
+
+				if (penalty > maxPenalty) { aborted = true; break; }
+			}
+
+			if (aborted || tested < 5) continue;
+
+			if (penalty < bestPenalty) {
+				bestPenalty = penalty;
+				bestChr = fc.chr;
+				bestWidth = fc.width;
+			}
+		}
+
+		if (!bestChr) return null;
+		var score = Math.max(0, 1 - bestPenalty / maxPenalty);
+		return { chr: bestChr, score: score, width: bestWidth };
+	}
+
+	/**
 	 * Reads timer text from a buff icon. Uses column analysis to find text positions,
 	 * then matches characters using percentage-based scoring on the OCR font templates.
 	 * Works at any UI scale.
@@ -591,7 +638,8 @@ export default class BuffReader {
 		var iconY = oy - Math.round(23 * scale);
 		var iconSize = Math.round(27 * scale);
 		var bright = AntiAlias.isBrightIcon(buffer, iconX, iconY, iconSize);
-		var clean = bright ? AntiAlias.cleanBufferBright(buffer) : AntiAlias.cleanBuffer(buffer);
+		var adaptiveThresh = bright ? AntiAlias.LUM_THRESHOLD : AntiAlias.getIconThreshold(buffer, iconX, iconY, iconSize);
+		var clean = bright ? AntiAlias.cleanBufferBright(buffer) : AntiAlias.cleanBuffer(buffer, adaptiveThresh);
 
 		// Only scan at the text baseline (dy=0)
 		for (var dy = 0; dy < 1; dy += 1) {
@@ -613,12 +661,33 @@ export default class BuffReader {
 				var bestMatchX = searchX;
 
 				var brightMinMatch = bright ? 0.80 : 0.60;
+				// For non-bright 2nd+ chars, bias toward gap>=2 (room for decimal dot).
+				// On debuff icons the correct digit is at gap=2 but scores lower than
+				// "7" at gap=0 due to anti-aliasing losses. A 0.20 bonus fixes this
+				// while not affecting buff icons where gap=0 scores are much higher.
+				var prevEndX = matches.length > 0 ? matches[matches.length - 1].endX : -99;
+				var useGapBias = !bright && matches.length > 0;
+				var bestEffective = -1;
 				for (var sx = searchX; sx < searchX + searchW; sx++) {
 					for (var sy = readY - 2; sy <= readY + 2; sy++) {
+						// Primary: binary matchCharAt on cleaned buffer
 						var m = BuffReader.matchCharAt(clean, sx, sy, brightMinMatch, matchScale);
-						if (m && (!bestMatch || m.score > bestMatch.score)) {
-							bestMatch = m;
-							bestMatchX = sx;
+						// Fallback for non-bright: if binary match fails, try OCR's native
+						// readChar on raw buffer (canblend + bonus normalization)
+						if (!m && !bright) {
+							var rc = OCR.readChar(buffer, font, [210, 210, 210], sx, sy, false);
+							if (rc) {
+								m = { chr: rc.chr, score: 1 - rc.sizescore / 400, width: rc.basechar.width };
+							}
+						}
+						if (m) {
+							var gap = sx - prevEndX;
+							var effective = m.score + (useGapBias && gap >= 2 ? 0.20 : 0);
+							if (effective > bestEffective) {
+								bestEffective = effective;
+								bestMatch = m;
+								bestMatchX = sx;
+							}
 						}
 					}
 				}
@@ -718,10 +787,39 @@ export default class BuffReader {
 							dotFound = true;
 						}
 					}
+					// Bounded raw-buffer dot fallback for sub-threshold dot pixels.
+					// Only fires when gap between chars is 2-6px (real dots create space;
+					// adjacent chars like "18" have gap <=1). Uses lower lum threshold on
+					// raw buffer since the dot pixel fluctuates near the cleaning threshold.
+					// Raw-buffer dot fallback: when gap is 2-6px and raw lum > 115,
+					// a dot likely exists. Skip full isolation check — at gap=2 the
+					// characters' edge pixels fail the left/right isolation, but the
+					// gap width itself is evidence of a dot. Only check above-dark
+					// to avoid matching vertical strokes.
+					if (!dotFound && !bright) {
+						var gapWidth = currStart - prevEnd;
+						if (gapWidth >= 1 && gapWidth <= 6) {
+							for (var dotXr = dotCheckStart; dotXr <= dotCheckEnd && !dotFound; dotXr++) {
+								for (var dyr = -1; dyr <= 0; dyr++) {
+									var cyr = readY + dyr;
+									if (cyr < 0 || cyr >= buffer.height || dotXr < 0 || dotXr >= buffer.width) continue;
+									var rawI = (cyr * buffer.width + dotXr) * 4;
+									var rawLum = (buffer.data[rawI] + buffer.data[rawI + 1] + buffer.data[rawI + 2]) / 3;
+									if (rawLum < 115) continue;
+									// Only check above-dark (no vertical stroke)
+									var ayr = readY - 3;
+									var aboveDarkR = true;
+									if (ayr >= 0 && clean.data[(ayr * clean.width + dotXr) << 2] > 200) aboveDarkR = false;
+									if (aboveDarkR) { dotFound = true; break; }
+								}
+							}
+						}
+					}
 					if (dotFound) { text += "."; }
 				}
 				text += matches[mi].chr;
 			}
+
 
 			// Smart fallback: "3" vs "8" — check pixels unique to "8"
 			// Only check the LAST "3" before a suffix (m/K/%) or end of text
@@ -788,6 +886,25 @@ export default class BuffReader {
 									if (dx2+1<clean.width) { for (var d4=-1;d4<=0;d4++){var ry2=readY+d4;if(ry2>=0&&ry2<clean.height){if(clean.data[(ry2*clean.width+(dx2+1))<<2]>200){rd=false;break;}}}}
 									var ay = readY - 3; if (ay>=0 && clean.data[(ay*clean.width+dx2)<<2]>200) ad=false;
 									if (ld && rd && ad) { hasDot = true; break; }
+								}
+							}
+						}
+					}
+					// Raw-buffer dot fallback (same as first pass — above-dark only)
+					if (!hasDot && !bright) {
+						var gapW = cStart - pEnd;
+						if (gapW >= 2 && gapW <= 6) {
+							for (var dxr2 = dotCheckS; dxr2 <= dotCheckE && !hasDot; dxr2++) {
+								for (var ddyr2 = -1; ddyr2 <= 0; ddyr2++) {
+									var cyr2 = readY + ddyr2;
+									if (cyr2 < 0 || cyr2 >= buffer.height || dxr2 < 0 || dxr2 >= buffer.width) continue;
+									var rawI2 = (cyr2 * buffer.width + dxr2) * 4;
+									var rawLum2 = (buffer.data[rawI2] + buffer.data[rawI2 + 1] + buffer.data[rawI2 + 2]) / 3;
+									if (rawLum2 < 115) continue;
+									var ayr2 = readY - 3;
+									var aboveDkR2 = true;
+									if (ayr2 >= 0 && clean.data[(ayr2 * clean.width + dxr2) << 2] > 200) aboveDkR2 = false;
+									if (aboveDkR2) { hasDot = true; break; }
 								}
 							}
 						}
@@ -896,6 +1013,7 @@ export default class BuffReader {
 				}
 			}
 
+
 			if (text) { lines.push(text); }
 		}
 
@@ -923,11 +1041,11 @@ export default class BuffReader {
 		if (type == "arg") {
 			r.arg = str;
 		} else {
-			var rm;
-			if (rm = str.match(/^(\d+)hr/i)) { r.time = +rm[1] * 60 * 60; }
-			else if (rm = str.match(/^(\d+)m/i)) { r.time = +rm[1] * 60; }
-			else if (rm = str.match(/^(\d+\.\d+)/)) { r.time = +rm[1]; }
-			else if (rm = str.match(/^(\d+)/)) { r.time = +rm[1]; }
+			var rmatch;
+			if (rmatch = str.match(/^(\d+)hr/i)) { r.time = +rmatch[1] * 60 * 60; }
+			else if (rmatch = str.match(/^(\d+)m/i)) { r.time = +rmatch[1] * 60; }
+			else if (rmatch = str.match(/^(\d+\.\d+)/)) { r.time = +rmatch[1]; }
+			else if (rmatch = str.match(/^(\d+)/)) { r.time = +rmatch[1]; }
 		}
 		return r;
 	}

@@ -26,6 +26,13 @@ let tests = webpackImages({
 	bright10: import("./imgs/10bright.data.png"),
 	debuff28: import("./imgs/2.8bright.data.png"),
 	debuff30: import("./imgs/debuff30.data.png"),
+	cap1: import("./imgs/capture_1_debuff.data.png"),
+	cap2: import("./imgs/capture_2_debuff.data.png"),
+	cap3: import("./imgs/capture_3_debuff.data.png"),
+	cap4: import("./imgs/capture_4_debuff.data.png"),
+	cap5: import("./imgs/capture_5_debuff.data.png"),
+	cap6: import("./imgs/capture_6_debuff.data.png"),
+	cap7: import("./imgs/capture_7_debuff.data.png"),
 });
 
 // Expected values for each test image
@@ -104,6 +111,34 @@ let expected: { [key: string]: Expected } = {
 	debuff30: {
 		buffs: ["50", null],
 		debuffs: ["3"] // TODO: should read "3.0" — the "0" renders as "9" in font template matching
+	},
+	cap1: {
+		buffs: [],
+		debuffs: ["2.0"]
+	},
+	cap2: {
+		buffs: [],
+		debuffs: ["2.0"]
+	},
+	cap3: {
+		buffs: [],
+		debuffs: ["2.0"]
+	},
+	cap4: {
+		buffs: [],
+		debuffs: ["2.0"]
+	},
+	cap5: {
+		buffs: [],
+		debuffs: ["3.5"]
+	},
+	cap6: {
+		buffs: [],
+		debuffs: ["3.5"]
+	},
+	cap7: {
+		buffs: [],
+		debuffs: ["3.5"]
 	}
 };
 
