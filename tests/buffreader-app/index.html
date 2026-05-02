@@ -116,25 +116,8 @@
 
             var h = historyArr[slotIdx];
 
-            // Temporal smoothing: require 2 consecutive identical reads to change displayed value.
-            // Single-frame glitches (dot loss, digit misread) are suppressed.
+            // Direct raw OCR output — no temporal smoothing
             var text = raw;
-            if (raw === h.stableValue) {
-                // Same as stable — keep it, reset confirm
-                h.confirmCount = 0;
-            } else if (raw === h.lastRaw) {
-                // Same as previous raw — confirming a change
-                h.confirmCount++;
-                if (h.confirmCount >= 1) {
-                    h.stableValue = raw; // confirmed: adopt new value
-                }
-            } else {
-                // New value, not yet confirmed — hold stable
-                h.confirmCount = 0;
-            }
-            h.lastRaw = raw;
-            text = h.stableValue || raw;
-
             var changed = text !== h.lastValue && h.lastValue !== '';
             if (changed) flickerCount++;
             h.lastValue = text;

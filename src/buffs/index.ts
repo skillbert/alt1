@@ -12,6 +12,10 @@ var imgs = webpackImages({
 var font = require("../fonts/aa_8px_buff_digits.fontmeta.json");
 font.maxspaces = 1;
 
+// Low-threshold font for OCR.readChar fallback — includes edge pixels with real alpha values
+var fontLow = require("../fonts/aa_8px_buff_digits_low.fontmeta.json");
+fontLow.maxspaces = 1;
+
 function negmod(a: number, b: number) {
 	return ((a % b) + b) % b;
 }
@@ -160,7 +164,20 @@ export class AntiAlias {
 				if (r + g + b > 450 && maxC - minC < 60) artworkPixels++;
 			}
 		}
-		return artworkPixels > 50;
+		if (artworkPixels <= 50) return false;
+		// Check border color: debuff icons (red border) should never be treated as bright,
+		// even if their artwork has many gray pixels. Sample top border row.
+		var redBorder = 0, greenBorder = 0;
+		for (var bpx = x0; bpx < x1; bpx++) {
+			var bi = (oy * w + bpx) << 2;
+			var br = src[bi], bg = src[bi + 1];
+			if (br > 100 && br > bg * 2) redBorder++;
+			if (bg > 50 && bg > br) greenBorder++;
+		}
+		// Only suppress bright for moderate artworkPixels (50-100) — above 100 the icon
+		// genuinely has bright artwork that needs shadow-mask cleaning even on debuffs
+		if (redBorder > greenBorder && redBorder > 3 && artworkPixels < 100) return false;
+		return true;
 	}
 
 	/**
@@ -642,6 +659,7 @@ export default class BuffReader {
 		var clean = bright ? AntiAlias.cleanBufferBright(buffer) : AntiAlias.cleanBuffer(buffer, adaptiveThresh);
 
 		// Only scan at the text baseline (dy=0)
+		var topoConverted = false;
 		for (var dy = 0; dy < 1; dy += 1) {
 			var readY = oy + dy;
 			if (readY < 0 || readY >= buffer.height) continue;
@@ -654,7 +672,7 @@ export default class BuffReader {
 			var maxX = Math.min(ox + Math.round(22 * matchScale), clean.width - Math.round(6 * matchScale));
 			var misses = 0;
 
-			var maxMatches = bright ? 2 : 4;
+			var maxMatches = bright ? 3 : 4;
 			while (searchX < maxX && misses < 3 && matches.length < maxMatches) {
 				// Try matchCharAt at positions in the search window
 				var bestMatch: ReturnType<typeof BuffReader.matchCharAt> = null;
@@ -672,12 +690,29 @@ export default class BuffReader {
 					for (var sy = readY - 2; sy <= readY + 2; sy++) {
 						// Primary: binary matchCharAt on cleaned buffer
 						var m = BuffReader.matchCharAt(clean, sx, sy, brightMinMatch, matchScale);
-						// Fallback for non-bright: if binary match fails, try OCR's native
-						// readChar on raw buffer (canblend + bonus normalization)
-						if (!m && !bright) {
-							var rc = OCR.readChar(buffer, font, [210, 210, 210], sx, sy, false);
+						// For non-bright 2nd+ chars: also try OCR readChar with low-threshold
+						// font on raw buffer. The low font has edge pixels with real alpha that
+						// canblend uses to distinguish "0" from "9". Pick the better result.
+						if (!bright && matches.length > 0) {
+							var rc = OCR.readChar(buffer, fontLow, [210, 210, 210], sx, sy, false);
 							if (rc) {
-								m = { chr: rc.chr, score: 1 - rc.sizescore / 400, width: rc.basechar.width };
+								var rcScore = 1 - rc.sizescore / 400;
+								var rcGap = sx - matches[matches.length - 1].endX;
+								// Apply same gap bias as binary matcher
+								var rcEffective = rcScore + (rcGap >= 2 ? 0.20 : 0);
+								var mEffective = m ? m.score + (useGapBias && (sx - prevEndX) >= 2 ? 0.20 : 0) : -1;
+								if (rcEffective > mEffective) {
+									m = { chr: rc.chr, score: rcScore, width: rc.basechar.width };
+								}
+							}
+						} else if (!bright) {
+							// First char: also try OCR readChar competitively, pick better
+							var rc2 = OCR.readChar(buffer, fontLow, [210, 210, 210], sx, sy, false);
+							if (rc2) {
+								var rcScore2 = 1 - rc2.sizescore / 400;
+								if (!m || rcScore2 > m.score) {
+									m = { chr: rc2.chr, score: rcScore2, width: rc2.basechar.width };
+								}
 							}
 						}
 						if (m) {
@@ -867,6 +902,25 @@ export default class BuffReader {
 				}
 			}
 
+			// 6→3 disambiguation: artwork contamination fills "3"'s open left side,
+			// making it look like "6"'s closed loop. Re-check with shadow-mask cleaning
+			// which strips artwork pixels that lack nearby text shadows.
+			if (matches.length > 0 && matches[0].chr === "6" && !bright) {
+				var m6 = matches[0];
+				var cleanShadow6 = AntiAlias.cleanBufferBright(buffer);
+				var best3s = 0, best6s = 0;
+				for (var sy6 = readY - 2; sy6 <= readY + 2; sy6++) {
+					var ms6 = BuffReader.matchCharAt(cleanShadow6, m6.x, sy6, 0.40, matchScale);
+					if (ms6) {
+						if (ms6.chr === "3" && ms6.score > best3s) best3s = ms6.score;
+						if (ms6.chr === "6" && ms6.score > best6s) best6s = ms6.score;
+					}
+				}
+				if (best3s > best6s) {
+					matches[0].chr = "3";
+				}
+			}
+
 			// Rebuild text from matches after 3→8 conversions, re-inserting dots
 			text = "";
 			for (var mr = 0; mr < matches.length; mr++) {
@@ -914,10 +968,83 @@ export default class BuffReader {
 				text += matches[mr].chr;
 			}
 
+			// Topological 9→0 disambiguation: "0" has an enclosed dark interior (hole)
+			// that "9" doesn't (tail creates opening). Flood-fill from bounding box
+			// edges and count unreachable dark pixels. Immune to anti-aliasing.
+			// Only run on bare decimal patterns (no suffix like m/K/%)
+			var hasTopoSuffix = false;
+			for (var tsi = 0; tsi < matches.length; tsi++) {
+				if (matches[tsi].chr === "m" || matches[tsi].chr === "K" || matches[tsi].chr === "%") hasTopoSuffix = true;
+			}
+			if (matches.length >= 2 && !hasTopoSuffix && matches[1].chr === "9") {
+				var m9t = matches[1];
+				var cLeft = m9t.x;
+				var cTop = readY - Math.round(font.basey * matchScale);
+				var cW = m9t.endX - m9t.x;
+				var cH = Math.round(font.height * matchScale);
+				if (cW > 0 && cH > 0 && cLeft >= 0 && cTop >= 0 && cLeft + cW <= clean.width && cTop + cH <= clean.height) {
+					// Extract binary grid from cleaned buffer (1=bright, 0=dark)
+					var tGrid = new Uint8Array(cW * cH);
+					for (var tgy = 0; tgy < cH; tgy++) {
+						for (var tgx = 0; tgx < cW; tgx++) {
+							if (clean.data[((cTop + tgy) * clean.width + (cLeft + tgx)) << 2] > 200) {
+								tGrid[tgy * cW + tgx] = 1;
+							}
+						}
+					}
+					// Flood-fill from all edges (mark exterior dark pixels as 2)
+					var tQueue: number[] = [];
+					var tSeed = function(tr: number, tc: number) {
+						if (tr >= 0 && tr < cH && tc >= 0 && tc < cW && tGrid[tr * cW + tc] === 0) {
+							tGrid[tr * cW + tc] = 2;
+							tQueue.push(tr, tc);
+						}
+					};
+					for (var te = 0; te < cW; te++) { tSeed(0, te); tSeed(cH - 1, te); }
+					for (var te2 = 0; te2 < cH; te2++) { tSeed(te2, 0); tSeed(te2, cW - 1); }
+					var tqi = 0;
+					while (tqi < tQueue.length) {
+						var tr = tQueue[tqi++], tc = tQueue[tqi++];
+						tSeed(tr - 1, tc); tSeed(tr + 1, tc); tSeed(tr, tc - 1); tSeed(tr, tc + 1);
+					}
+					// Count enclosed dark pixels and compute vertical centroid
+					// "0": large centered hole (centroid relY ~0.45-0.55)
+					// "9": small or no hole, if any it's in upper third (centroid relY <0.35)
+					var enclosed = 0;
+					var centroidSumY = 0;
+					for (var ti = 0; ti < tGrid.length; ti++) {
+						if (tGrid[ti] === 0) {
+							enclosed++;
+							centroidSumY += Math.floor(ti / cW); // row index
+						}
+					}
+					var centroidRelY = enclosed > 0 ? (centroidSumY / enclosed) / cH : 0;
+					// Require both: enough enclosed pixels AND centroid in middle portion
+					if (enclosed >= 3 && centroidRelY > 0.38) {
+						topoConverted = true;
+						matches[1] = { chr: "0", x: m9t.x, endX: m9t.endX, score: m9t.score };
+						// Rebuild text with "0"
+						text = "";
+						for (var tri = 0; tri < matches.length; tri++) {
+							if (tri > 0) {
+								var trGap = matches[tri].x - matches[tri - 1].endX;
+								if (trGap >= 1) text += ".";
+							}
+							text += matches[tri].chr;
+						}
+					}
+				}
+			}
+
 			// Smart fallback: 3+ digits followed by another digit = likely "Xm" misread
 			// When 3 digits + "m", the "m" at icon edge often loses to a digit
 			if (/^\d{4}$/.test(text)) {
 				text = text.slice(0, 3) + "m";
+			}
+			// Smart fallback: "XX.Y" or "XXX.Y" = likely "XXm" with "m" misread as ".digit"
+			// Valid decimal timers are always X.Y (single digit before dot), never 2+ digits before dot
+			if (/^\d{2,3}\.\d$/.test(text)) {
+				text = text.replace(/\.\d$/, "m");
 			}
 			// Smart fallback: decimal X.7 or X.9 → check if "3" or "8" matches
 			if (/^\d+\.[79]$/.test(text) && matches.length >= 2) {
@@ -1020,13 +1147,10 @@ export default class BuffReader {
 		var r = { time: 0, arg: "" };
 		if (type == "timearg" && lines.length > 1) { r.arg = lines.pop()!; }
 		var str = lines.join("");
-		// Bright icon cleanup: strip dots and non-digit chars — bright timers are integer stack counts (1-10)
-		if (bright) {
+		// Bright icon cleanup: strip dots and non-digit chars when no suffix or topology conversion.
+		// Shadow-mask cleaning is the primary noise defense; this just strips stray non-digits.
+		if (bright && !topoConverted && !/[mK%]/.test(str) && !/hr/.test(str)) {
 			str = str.replace(/[^0-9]/g, '');
-			// Only "10" is a valid 2-digit bright value; any other 2+ digit result is noise
-			if (str.length > 1 && str[0] !== "1") {
-				str = str[0];
-			}
 		}
 		// Clean up: decimal timers are always X.Y (1 digit after dot)
 		str = str.replace(/^(\d+\.\d)\d*$/, '$1');
@@ -1038,6 +1162,16 @@ export default class BuffReader {
 		str = str.replace(/^(\d+[mhrK%]).*$/, '$1');
 		// Clean up: strip trailing non-digit non-suffix chars
 		str = str.replace(/^(\d+(?:\.\d)?(?:m|hr|K|%)?).*$/, '$1');
+		// Fix "m" misread as digit: XX.Y or XXX.Y → XXm/XXXm
+		// Valid decimal timers are always X.Y (single digit before dot), never 2+ digits
+		if (/^\d{2,3}\.\d$/.test(str)) {
+			str = str.replace(/\.\d$/, "m");
+		}
+		// Fix "m" misread as digit: 3 bare digits → XXm
+		// Buff values never show 3-digit integers without a suffix
+		if (/^\d{3}$/.test(str)) {
+			str = str.slice(0, 2) + "m";
+		}
 		if (type == "arg") {
 			r.arg = str;
 		} else {
