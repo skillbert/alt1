@@ -547,7 +547,7 @@ export function captureStream(x: number, y: number, width: number, height: numbe
 					state.framenr++;
 				}
 			}
-		} catch (e) {
+		} catch (e: any) {
 			if (!state.closed) {
 				reader.close();
 				if (errorcb) { errorcb(e); }

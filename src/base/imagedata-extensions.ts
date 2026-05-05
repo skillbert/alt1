@@ -3,6 +3,10 @@ import * as nodeimports from "./nodepolyfill";
 
 declare global {
 	interface ImageData {
+		readonly data: Uint8ClampedArray<ArrayBuffer>;
+		readonly width: number;
+		readonly height: number;
+
 		putImageData(buf: ImageData, cx: number, cy: number): void;
 		pixelOffset(x: number, y: number): number;
 		getPixelHash(rect: a1lib.RectLike): number;
@@ -49,22 +53,23 @@ export var ImageData: ImageDataConstr;
 
 
 (function () {
-	var globalvar = (typeof self != "undefined" ? self : (typeof (global as any) != "undefined" ? (global as any) : null)) as any;
-	var filltype = typeof globalvar.ImageData == "undefined";
+	var filltype = typeof globalThis.ImageData == "undefined";
 	var fillconstr = filltype;
 	if (!filltype) {
-		var oldconstr = globalvar.ImageData;
+		var oldconstr = globalThis.ImageData;
 		try {
 			let data = new Uint8ClampedArray(4);
 			data[0] = 1;
-			let a = new globalvar.ImageData(data, 1, 1);
+			let a = new globalThis.ImageData(data, 1, 1);
 			fillconstr = a.data[0] != 1;
 		} catch (e) {
 			fillconstr = true;
 		}
 	}
 
-	if (fillconstr) {
+	if (!fillconstr) {
+		ImageData = globalThis.ImageData as any;
+	} else {
 		var constr = function ImageDataShim(this: any) {
 			var i = 0;
 			var data = (arguments[i] instanceof Uint8ClampedArray ? arguments[i++] : null);
@@ -95,11 +100,9 @@ export var ImageData: ImageDataConstr;
 			// 	return new (Function.prototype.bind.apply(oldconstr, [null,...arguments]));
 			// }
 		}
-		if (!filltype) { constr.prototype = globalvar.ImageData.prototype; }
-		globalvar.ImageData = constr;
+		if (!filltype) { constr.prototype = globalThis.ImageData.prototype; }
+		globalThis.ImageData = constr as any;
 		ImageData = constr as any;
-	} else {
-		ImageData = globalvar.ImageData;
 	}
 })();
 
@@ -211,9 +214,8 @@ ImageData.prototype.getColorDifference = function (x, y, r, g, b, a = 255) {
 	return Math.abs(this.data[i] - r) + Math.abs(this.data[i + 1] - g) + Math.abs(this.data[i + 2] - b) * a / 255;
 }
 
-ImageData.prototype.setPixel = function (x, y, ...color) {
-	var r, g, b, a;
-	var [r, g, b, a] = (Array.isArray(color[0]) ? color[0] : color);
+ImageData.prototype.setPixel = function (x, y, rin, gin?, bin?, ain?) {
+	var [r, g, b, a] = (Array.isArray(rin) ? rin : [rin, gin, bin, ain]) as [number, number, number, number];
 	var i = x * 4 + y * 4 * this.width;
 	this.data[i] = r;
 	this.data[i + 1] = g;
@@ -234,7 +236,7 @@ ImageData.prototype.toFileBytes = function (this: ImageData, format: "image/png"
 		return new Promise<ArrayBuffer>(d => this.toImage().toBlob(b => {
 			var r = new FileReader();
 			r.readAsArrayBuffer(b!);
-			r.onload = () => d(new Uint8Array(r.result as ArrayBuffer));
+			r.onload = () => d(new Uint8Array(r.result as ArrayBuffer).buffer);
 		}, format, quality));
 	} else {
 		return nodeimports.imageDataToFileBytes(this, format, quality);

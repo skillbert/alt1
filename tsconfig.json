@@ -3,6 +3,9 @@
 		"rootDir": "./src",
 		"moduleResolution": "node16",
 		"module": "Node16",
+		"types": [
+			"node"
+		],
 		"lib": [
 			"es6",
 			"dom"
@@ -21,9 +24,9 @@
 		"alwaysStrict": true,
 		"jsx": "react",
 		"allowJs": false,
-		"baseUrl": ".",
 		"strictNullChecks": true,
 		"strictPropertyInitialization": false,
+		"noImplicitAny": false,
 		"experimentalDecorators": true,
 		"sourceMap": true,
 		"declaration": true,
@@ -37,9 +40,7 @@
 	],
 	"exclude": [
 		"node_modules",
-		"./types/*",
 		"./scripts/**",
-		"**/webpack.config.ts",
 		"./dist/**",
 		"tests"
 	],

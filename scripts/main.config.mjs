@@ -40,7 +40,7 @@ export default (env) => {
         let name = pack.match(/src\/([\w-]+)\/index.tsx?/)?.[1];
         if (name) {
             let requireid = `alt1/${name}`;
-            let rootname = getAlt1RootLibName(requireid);
+            let rootname = getAlt1RootLibName(requireid).globalname;
 
             if (name != "webpack" && !name.endsWith("-loader")) {
                 /**@type {webpack.EntryObject[string]} */

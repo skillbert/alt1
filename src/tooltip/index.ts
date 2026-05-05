@@ -19,12 +19,12 @@ export default class TooltipReader {
 	tracking = false;
 
 	private trackcallback: ((state: TooltipState | null) => any) | null = null;
-	private trackinterval: number | NodeJS.Timer | null = null;
+	private trackinterval: number | null = null;
 
 	track(callback: (state: TooltipState) => any, interval = 30) {
 		if (!interval) { interval = 30; }
 		this.stopTrack();
-		this.trackinterval = setInterval(this.trackTick.bind(this), interval);
+		this.trackinterval = +setInterval(this.trackTick.bind(this), interval);
 		this.trackcallback = callback;
 		this.tracking = true;
 	}

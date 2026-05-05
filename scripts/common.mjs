@@ -7,20 +7,20 @@ let tsloaderOptions = {
 
 /**
  * @param {string} requireid
- * @returns {string} 
+ * @returns {{ libname: string, globalname: string } | undefined} 
  */
 export function getAlt1RootLibName(requireid) {
-    let libmatch = requireid.match(/^alt1\/([\w\-\/]+)$/);
+    let libmatch = requireid.match(/^alt1(\/([\w\-\/]+))?$/);
     if (!libmatch) { return undefined; }
-    let libname = libmatch[1];
+    let libname = libmatch[2] ?? "base";
 
     let librootnames = {
         base: "A1lib",
         ocr: "OCR",
     }
 
-    let rootname = librootnames[libname] ?? libname.replace(/(^|-)\w?/g, s => s.replace("-", "").replace(/\//g, "_").toUpperCase());
-    return rootname;
+    let globalname = librootnames[libname] ?? libname.replace(/(^|-)\w?/g, s => s.replace("-", "").replace(/\//g, "_").toUpperCase());
+    return { libname, globalname };
 }
 
 /**
@@ -28,7 +28,7 @@ export function getAlt1RootLibName(requireid) {
  */
 export const alt1ExternalsFilter = function (req, cb) {
     let res = getAlt1RootLibName(req.request);
-    cb(undefined, res && { root: res, commonjs2: req.request, commonjs: req.request, amd: req.request });
+    cb(undefined, res && { root: res.globalname, commonjs2: req.request, commonjs: req.request, amd: req.request });
 }
 
 /**
