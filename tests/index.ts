@@ -8,8 +8,9 @@ import bosstimer from "./bosstimer";
 import ability from "./ability";
 import xpcounter from "./xpcounter";
 import dropsmenu from "./dropsmenu";
+import tooltip from "./tooltip";
 
-let tests = { dialog, chatbox, buffs, bosstimer, ability, xpcounter, dropsmenu };
+let tests = { dialog, chatbox, buffs, bosstimer, ability, xpcounter, dropsmenu, tooltip };
 
 async function runtest(run: () => Promise<void>) {
     await run();
